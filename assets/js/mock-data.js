@@ -192,11 +192,13 @@ const mockData = {
   ],
 
   users: [
-    { id: 1, name: 'Петров Петр Петрович', email: 'p.petrov@example.com', role: 'Партнёр', status: 'Активен', createdAt: '2024-01-01' },
-    { id: 2, name: 'Сидоров Сидор Сидорович', email: 's.sidorov@example.com', role: 'Партнёр', status: 'Активен', createdAt: '2024-01-05' },
+    { id: 1, name: 'Петров Петр Петрович', email: 'p.petrov@example.com', role: 'Администратор', status: 'Активен', createdAt: '2024-01-01' },
+    { id: 2, name: 'Сидоров Сидор Сидорович', email: 's.sidorov@example.com', role: 'Администратор', status: 'Активен', createdAt: '2024-01-05' },
     { id: 3, name: 'Механиков Михаил Михайлович', email: 'm.mechanikov@example.com', role: 'Механик', status: 'Активен', createdAt: '2024-01-10' },
     { id: 4, name: 'Слесарев Сергей Сергеевич', email: 's.slesarev@example.com', role: 'Механик', status: 'Активен', createdAt: '2024-01-12' },
-    { id: 5, name: 'Иванов Иван Иванович', email: 'i.ivanov@example.com', role: 'Партнёр', status: 'Неактивен', createdAt: '2023-12-15' }
+    { id: 5, name: 'Иванов Иван Иванович', email: 'i.ivanov@example.com', role: 'Администратор', status: 'Неактивен', createdAt: '2023-12-15' },
+    { id: 6, name: 'Менеджеров Максим Максимович', email: 'm.managerov@example.com', role: 'Менеджер', status: 'Активен', createdAt: '2024-01-15' },
+    { id: 7, name: 'Управленцева Ульяна Ульяновна', email: 'u.upravlenceva@example.com', role: 'Менеджер', status: 'Активен', createdAt: '2024-01-20' }
   ],
 
   insurances: [
@@ -440,6 +442,9 @@ const mockData = {
       date: '2024-01-15T10:30:00',
       number: 'ДР-2024-001',
       status: 'действующий',
+      contractStatus: 'подписанный скан загружен',
+      scanUploaded: true,
+      issuanceStatus: 'авто выдано',
       vehicleName: 'Changan ALSVIN',
       vehiclePlate: 'K477MB122',
       startDate: '2024-01-15',
@@ -454,6 +459,9 @@ const mockData = {
       date: '2023-06-01T09:00:00',
       number: 'ДР-2023-045',
       status: 'истекший',
+      contractStatus: 'подписанный скан загружен',
+      scanUploaded: true,
+      issuanceStatus: 'авто принято',
       vehicleName: 'Toyota Camry',
       vehiclePlate: 'А123БВ777',
       startDate: '2023-06-01',
@@ -469,6 +477,9 @@ const mockData = {
       date: '2024-03-20T11:45:00',
       number: 'ДР-2024-078',
       status: 'действующий',
+      contractStatus: 'требуется подписание',
+      scanUploaded: false,
+      issuanceStatus: null,
       vehicleName: 'Volkswagen Polo',
       vehiclePlate: 'Д012ЗИ777',
       startDate: '2024-03-20',
@@ -483,6 +494,9 @@ const mockData = {
       date: '2023-08-15T09:30:00',
       number: 'ДР-2023-112',
       status: 'истекший',
+      contractStatus: 'подписанный скан загружен',
+      scanUploaded: true,
+      issuanceStatus: 'авто принято',
       vehicleName: 'Skoda Octavia',
       vehiclePlate: 'Е345КЛ777',
       startDate: '2023-08-15',
@@ -498,6 +512,9 @@ const mockData = {
       date: '2024-02-10T10:20:00',
       number: 'ДР-2024-023',
       status: 'действующий',
+      contractStatus: 'требуется заполнение паспорта',
+      scanUploaded: false,
+      issuanceStatus: null,
       vehicleName: 'Skoda Octavia',
       vehiclePlate: 'Е345КЛ777',
       startDate: '2024-02-10',
@@ -513,6 +530,9 @@ const mockData = {
       date: '2024-04-05T12:00:00',
       number: 'ДР-2024-089',
       status: 'действующий',
+      contractStatus: 'новый',
+      scanUploaded: false,
+      issuanceStatus: null,
       vehicleName: 'Nissan Almera',
       vehiclePlate: 'З901ОП777',
       startDate: '2024-04-05',
@@ -617,6 +637,15 @@ const mockData = {
       newValue: 'Аренда 5500',
       editorName: 'Сидоров Сидор Сидорович'
     }
+  ],
+
+  financeTransactions: [
+    // Финансовые транзакции для водителя id=1 (Иванов Сергей Петрович)
+    { id: 1, driverId: 1, date: '2025-12-26', section: 'Аренда', time: '0:10:03', income: 3200, expense: 0, balance: 1950, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
+    { id: 2, driverId: 1, date: '2025-12-25', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1250, paymentMethod: 'Внутренний', description: 'аренда автомобиля, ТС К477МВ122' },
+    { id: 3, driverId: 1, date: '2025-12-25', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 1300, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
+    { id: 4, driverId: 1, date: '2025-12-24', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1900, paymentMethod: 'Внутренний', description: 'аренда автомобиля, ТС К477МВ122' },
+    { id: 5, driverId: 1, date: '2025-12-24', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 650, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' }
   ]
 };
 
@@ -695,7 +724,24 @@ function getChangeHistoryByDriverId(driverId) {
   });
 }
 
+function getFinanceTransactionsByDriverId(driverId) {
+  const id = typeof driverId === 'number' ? driverId : parseInt(driverId);
+  return mockData.financeTransactions.filter(transaction => transaction.driverId === id).sort((a, b) => {
+    return new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time);
+  });
+}
+
+function getAllRentContracts() {
+  return mockData.rentContracts.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+}
+
+function getRentContractById(id) {
+  return mockData.rentContracts.find(contract => contract.id === parseInt(id));
+}
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { mockData, getCarById, getDriverById, getFineById, getServiceOrderById, getInspectionById, getUserById, getEventById, getEventsByCarId, getInsuranceByCarId, getCompletenessByCarId, getDocumentsByCarId, getRentHistoryByCarId, getVehicleHistoryByDriverId, getRentContractsByDriverId, getChangeHistoryByDriverId };
+  module.exports = { mockData, getCarById, getDriverById, getFineById, getServiceOrderById, getInspectionById, getUserById, getEventById, getEventsByCarId, getInsuranceByCarId, getCompletenessByCarId, getDocumentsByCarId, getRentHistoryByCarId, getVehicleHistoryByDriverId, getRentContractsByDriverId, getChangeHistoryByDriverId, getFinanceTransactionsByDriverId, getAllRentContracts, getRentContractById };
 }

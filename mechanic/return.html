@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -52,8 +52,20 @@
       <h3 style="margin-bottom: 16px;">Шаг 3: Повреждения/комплектность</h3>
       <div class="form-group">
         <label style="display: flex; align-items: center;">
-          <input type="checkbox" class="form-checkbox" id="hasDamages">
-          <span style="margin-left: 8px;">Есть повреждения</span>
+          <input type="checkbox" class="form-checkbox" id="isDamaged">
+          <span style="margin-left: 8px;">Поврежден</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label style="display: flex; align-items: center;">
+          <input type="checkbox" class="form-checkbox" id="isIncomplete">
+          <span style="margin-left: 8px;">Некомплект</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label style="display: flex; align-items: center;">
+          <input type="checkbox" class="form-checkbox" id="documentsLost">
+          <span style="margin-left: 8px;">Утери документов</span>
         </label>
       </div>
       <div class="form-group">

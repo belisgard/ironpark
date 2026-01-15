@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -17,6 +17,7 @@
     <aside class="sidebar">
       <ul class="sidebar__menu">
         <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
@@ -27,7 +28,7 @@
     </aside>
 
     <main class="main-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+      <div class="page-header">
         <h1>Пользователи</h1>
         <button class="btn btn--primary" data-open-modal="#addUserModal">+ Добавить пользователя</button>
       </div>
@@ -37,7 +38,8 @@
           <label class="form-label">Роль:</label>
           <select class="form-select" id="roleFilter" style="width: 200px;">
             <option value="">Все</option>
-            <option value="Партнёр">Партнёр</option>
+            <option value="Администратор">Администратор</option>
+            <option value="Менеджер">Менеджер</option>
             <option value="Механик">Механик</option>
           </select>
         </div>
@@ -80,7 +82,8 @@
         <h3 class="modal__title">Добавить пользователя</h3>
         <button class="modal__close" data-close-modal="#addUserModal">×</button>
       </div>
-      <form id="addUserForm" style="padding: 20px 0;">
+      <div class="modal__body">
+        <form id="addUserForm">
         <div class="form-group">
           <label class="form-label">ФИО *</label>
           <input type="text" class="form-input" id="userName" required placeholder="Введите ФИО">
@@ -93,7 +96,8 @@
           <label class="form-label">Роль *</label>
           <select class="form-select" id="userRole" required>
             <option value="">Выберите роль</option>
-            <option value="Партнёр">Партнёр</option>
+            <option value="Администратор">Администратор</option>
+            <option value="Менеджер">Менеджер</option>
             <option value="Механик">Механик</option>
           </select>
         </div>
@@ -104,11 +108,12 @@
             <option value="Неактивен">Неактивен</option>
           </select>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Добавить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#addUserModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -117,18 +122,29 @@
   <script>
     function renderUsers() {
       const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = mockData.users.map(user => `
+      tbody.innerHTML = mockData.users.map(user => {
+        let roleBadgeClass = 'badge--neutral';
+        if (user.role === 'Администратор') {
+          roleBadgeClass = 'badge--info';
+        } else if (user.role === 'Менеджер') {
+          roleBadgeClass = 'badge--warning';
+        } else if (user.role === 'Механик') {
+          roleBadgeClass = 'badge--warning';
+        }
+        
+        return `
         <tr>
           <td>${user.name}</td>
           <td>${user.email}</td>
-          <td><span class="badge ${user.role === 'Партнёр' ? 'badge--info' : 'badge--warning'}">${user.role}</span></td>
+          <td><span class="badge ${roleBadgeClass}">${user.role}</span></td>
           <td><span class="badge ${user.status === 'Активен' ? 'badge--success' : 'badge--neutral'}">${user.status}</span></td>
           <td>${formatDate(user.createdAt)}</td>
           <td>
             <button class="btn btn--normal" style="padding: 6px 12px; font-size: var(--g-font-size-sm);" onclick="deleteUser(${user.id})">Удалить</button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function applyFilters() {

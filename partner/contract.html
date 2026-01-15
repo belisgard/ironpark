@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Договор аренды - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    @media print {
+      .header,
+      .sidebar,
+      .main-layout > main > div:first-child,
+      .main-layout > main > div:last-child,
+      .btn,
+      #contractScan {
+        display: none !important;
+      }
+      .main-layout {
+        margin: 0;
+        padding: 20px;
+      }
+      .main-content {
+        margin: 0;
+        padding: 0;
+      }
+      .card {
+        border: none;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+      h1 {
+        font-size: 24pt;
+        margin-bottom: 16pt;
+      }
+      h2, h3 {
+        font-size: 18pt;
+        margin-top: 16pt;
+        margin-bottom: 12pt;
+      }
+      body {
+        font-size: 12pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link active">Договора</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <a href="contracts.html" class="back-link">← Назад к списку</a>
+
+      <div id="contractHeader" style="margin-bottom: 32px;"></div>
+
+      <div id="contractStatusList" style="margin-bottom: 24px;"></div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn--normal" id="printContractBtn">Распечатать</button>
+        <label for="uploadScanInput" class="btn btn--normal" style="cursor: pointer; margin: 0;">
+          Загрузить скан договора
+          <input type="file" id="uploadScanInput" accept="image/*,.pdf" style="display: none;">
+        </label>
+        <button class="btn btn--action" data-open-modal="#editContractModal">Редактировать</button>
+      </div>
+
+      <div class="card" id="contractInfo" style="margin-bottom: 32px;"></div>
+
+      <div class="card" id="contractScan" style="margin-bottom: 32px; display: none;">
+        <h3>Скан договора</h3>
+        <div id="scanPreview" style="margin-bottom: var(--g-spacing-lg);">
+          <img id="scanImage" src="" alt="Скан договора" style="max-width: 100%; max-height: 500px; border: 1px solid var(--g-color-line-generic); border-radius: var(--g-border-radius-md); display: none;">
+          <iframe id="scanPdf" src="" style="width: 100%; height: 600px; border: 1px solid var(--g-color-line-generic); border-radius: var(--g-border-radius-md); display: none;"></iframe>
+          <div id="scanInfo" style="padding: 16px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md); display: none;">
+            <a id="scanDownloadLink" href="" target="_blank" style="color: var(--g-color-text-link); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+              <span>📄</span>
+              <span>Открыть скан договора в новом окне</span>
+            </a>
+          </div>
+        </div>
+        <button class="btn btn--normal" id="removeScanBtn" style="display: none;">Удалить скан</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Contract Modal -->
+  <div class="modal" id="editContractModal">
+    <div class="modal__content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal__header">
+        <h3 class="modal__title">Редактирование договора</h3>
+        <button class="modal__close" data-close-modal="#editContractModal">×</button>
+      </div>
+      <div class="modal__body" style="padding: var(--g-spacing-xl);">
+        <form id="editContractForm">
+          <div style="margin-bottom: 32px;">
+            <h4>Данные водителя</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Водитель *</label>
+                <select class="form-input" id="editContractDriver" name="driverId" required>
+                  <option value="">Выберите водителя</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ФИО водителя</label>
+                <input type="text" class="form-input" id="editDriverName" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Телефон</label>
+                <input type="text" class="form-input" id="editDriverPhone" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Статус</label>
+                <input type="text" class="form-input" id="editDriverStatus" readonly style="background: var(--g-color-base-generic);">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <h4>Данные транспортного средства</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Транспортное средство *</label>
+                <select class="form-input" id="editContractVehicle" name="vehiclePlate" required>
+                  <option value="">Выберите ТС</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Марка/Модель</label>
+                <input type="text" class="form-input" id="editVehicleName" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Госномер</label>
+                <input type="text" class="form-input" id="editVehiclePlate" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Год выпуска</label>
+                <input type="text" class="form-input" id="editVehicleYear" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Пробег</label>
+                <input type="text" class="form-input" id="editVehicleMileage" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Статус ТС</label>
+                <input type="text" class="form-input" id="editVehicleStatus" readonly style="background: var(--g-color-base-generic);">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <h4>Параметры договора</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Номер договора</label>
+                <input type="text" class="form-input" id="editContractNumber" name="number" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата договора</label>
+                <input type="text" class="form-input" id="editContractDate" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Начало действия *</label>
+                <input type="date" class="form-input" id="editContractStartDate" name="startDate" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Окончание действия</label>
+                <input type="date" class="form-input" id="editContractEndDate" name="endDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Стоимость аренды в сутки *</label>
+                <input type="number" class="form-input" id="editContractDailyRent" name="dailyRent" required min="0" step="0.01">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Статус действия</label>
+                <input type="text" class="form-input" id="editContractStatus" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Статус договора *</label>
+                <select class="form-select" id="editContractStatusField" name="contractStatus" required>
+                  <option value="новый">Новый</option>
+                  <option value="требуется заполнение паспорта">Требуется заполнение паспорта</option>
+                  <option value="требуется подписание">Требуется подписание</option>
+                  <option value="подписанный скан загружен">Подписанный скан загружен</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Выдача *</label>
+                <select class="form-select" id="editContractIssuanceStatus" name="issuanceStatus">
+                  <option value="">Не указано</option>
+                  <option value="авто выдано">Авто выдано</option>
+                  <option value="авто принято">Авто принято</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 12px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <button type="button" class="btn btn--normal" data-close-modal="#editContractModal">Отмена</button>
+            <button type="submit" class="btn btn--action">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    const contractId = getUrlParameter('id');
+    const contract = getRentContractById(contractId);
+
+    if (!contract) {
+      document.body.innerHTML = '<div class="container"><h1>Договор не найден</h1><a href="contracts.html">Вернуться к списку</a></div>';
+    } else {
+      const driver = getDriverById(contract.driverId);
+      const car = mockData.cars.find(c => c.plate === contract.vehiclePlate);
+
+      // Render header
+      const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
+      document.getElementById('contractHeader').innerHTML = `
+        <h1>Договор ${contract.number}</h1>
+        <div style="margin-top: 12px;">
+          <span class="badge ${statusClass}">${contract.status}</span>
+        </div>
+      `;
+
+      // Render contract status list
+      const contractStatusList = document.getElementById('contractStatusList');
+      if (contractStatusList) {
+        contractStatusList.innerHTML = `
+          <div class="card">
+            <label class="form-label" style="margin-bottom: 12px;">Статус договора</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'новый' || !contract.contractStatus ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'новый' || !contract.contractStatus ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
+                <span class="badge badge--info">новый</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'требуется заполнение паспорта' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'требуется заполнение паспорта' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
+                <span class="badge badge--warning">требуется заполнение паспорта</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'требуется подписание' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'требуется подписание' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
+                <span class="badge badge--warning">требуется подписание</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'подписанный скан загружен' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'подписанный скан загружен' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
+                <span class="badge badge--success">подписанный скан загружен</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Render contract info
+      document.getElementById('contractInfo').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+          <div class="form-group">
+            <label class="form-label">Номер договора</label>
+            <div style="min-height: 24px;">${contract.number}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата</label>
+            <div style="min-height: 24px;">${formatDateTime(contract.date)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Статус действия</label>
+            <div style="min-height: 24px;"><span class="badge ${statusClass}">${contract.status}</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Выдача</label>
+            <div style="min-height: 24px;">
+              ${contract.issuanceStatus ? `<span class="badge ${contract.issuanceStatus === 'авто выдано' ? 'badge--success' : 'badge--warning'}">${contract.issuanceStatus}</span>` : '-'}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Начало действия</label>
+            <div style="min-height: 24px;">${formatDate(contract.startDate)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Окончание действия</label>
+            <div style="min-height: 24px;">${formatDate(contract.endDate)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Стоимость аренды в сутки</label>
+            <div style="min-height: 24px;">${formatCurrency(contract.dailyRent)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Водитель</label>
+            <div style="min-height: 24px;">${contract.driverName || '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Телефон водителя</label>
+            <div style="min-height: 24px;">${driver?.phone || '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Транспортное средство</label>
+            <div style="min-height: 24px;">${contract.vehicleName || '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Госномер</label>
+            <div style="min-height: 24px;">${contract.vehiclePlate || '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Марка/Модель</label>
+            <div style="min-height: 24px;">${car ? `${car.brand} ${car.model}` : '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Год выпуска</label>
+            <div style="min-height: 24px;">${car?.year || '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Пробег</label>
+            <div style="min-height: 24px;">${car?.mileage ? formatNumber(car.mileage).replace(/,/g, ' ') : '-'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Статус ТС</label>
+            <div style="min-height: 24px;">
+              ${car?.status ? `<span class="badge ${getStatusBadgeClass(car.status)}">${car.status}</span>` : '-'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Initialize modal
+      initModal('#editContractModal', '[data-open-modal="#editContractModal"]', '[data-close-modal="#editContractModal"]');
+
+      // Populate selects
+      const driverSelect = document.getElementById('editContractDriver');
+      const vehicleSelect = document.getElementById('editContractVehicle');
+      
+      if (driverSelect) {
+        mockData.drivers.forEach(d => {
+          const option = document.createElement('option');
+          option.value = d.id;
+          option.textContent = d.name;
+          if (d.id === contract.driverId) option.selected = true;
+          driverSelect.appendChild(option);
+        });
+      }
+
+      if (vehicleSelect) {
+        mockData.cars.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.plate;
+          option.textContent = `${c.brand} ${c.model} (${c.plate})`;
+          if (c.plate === contract.vehiclePlate) option.selected = true;
+          vehicleSelect.appendChild(option);
+        });
+      }
+
+      // Populate form fields
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+      };
+
+      document.getElementById('editContractNumber').value = contract.number;
+      document.getElementById('editContractDate').value = formatDateTime(contract.date);
+      document.getElementById('editContractStartDate').value = formatDateForInput(contract.startDate);
+      document.getElementById('editContractEndDate').value = formatDateForInput(contract.endDate);
+      document.getElementById('editContractDailyRent').value = contract.dailyRent;
+      document.getElementById('editContractStatus').value = contract.status;
+      document.getElementById('editContractStatusField').value = contract.contractStatus || 'новый';
+      document.getElementById('editContractIssuanceStatus').value = contract.issuanceStatus || '';
+
+      // Update driver info when driver changes
+      function updateDriverInfo() {
+        const selectedDriverId = parseInt(driverSelect.value);
+        const selectedDriver = getDriverById(selectedDriverId);
+        if (selectedDriver) {
+          document.getElementById('editDriverName').value = selectedDriver.name;
+          document.getElementById('editDriverPhone').value = selectedDriver.phone || '-';
+          document.getElementById('editDriverStatus').value = selectedDriver.status || '-';
+        } else {
+          document.getElementById('editDriverName').value = '';
+          document.getElementById('editDriverPhone').value = '';
+          document.getElementById('editDriverStatus').value = '';
+        }
+      }
+
+      // Update vehicle info when vehicle changes
+      function updateVehicleInfo() {
+        const selectedPlate = vehicleSelect.value;
+        const selectedCar = mockData.cars.find(c => c.plate === selectedPlate);
+        if (selectedCar) {
+          document.getElementById('editVehicleName').value = `${selectedCar.brand} ${selectedCar.model}`;
+          document.getElementById('editVehiclePlate').value = selectedCar.plate;
+          document.getElementById('editVehicleYear').value = selectedCar.year || '-';
+          document.getElementById('editVehicleMileage').value = selectedCar.mileage ? formatNumber(selectedCar.mileage).replace(/,/g, ' ') : '-';
+          document.getElementById('editVehicleStatus').value = selectedCar.status || '-';
+        } else {
+          document.getElementById('editVehicleName').value = '';
+          document.getElementById('editVehiclePlate').value = '';
+          document.getElementById('editVehicleYear').value = '';
+          document.getElementById('editVehicleMileage').value = '';
+          document.getElementById('editVehicleStatus').value = '';
+        }
+      }
+
+      // Initial populate
+      if (driver) {
+        updateDriverInfo();
+      }
+      if (car) {
+        updateVehicleInfo();
+      }
+
+      // Add event listeners
+      driverSelect?.addEventListener('change', updateDriverInfo);
+      vehicleSelect?.addEventListener('change', updateVehicleInfo);
+
+      // Print function
+      const printBtn = document.getElementById('printContractBtn');
+      if (printBtn) {
+        printBtn.addEventListener('click', () => {
+          window.print();
+        });
+      }
+
+      // Upload scan function
+      const uploadScanInput = document.getElementById('uploadScanInput');
+      const contractScanCard = document.getElementById('contractScan');
+      const scanImage = document.getElementById('scanImage');
+      const scanPdf = document.getElementById('scanPdf');
+      const scanInfo = document.getElementById('scanInfo');
+      const scanDownloadLink = document.getElementById('scanDownloadLink');
+      const removeScanBtn = document.getElementById('removeScanBtn');
+
+      function displayScan(scanUrl, isPdf = false) {
+        if (scanUrl) {
+          // Hide all scan preview elements
+          scanImage.style.display = 'none';
+          scanPdf.style.display = 'none';
+          scanInfo.style.display = 'none';
+
+          if (isPdf) {
+            // Display PDF
+            scanPdf.src = scanUrl;
+            scanPdf.style.display = 'block';
+            scanDownloadLink.href = scanUrl;
+            scanInfo.style.display = 'block';
+          } else {
+            // Display image
+            scanImage.src = scanUrl;
+            scanImage.style.display = 'block';
+          }
+
+          contractScanCard.style.display = 'block';
+          removeScanBtn.style.display = 'inline-block';
+        } else {
+          contractScanCard.style.display = 'none';
+          removeScanBtn.style.display = 'none';
+          scanImage.src = '';
+          scanPdf.src = '';
+          scanImage.style.display = 'none';
+          scanPdf.style.display = 'none';
+          scanInfo.style.display = 'none';
+        }
+      }
+
+      // Load existing scan if available
+      if (contract.scan) {
+        const isPdf = contract.scanType === 'pdf';
+        displayScan(contract.scan, isPdf);
+      }
+
+      // Handle file upload
+      if (uploadScanInput) {
+        uploadScanInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Check file type
+          const isImage = file.type.startsWith('image/');
+          const isPdf = file.type === 'application/pdf';
+
+          if (!isImage && !isPdf) {
+            alert('Пожалуйста, выберите изображение (JPG, PNG, GIF) или PDF файл');
+            return;
+          }
+
+          // Check file size (max 10MB)
+          if (file.size > 10 * 1024 * 1024) {
+            alert('Размер файла не должен превышать 10 МБ');
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const fileUrl = event.target.result;
+            
+            // Store scan in contract object
+            contract.scan = fileUrl;
+            contract.scanType = isPdf ? 'pdf' : 'image';
+            contract.scanFileName = file.name;
+            
+            // Display scan
+            displayScan(fileUrl, isPdf);
+            
+            alert('Скан договора успешно загружен');
+          };
+          
+          reader.onerror = () => {
+            alert('Ошибка при загрузке файла');
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Handle scan removal
+      if (removeScanBtn) {
+        removeScanBtn.addEventListener('click', () => {
+          if (confirm('Вы уверены, что хотите удалить скан договора?')) {
+            contract.scan = null;
+            displayScan(null);
+            uploadScanInput.value = '';
+            alert('Скан договора удален');
+          }
+        });
+      }
+
+      // Form submission
+      const editForm = document.getElementById('editContractForm');
+      if (editForm) {
+        editForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const updatedDriverId = parseInt(document.getElementById('editContractDriver').value);
+          const updatedVehiclePlate = document.getElementById('editContractVehicle').value;
+          const updatedStartDate = document.getElementById('editContractStartDate').value;
+          const updatedEndDate = document.getElementById('editContractEndDate').value;
+          const updatedDailyRent = parseFloat(document.getElementById('editContractDailyRent').value);
+          const updatedContractStatus = document.getElementById('editContractStatusField').value;
+          const updatedIssuanceStatus = document.getElementById('editContractIssuanceStatus').value || null;
+
+          const updatedDriver = getDriverById(updatedDriverId);
+          const updatedCar = mockData.cars.find(c => c.plate === updatedVehiclePlate);
+
+          if (!updatedDriver || !updatedCar) {
+            alert('Ошибка: не найден водитель или ТС');
+            return;
+          }
+
+          // Update contract
+          contract.driverId = updatedDriverId;
+          contract.driverName = updatedDriver.name;
+          contract.vehiclePlate = updatedVehiclePlate;
+          contract.vehicleName = `${updatedCar.brand} ${updatedCar.model}`;
+          contract.startDate = updatedStartDate;
+          contract.endDate = updatedEndDate || null;
+          contract.dailyRent = updatedDailyRent;
+          contract.contractStatus = updatedContractStatus;
+          contract.issuanceStatus = updatedIssuanceStatus;
+          contract.status = updatedEndDate && new Date(updatedEndDate) < new Date() ? 'истекший' : 'действующий';
+
+          // Reload the page to show updated data
+          location.reload();
+        });
+      }
+    }
+  </script>
+</body>
+</html>

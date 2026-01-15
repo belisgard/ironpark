@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -17,6 +17,7 @@
     <aside class="sidebar">
       <ul class="sidebar__menu">
         <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link active">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
@@ -27,11 +28,13 @@
     </aside>
 
     <main class="main-content">
-      <div style="margin-bottom: 24px;">
-        <a href="drivers.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к списку</a>
-      </div>
+      <a href="drivers.html" class="back-link">← Назад к списку</a>
 
       <div id="driverHeader" style="margin-bottom: 32px;"></div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn--action" data-open-modal="#editDriverModal">Редактировать</button>
+      </div>
 
       <div class="tabs" id="driverTabs">
         <button class="tab active" data-tab="main">Основное</button>
@@ -44,19 +47,16 @@
       </div>
 
       <div class="tab-content active" data-tab="main">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-          <h2 style="margin: 0;">Основная информация</h2>
-          <button class="btn btn--action" data-open-modal="#editDriverModal">Редактировать</button>
-        </div>
-        <div class="card" id="driverMainInfo"></div>
-        <div style="margin-top: 24px;">
+          <h2>Основная информация</h2>
+        <div class="card" id="driverMainInfo" style="margin-bottom: var(--g-spacing-xl);"></div>
+        <div style="margin-top: var(--g-spacing-lg);">
           <button class="btn btn--normal" data-toggle="debt" data-driver-id="">Симулировать: есть задолженность</button>
         </div>
       </div>
 
       <div class="tab-content" data-tab="vehicle-history">
         <div class="card">
-          <h2 style="margin: 0 0 24px 0;">История транспортных средств</h2>
+          <h2>История транспортных средств</h2>
           <table class="table">
             <thead>
               <tr>
@@ -75,13 +75,15 @@
 
       <div class="tab-content" data-tab="rent-contracts">
         <div class="card">
-          <h2 style="margin: 0 0 24px 0;">Договора аренды</h2>
+          <h2>Договора аренды</h2>
           <table class="table">
             <thead>
               <tr>
                 <th>Дата</th>
                 <th>Номер</th>
-                <th>Статус</th>
+                <th>Статус договора</th>
+                <th>Статус действия</th>
+                <th>Выдача</th>
                 <th>Транспортное средство</th>
                 <th>Начало действия</th>
                 <th>Окончание действия</th>
@@ -98,7 +100,7 @@
 
       <div class="tab-content" data-tab="finance">
         <div class="card">
-              <div class="alert alert--danger debt-banner" style="display: none; margin-bottom: 16px;">
+              <div class="alert alert--danger debt-banner" style="display: none;">
                 Есть задолженность
               </div>
               <div style="margin-bottom: 24px; padding: 16px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md);">
@@ -238,7 +240,7 @@
       <div class="modal__body" style="padding: var(--g-spacing-xl);">
         <form id="editDriverForm">
           <div style="margin-bottom: 32px;">
-            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Основное</h4>
+            <h4>Основное</h4>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
               <div class="form-group">
                 <label class="form-label">ФИО</label>
@@ -256,7 +258,7 @@
           </div>
 
           <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Паспорт/СНИЛС</h4>
+            <h4>Паспорт/СНИЛС</h4>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
               <div class="form-group">
                 <label class="form-label">Серия/номер (без пробелов)</label>
@@ -310,7 +312,7 @@
           </div>
 
           <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Водительские права</h4>
+            <h4>Водительские права</h4>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
               <div class="form-group">
                 <label class="form-label">Серия/номер (без пробелов)</label>
@@ -344,7 +346,7 @@
           </div>
 
           <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Условия работы</h4>
+            <h4>Условия работы</h4>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
               <div class="form-group">
                 <label class="form-label">Условие работы</label>
@@ -399,7 +401,7 @@
       // Build main info HTML
       let mainInfoHTML = `
         <div style="margin-bottom: 32px;">
-          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Основное</h3>
+          <h3>Основное</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
               <label class="form-label">ФИО</label>
@@ -423,7 +425,7 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Паспорт</h3>
+          <h3>Паспорт</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
               <label class="form-label">Серия/номер (без пробелов)</label>
@@ -477,7 +479,7 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">СНИЛС</h3>
+          <h3>СНИЛС</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
               <label class="form-label">СНИЛС</label>
@@ -487,7 +489,7 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Водительские права</h3>
+          <h3>Водительские права</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
               <label class="form-label">Серия/номер (без пробелов)</label>
@@ -517,7 +519,7 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Условия работы</h3>
+          <h3>Условия работы</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
               <label class="form-label">Условие работы</label>
@@ -541,7 +543,7 @@
 
         mainInfoHTML += `
           <div style="margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--g-color-line-generic);">
-            <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Текущее транспортное средство</h3>
+            <h3>Текущее транспортное средство</h3>
             <table class="table">
               <thead>
                 <tr>
@@ -592,12 +594,21 @@
       document.getElementById('rentContractsTableBody').innerHTML = rentContracts.length > 0 
         ? rentContracts.map(contract => {
             const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
+            const contractStatusClass = contract.contractStatus === 'подписанный скан загружен' ? 'badge--success' : 
+                                        contract.contractStatus === 'требуется подписание' || contract.contractStatus === 'требуется заполнение паспорта' ? 'badge--warning' : 
+                                        'badge--info';
+            const issuanceStatusClass = contract.issuanceStatus === 'авто выдано' ? 'badge--success' : 
+                                        contract.issuanceStatus === 'авто принято' ? 'badge--warning' : 
+                                        'badge--neutral';
             const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
+            const issuanceStatus = contract.issuanceStatus || '-';
             return `
               <tr>
                 <td>${formatDateTime(contract.date)}</td>
                 <td>${contract.number}</td>
+                <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'новый'}</span></td>
                 <td><span class="badge ${statusClass}">${contract.status}</span></td>
+                <td>${issuanceStatus !== '-' ? `<span class="badge ${issuanceStatusClass}">${issuanceStatus}</span>` : '-'}</td>
                 <td>${vehicleInfo}</td>
                 <td>${formatDate(contract.startDate)}</td>
                 <td>${formatDate(contract.endDate)}</td>
@@ -606,7 +617,7 @@
               </tr>
             `;
           }).join('')
-        : '<tr><td colspan="8" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+        : '<tr><td colspan="10" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
 
       // Render change history
       const changeHistory = getChangeHistoryByDriverId(driverId);
@@ -623,16 +634,13 @@
         : '<tr><td colspan="5" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
 
       // Render finance transactions
-      const financeTransactions = [
-        { date: '2025-12-26', section: 'Аренда', time: '0:10:03', income: 3200, expense: 0, balance: 1950, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' },
-        { date: '2025-12-25', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1250, paymentGroup: '', paymentMethod: 'Внутренний', user: '1C', description: 'аренда автомобиля, ТС К477МВ122' },
-        { date: '2025-12-25', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 1300, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' },
-        { date: '2025-12-24', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1900, paymentGroup: '', paymentMethod: 'Внутренний', user: '1C', description: 'аренда автомобиля, ТС К477МВ122' },
-        { date: '2025-12-24', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 650, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' }
-      ];
+      const financeTransactions = getFinanceTransactionsByDriverId(driverId);
 
       // Function to render finance table
       function renderFinanceTable() {
+        const financeTableBody = document.getElementById('financeTableBody');
+        if (!financeTableBody) return;
+
         const dateFrom = document.getElementById('financeDateFrom')?.value;
         const dateTo = document.getElementById('financeDateTo')?.value;
 
@@ -647,7 +655,7 @@
           });
         }
 
-        document.getElementById('financeTableBody').innerHTML = filteredTransactions.map(t => `
+        financeTableBody.innerHTML = filteredTransactions.map(t => `
           <tr>
             <td>${formatDate(t.date)}</td>
             <td>${t.section}</td>

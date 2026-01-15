@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -17,6 +17,7 @@
     <aside class="sidebar">
       <ul class="sidebar__menu">
         <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link active">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
@@ -27,12 +28,14 @@
     </aside>
 
     <main class="main-content">
-      <div style="margin-bottom: 24px;">
-        <a href="cars.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к списку</a>
-      </div>
+      <a href="cars.html" class="back-link">← Назад к списку</a>
 
       <div id="carHeader" style="margin-bottom: 32px;">
         <!-- Will be populated by JS -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn--action" id="editCarBtn">Редактировать</button>
       </div>
 
       <div class="tabs" id="carTabs">
@@ -47,17 +50,14 @@
 
       <div class="tab-content active" data-tab="main">
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 style="margin: 0;">Основная информация</h2>
-            <button class="btn btn--primary" id="editCarBtn">Редактировать</button>
-          </div>
+          <h2 style="margin: 0 0 var(--g-spacing-lg) 0;">Основная информация</h2>
           <div id="carMainInfo">
             <!-- Will be populated by JS -->
           </div>
-          <div style="margin-top: 24px;">
+          <div style="margin-top: var(--g-spacing-lg); display: flex; gap: var(--g-spacing-md); flex-wrap: wrap;">
             <button class="btn btn--normal" data-toggle="overdue" data-car-id="">Симулировать: просрочка</button>
-            <button class="btn btn--normal" data-toggle="insurance" data-car-id="" style="margin-left: 12px;">Симулировать: страховка истекает</button>
-            <button class="btn btn--normal" data-toggle="fines" data-car-id="" style="margin-left: 12px;">Симулировать: есть штрафы</button>
+            <button class="btn btn--normal" data-toggle="insurance" data-car-id="">Симулировать: страховка истекает</button>
+            <button class="btn btn--normal" data-toggle="fines" data-car-id="">Симулировать: есть штрафы</button>
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@
 
       <div class="tab-content" data-tab="events">
         <div class="card">
-          <div style="margin-bottom: 16px;">
+          <div style="margin-bottom: var(--g-spacing-lg);">
             <button class="btn btn--primary" id="addEventBtn">+ Создать</button>
           </div>
           <table class="table">
@@ -91,7 +91,7 @@
 
       <div class="tab-content" data-tab="inspections">
         <div class="card">
-          <div style="margin-bottom: 16px;">
+          <div style="margin-bottom: var(--g-spacing-lg);">
             <button class="btn btn--primary" id="addInspectionBtn">+ Создать</button>
           </div>
           <table class="table">
@@ -117,8 +117,8 @@
 
       <div class="tab-content" data-tab="insurance">
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="margin: 0;">ОСАГО</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--g-spacing-lg);">
+            <h3>ОСАГО</h3>
             <button class="btn btn--primary" data-edit-insurance="osago">Редактировать</button>
           </div>
           <div id="osagoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -151,8 +151,8 @@
                 Страховка истекает в течение 10 дней
               </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
-            <h3 style="margin: 0;">ОСГОП</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--g-spacing-xl); margin-bottom: var(--g-spacing-lg);">
+            <h3>ОСГОП</h3>
             <button class="btn btn--primary" data-edit-insurance="osgop">Редактировать</button>
           </div>
           <div id="osgopData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -178,8 +178,8 @@
                 </div>
               </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
-            <h3 style="margin: 0;">ДОСАГО</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--g-spacing-xl); margin-bottom: var(--g-spacing-lg);">
+            <h3>ДОСАГО</h3>
             <button class="btn btn--primary" data-edit-insurance="dosago">Редактировать</button>
           </div>
           <div id="dosagoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -205,8 +205,8 @@
                 </div>
               </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
-            <h3 style="margin: 0;">КАСКО</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--g-spacing-xl); margin-bottom: var(--g-spacing-lg);">
+            <h3>КАСКО</h3>
             <button class="btn btn--primary" data-edit-insurance="kasko">Редактировать</button>
           </div>
           <div id="kaskoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -260,7 +260,7 @@
 
       <div class="tab-content" data-tab="documents">
         <div class="card">
-          <div style="margin-bottom: 16px;">
+          <div style="margin-bottom: var(--g-spacing-lg);">
             <button class="btn btn--primary" id="addDocumentBtn">+ Загрузить документ</button>
           </div>
           <table class="table">
@@ -321,8 +321,9 @@
         <h3 class="modal__title">Редактировать автомобиль</h3>
         <button class="modal__close" data-close-modal="#editCarModal">×</button>
       </div>
-      <form id="editCarForm" style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
-        <h4 style="margin-top: 0; margin-bottom: 16px;">Основная информация</h4>
+      <div class="modal__body" style="max-height: 80vh; overflow-y: auto;">
+        <form id="editCarForm">
+        <h4 style="margin-top: 0;">Основная информация</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Гос. номер</label>
@@ -370,7 +371,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Доп. характеристики</h4>
+        <h4>Доп. характеристики</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Тип КПП</label>
@@ -442,7 +443,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Свидетельство о регистрации</h4>
+        <h4>Свидетельство о регистрации</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Серия</label>
@@ -470,7 +471,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Паспорт транспортного средства</h4>
+        <h4>Паспорт транспортного средства</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Серия</label>
@@ -490,7 +491,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Техосмотр</h4>
+        <h4>Техосмотр</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Техосмотр. Серия, номер</label>
@@ -506,7 +507,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Доп. данные</h4>
+        <h4>Доп. данные</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Дата ввода в эксплуатацию</label>
@@ -518,7 +519,7 @@
           </div>
         </div>
 
-        <h4 style="margin-bottom: 16px;">Реестр перевозчиков</h4>
+        <h4>Реестр перевозчиков</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="form-group">
             <label class="form-label">Перевозчик</label>
@@ -540,11 +541,12 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#editCarModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -555,7 +557,8 @@
         <h3 class="modal__title" id="eventModalTitle">Добавить событие</h3>
         <button class="modal__close" data-close-modal="#eventModal">×</button>
       </div>
-      <form id="eventForm" style="padding: 20px 24px;">
+      <div class="modal__body">
+        <form id="eventForm">
         <input type="hidden" id="eventId">
         <div class="form-group">
           <label class="form-label">Дата *</label>
@@ -611,11 +614,12 @@
           <label class="form-label">Комментарий</label>
           <textarea class="form-input" id="eventComment" rows="3" style="resize: vertical;"></textarea>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#eventModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -626,7 +630,8 @@
         <h3 class="modal__title" id="inspectionModalTitle">Добавить осмотр</h3>
         <button class="modal__close" data-close-modal="#inspectionModal">×</button>
       </div>
-      <form id="inspectionForm" style="padding: 20px 24px;">
+      <div class="modal__body">
+        <form id="inspectionForm">
         <input type="hidden" id="inspectionId">
         <div class="form-group">
           <label class="form-label">Дата и время *</label>
@@ -675,11 +680,12 @@
           <label class="form-label">Комментарий</label>
           <textarea class="form-input" id="inspectionComment" rows="3" style="resize: vertical;"></textarea>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#inspectionModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -690,7 +696,8 @@
         <h3 class="modal__title" id="insuranceModalTitle">Редактировать страховой полис</h3>
         <button class="modal__close" data-close-modal="#insuranceModal">×</button>
       </div>
-      <form id="insuranceForm" style="padding: 20px 24px;">
+      <div class="modal__body">
+        <form id="insuranceForm">
         <input type="hidden" id="insuranceType">
         <div id="osagoFields" style="display: none;">
           <div class="form-group">
@@ -792,11 +799,12 @@
             <input type="text" class="form-input" id="kaskoFranchise">
           </div>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#insuranceModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -807,7 +815,8 @@
         <h3 class="modal__title">Загрузить документ</h3>
         <button class="modal__close" data-close-modal="#documentModal">×</button>
       </div>
-      <form id="documentForm" style="padding: 20px 24px;">
+      <div class="modal__body">
+        <form id="documentForm">
         <div class="form-group">
           <label class="form-label">Название документа *</label>
           <input type="text" class="form-input" id="documentName" required placeholder="Например: ПТС, СТС, Фото авто">
@@ -829,12 +838,14 @@
             Поддерживаемые форматы: PDF, JPG, PNG, DOC, DOCX
           </div>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Загрузить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#documentModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
+  </div>
   </div>
 
   <script src="../assets/js/mock-data.js"></script>
@@ -861,14 +872,14 @@
       // Render main info
       function renderCarMainInfo() {
         document.getElementById('carMainInfo').innerHTML = `
-          <div class="alert alert--danger alert--overdue" style="display: ${car.status === 'Просрочка' ? 'block' : 'none'}; margin-bottom: 16px;">
+          <div class="alert alert--danger alert--overdue" style="display: ${car.status === 'Просрочка' ? 'block' : 'none'};">
             Просрочка > 2 суток
           </div>
-          <div class="alert alert--warning alert--insurance" style="display: ${car.insuranceExpiringDays <= 10 ? 'block' : 'none'}; margin-bottom: 16px;">
+          <div class="alert alert--warning alert--insurance" style="display: ${car.insuranceExpiringDays <= 10 ? 'block' : 'none'};">
             Страховка истекает через ${car.insuranceExpiringDays} дней
           </div>
           
-          <h3 style="margin-top: 0; margin-bottom: 16px;">Основная информация</h3>
+          <h3 style="margin-top: 0;">Основная информация</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Гос. номер</label>
@@ -912,7 +923,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Доп. характеристики</h3>
+          <h3>Доп. характеристики</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Тип КПП</label>
@@ -960,7 +971,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Свидетельство о регистрации</h3>
+          <h3>Свидетельство о регистрации</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Серия</label>
@@ -988,7 +999,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Паспорт транспортного средства</h3>
+          <h3>Паспорт транспортного средства</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Серия</label>
@@ -1008,7 +1019,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Техосмотр</h3>
+          <h3>Техосмотр</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Техосмотр. Серия, номер</label>
@@ -1024,7 +1035,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Доп. данные</h3>
+          <h3>Доп. данные</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
             <div class="form-group">
               <label class="form-label">Дата ввода в эксплуатацию</label>
@@ -1036,7 +1047,7 @@
             </div>
           </div>
 
-          <h3 style="margin-bottom: 16px;">Реестр перевозчиков</h3>
+          <h3>Реестр перевозчиков</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
             <div class="form-group">
               <label class="form-label">Перевозчик</label>
@@ -1813,12 +1824,6 @@
 
         // In a real application, you would upload the file to a server here
         // For this prototype, we just store the metadata
-        console.log('File would be uploaded:', {
-          name: documentName,
-          type: documentType,
-          file: fileName,
-          size: documentFile.size
-        });
 
         renderDocuments();
         document.getElementById('documentForm').reset();

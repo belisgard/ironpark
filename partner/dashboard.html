@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -17,6 +17,7 @@
     <aside class="sidebar">
       <ul class="sidebar__menu">
         <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link active">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
@@ -27,7 +28,7 @@
     </aside>
 
     <main class="main-content">
-      <h1 style="margin-bottom: 32px;">Dashboard</h1>
+      <h1>Dashboard</h1>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px;">
         <a href="cars.html?status=На линии" class="card" style="text-decoration: none; display: block;">

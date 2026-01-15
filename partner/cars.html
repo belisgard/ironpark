@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header__logo">B2P Платформа</div>
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
     <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
   </div>
 
@@ -17,6 +17,7 @@
     <aside class="sidebar">
       <ul class="sidebar__menu">
         <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link active">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
@@ -27,7 +28,7 @@
     </aside>
 
     <main class="main-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+      <div class="page-header">
         <h1>Автомобили</h1>
         <button class="btn btn--primary" data-open-modal="#addCarModal">+ Добавить автомобиль</button>
       </div>
@@ -85,7 +86,8 @@
         <h3 class="modal__title">Добавить автомобиль</h3>
         <button class="modal__close" data-close-modal="#addCarModal">×</button>
       </div>
-      <form id="addCarForm" style="padding: 20px 24px;">
+      <div class="modal__body">
+        <form id="addCarForm">
         <div class="form-group">
           <label class="form-label">Госномер *</label>
           <input type="text" class="form-input" id="carPlate" required placeholder="А123БВ777" pattern="[А-Я0-9]{1,9}">
@@ -125,11 +127,12 @@
           <label class="form-label">Дней до окончания страховки</label>
           <input type="number" class="form-input" id="carInsuranceDays" placeholder="365" min="0">
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Добавить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#addCarModal">Отмена</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 

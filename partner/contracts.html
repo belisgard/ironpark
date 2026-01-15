@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Договора аренды - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link active">Договора</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Договора аренды</h1>
+        <button class="btn btn--primary" data-open-modal="#addContractModal">+ Добавить договор</button>
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label class="form-label">Статус действия:</label>
+          <select class="form-select" id="statusFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="действующий">Действующий</option>
+            <option value="истекший">Истекший</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Статус договора:</label>
+          <select class="form-select" id="contractStatusFilter" style="width: 250px;">
+            <option value="">Все</option>
+            <option value="новый">Новый</option>
+            <option value="требуется заполнение паспорта">Требуется заполнение паспорта</option>
+            <option value="требуется подписание">Требуется подписание</option>
+            <option value="подписанный скан загружен">Подписанный скан загружен</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Водитель:</label>
+          <select class="form-select" id="driverFilter" style="width: 200px;">
+            <option value="">Все</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">ТС:</label>
+          <select class="form-select" id="vehicleFilter" style="width: 200px;">
+            <option value="">Все</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Поиск:</label>
+          <input type="text" class="form-input" id="searchInput" placeholder="Номер договора" style="width: 200px;">
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Период:</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="date" class="form-input" id="dateFrom" style="width: 150px;">
+            <span style="color: var(--g-color-text-secondary);">—</span>
+            <input type="date" class="form-input" id="dateTo" style="width: 150px;">
+          </div>
+        </div>
+      </div>
+
+      <table class="table" id="contractsTable">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Номер</th>
+            <th>Статус договора</th>
+            <th>Статус действия</th>
+            <th>Выдача</th>
+            <th>Транспортное средство</th>
+            <th>Водитель</th>
+            <th>Начало действия</th>
+            <th>Окончание действия</th>
+            <th>Стоимость аренды в сутки</th>
+          </tr>
+        </thead>
+        <tbody id="contractsTableBody">
+          <!-- Will be populated by JS -->
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- Add Contract Modal -->
+  <div class="modal" id="addContractModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Добавить договор</h3>
+        <button class="modal__close" data-close-modal="#addContractModal">×</button>
+      </div>
+      <div class="modal__body">
+        <form id="addContractForm">
+        <div class="form-group">
+          <label class="form-label">Номер договора *</label>
+          <input type="text" class="form-input" id="contractNumber" required placeholder="ДР-2024-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Водитель *</label>
+          <select class="form-input" id="contractDriver" required>
+            <option value="">Выберите водителя</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Транспортное средство *</label>
+          <select class="form-input" id="contractVehicle" required>
+            <option value="">Выберите ТС</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Начало действия *</label>
+          <input type="date" class="form-input" id="contractStartDate" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Окончание действия</label>
+          <input type="date" class="form-input" id="contractEndDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Стоимость аренды в сутки *</label>
+          <input type="number" class="form-input" id="contractDailyRent" required min="0" step="0.01">
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Добавить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#addContractModal">Отмена</button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function renderContracts() {
+      const tbody = document.getElementById('contractsTableBody');
+      if (!tbody) return;
+
+      let contracts = getAllRentContracts();
+
+      // Apply filters
+      const statusFilter = document.getElementById('statusFilter')?.value;
+      const contractStatusFilter = document.getElementById('contractStatusFilter')?.value;
+      const driverFilter = document.getElementById('driverFilter')?.value;
+      const vehicleFilter = document.getElementById('vehicleFilter')?.value;
+      const searchInput = document.getElementById('searchInput')?.value.toLowerCase();
+      const dateFrom = document.getElementById('dateFrom')?.value;
+      const dateTo = document.getElementById('dateTo')?.value;
+
+      if (statusFilter) {
+        contracts = contracts.filter(c => c.status === statusFilter);
+      }
+      if (contractStatusFilter) {
+        contracts = contracts.filter(c => c.contractStatus === contractStatusFilter);
+      }
+      if (driverFilter) {
+        const driverId = parseInt(driverFilter);
+        contracts = contracts.filter(c => c.driverId === driverId);
+      }
+      if (vehicleFilter) {
+        contracts = contracts.filter(c => c.vehiclePlate === vehicleFilter);
+      }
+      if (searchInput) {
+        contracts = contracts.filter(c => c.number.toLowerCase().includes(searchInput));
+      }
+      if (dateFrom || dateTo) {
+        contracts = contracts.filter(c => {
+          const contractDate = new Date(c.date);
+          if (dateFrom && contractDate < new Date(dateFrom)) return false;
+          if (dateTo && contractDate > new Date(dateTo)) return false;
+          return true;
+        });
+      }
+
+      if (contracts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Договора не найдены</td></tr>';
+        return;
+      }
+
+      function getContractStatusBadgeClass(status) {
+        if (status === 'подписанный скан загружен') return 'badge--success';
+        if (status === 'требуется подписание' || status === 'требуется заполнение паспорта') return 'badge--warning';
+        if (status === 'новый') return 'badge--info';
+        return 'badge--neutral';
+      }
+
+      function getIssuanceStatusBadgeClass(status) {
+        if (status === 'авто выдано') return 'badge--success';
+        if (status === 'авто принято') return 'badge--warning';
+        return 'badge--neutral';
+      }
+
+        tbody.innerHTML = contracts.map(contract => {
+          const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
+          const contractStatusClass = getContractStatusBadgeClass(contract.contractStatus || 'новый');
+          const issuanceStatusClass = getIssuanceStatusBadgeClass(contract.issuanceStatus || '');
+          const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
+          const issuanceStatus = contract.issuanceStatus || '-';
+          return `
+            <tr style="cursor: pointer;" onclick="window.location.href='contract.html?id=${contract.id}'">
+              <td>${formatDateTime(contract.date)}</td>
+              <td>${contract.number}</td>
+              <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'новый'}</span></td>
+              <td><span class="badge ${statusClass}">${contract.status}</span></td>
+              <td>${issuanceStatus !== '-' ? `<span class="badge ${issuanceStatusClass}">${issuanceStatus}</span>` : '-'}</td>
+              <td>${vehicleInfo}</td>
+              <td>${contract.driverName}</td>
+              <td>${formatDate(contract.startDate)}</td>
+              <td>${formatDate(contract.endDate)}</td>
+              <td>${formatCurrency(contract.dailyRent)}</td>
+            </tr>
+          `;
+        }).join('');
+    }
+
+    function populateFilters() {
+      // Populate driver filter
+      const driverFilter = document.getElementById('driverFilter');
+      if (driverFilter) {
+        const uniqueDrivers = [...new Set(mockData.rentContracts.map(c => ({ id: c.driverId, name: c.driverName })).map(c => c.id))];
+        mockData.drivers.forEach(driver => {
+          const option = document.createElement('option');
+          option.value = driver.id;
+          option.textContent = driver.name;
+          driverFilter.appendChild(option);
+        });
+      }
+
+      // Populate vehicle filter
+      const vehicleFilter = document.getElementById('vehicleFilter');
+      if (vehicleFilter) {
+        const uniqueVehicles = [...new Set(mockData.rentContracts.map(c => c.vehiclePlate))];
+        uniqueVehicles.forEach(plate => {
+          const option = document.createElement('option');
+          option.value = plate;
+          option.textContent = plate;
+          vehicleFilter.appendChild(option);
+        });
+      }
+
+      // Populate contract driver select in modal
+      const contractDriver = document.getElementById('contractDriver');
+      if (contractDriver) {
+        mockData.drivers.forEach(driver => {
+          const option = document.createElement('option');
+          option.value = driver.id;
+          option.textContent = driver.name;
+          contractDriver.appendChild(option);
+        });
+      }
+
+      // Populate contract vehicle select in modal
+      const contractVehicle = document.getElementById('contractVehicle');
+      if (contractVehicle) {
+        mockData.cars.forEach(car => {
+          const option = document.createElement('option');
+          option.value = car.plate;
+          option.textContent = `${car.brand} ${car.model} (${car.plate})`;
+          contractVehicle.appendChild(option);
+        });
+      }
+    }
+
+    function applyFilters() {
+      renderContracts();
+    }
+
+    // Initialize modal
+    initModal('#addContractModal', '[data-open-modal="#addContractModal"]', '[data-close-modal="#addContractModal"]');
+
+    // Add event listeners
+    document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('contractStatusFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('driverFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('vehicleFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
+    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
+
+    // Form submission
+    const addContractForm = document.getElementById('addContractForm');
+    if (addContractForm) {
+      addContractForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = {
+          number: document.getElementById('contractNumber').value.trim(),
+          driverId: parseInt(document.getElementById('contractDriver').value),
+          vehiclePlate: document.getElementById('contractVehicle').value.trim(),
+          startDate: document.getElementById('contractStartDate').value,
+          endDate: document.getElementById('contractEndDate').value || null,
+          dailyRent: parseFloat(document.getElementById('contractDailyRent').value)
+        };
+
+        // Get driver and vehicle info
+        const driver = getDriverById(formData.driverId);
+        const car = mockData.cars.find(c => c.plate === formData.vehiclePlate);
+        
+        if (!driver || !car) {
+          alert('Ошибка: не найден водитель или ТС');
+          return;
+        }
+
+        // Create new contract
+        const newId = Math.max(...mockData.rentContracts.map(c => c.id), 0) + 1;
+        const newContract = {
+          id: newId,
+          driverId: formData.driverId,
+          date: new Date().toISOString(),
+          number: formData.number,
+          status: formData.endDate && new Date(formData.endDate) < new Date() ? 'истекший' : 'действующий',
+          contractStatus: 'новый',
+          scanUploaded: false,
+          issuanceStatus: null,
+          vehicleName: `${car.brand} ${car.model}`,
+          vehiclePlate: formData.vehiclePlate,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          dailyRent: formData.dailyRent,
+          totalAmount: 0, // Calculate if needed
+          driverName: driver.name
+        };
+
+        mockData.rentContracts.push(newContract);
+        renderContracts();
+        document.getElementById('addContractModal').classList.remove('active');
+        addContractForm.reset();
+      });
+    }
+
+    populateFilters();
+    renderContracts();
+  </script>
+</body>
+</html>
