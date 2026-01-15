@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link active">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1 style="margin-bottom: 32px;">Dashboard</h1>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        <a href="cars.html?status=На линии" class="card" style="text-decoration: none; display: block;">
+          <div class="card__metric">8</div>
+          <div class="card__label">ТС на линии</div>
+        </a>
+        <a href="cars.html?status=Свободен" class="card" style="text-decoration: none; display: block;">
+          <div class="card__metric">3</div>
+          <div class="card__label">Свободны</div>
+        </a>
+        <a href="cars.html?status=В ремонте" class="card" style="text-decoration: none; display: block;">
+          <div class="card__metric">2</div>
+          <div class="card__label">В ремонте</div>
+        </a>
+        <a href="cars.html?status=Просрочка" class="card" style="text-decoration: none; display: block;">
+          <div class="card__metric">2</div>
+          <div class="card__label">В просрочке</div>
+        </a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        <div class="card">
+          <div class="card__title">Финансы</div>
+          <div class="card__metric" style="color: var(--g-color-base-danger);">27 000 ₽</div>
+          <div class="card__label">Суммарная задолженность</div>
+        </div>
+        <div class="card">
+          <div class="card__title">Финансы</div>
+          <div class="card__metric" style="color: var(--g-color-base-success);">85 000 ₽</div>
+          <div class="card__label">Ожидается к выплате</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">Критические уведомления</div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <a href="fines.html?discount=true" style="text-decoration: none; color: inherit;">
+            <div class="alert alert--warning">
+              <strong>Штрафы со скидкой:</strong> 5 штрафов с доступной скидкой
+            </div>
+          </a>
+          <a href="cars.html?insurance=expiring" style="text-decoration: none; color: inherit;">
+            <div class="alert alert--warning">
+              <strong>Страховки истекают:</strong> 3 ТС со страховкой, истекающей в течение 10 дней
+            </div>
+          </a>
+          <a href="cars.html?status=Просрочка" style="text-decoration: none; color: inherit;">
+            <div class="alert alert--danger">
+              <strong>Просрочка > 2 суток:</strong> 2 ТС в просрочке
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

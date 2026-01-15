@@ -1,0 +1,106 @@
+/* Gravity UI Theme - CSS Variables */
+:root {
+  /* Colors - Light Theme */
+  --g-color-base-background: #ffffff;
+  --g-color-base-generic: #f5f5f7;
+  --g-color-base-generic-hover: #e8e8ea;
+  --g-color-base-simple-hover: #f0f0f2;
+  --g-color-base-selection: #e3f2fd;
+  --g-color-base-selection-hover: #bbdefb;
+  
+  --g-color-text-primary: #1a1a1a;
+  --g-color-text-secondary: #5a5a5a;
+  --g-color-text-hint: #9a9a9a;
+  --g-color-text-link: #1976d2;
+  --g-color-text-link-hover: #1565c0;
+  
+  /* Status Colors - более мягкие оттенки */
+  --g-color-base-info: #2196f3;
+  --g-color-base-info-hover: #1976d2;
+  --g-color-base-success: #4caf50;
+  --g-color-base-success-hover: #388e3c;
+  --g-color-base-warning: #ff9800;
+  --g-color-base-warning-hover: #f57c00;
+  --g-color-base-danger: #f44336;
+  --g-color-base-danger-hover: #d32f2f;
+  
+  /* Акцентные цвета для кнопок */
+  --g-color-base-primary: #ffc107;
+  --g-color-base-primary-hover: #ffb300;
+  --g-color-base-primary-text: #1a1a1a;
+  
+  /* Badge Colors - более мягкие */
+  --g-color-badge-info: #e3f2fd;
+  --g-color-badge-info-text: #1976d2;
+  --g-color-badge-success: #e8f5e9;
+  --g-color-badge-success-text: #388e3c;
+  --g-color-badge-warning: #fff3e0;
+  --g-color-badge-warning-text: #f57c00;
+  --g-color-badge-danger: #ffebee;
+  --g-color-badge-danger-text: #d32f2f;
+  --g-color-badge-neutral: #f5f5f5;
+  --g-color-badge-neutral-text: #757575;
+  
+  /* Статусы активный/неактивный */
+  --g-color-status-active: #4caf50;
+  --g-color-status-inactive: #ff9800;
+  
+  /* Border - более мягкие */
+  --g-color-line-generic: #e0e0e0;
+  --g-color-line-generic-accent: #bdbdbd;
+  
+  /* Spacing */
+  --g-spacing-xs: 4px;
+  --g-spacing-sm: 8px;
+  --g-spacing-md: 12px;
+  --g-spacing-lg: 16px;
+  --g-spacing-xl: 20px;
+  --g-spacing-2xl: 24px;
+  --g-spacing-3xl: 32px;
+  --g-spacing-4xl: 40px;
+  
+  /* Border Radius */
+  --g-border-radius-xs: 4px;
+  --g-border-radius-sm: 6px;
+  --g-border-radius-md: 8px;
+  --g-border-radius-lg: 12px;
+  --g-border-radius-xl: 16px;
+  
+  /* Typography */
+  --g-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --g-font-size-xs: 11px;
+  --g-font-size-sm: 13px;
+  --g-font-size-md: 15px;
+  --g-font-size-lg: 17px;
+  --g-font-size-xl: 20px;
+  --g-font-size-2xl: 24px;
+  
+  /* Shadows */
+  --g-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --g-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --g-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --g-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+  
+  /* Transitions */
+  --g-transition-fast: 0.15s ease;
+  --g-transition-base: 0.2s ease;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --g-color-base-background: #0c0c0f;
+  --g-color-base-generic: #1c1c21;
+  --g-color-base-generic-hover: #2c2c35;
+  --g-color-base-simple-hover: #16161a;
+  --g-color-base-selection: #2c2c35;
+  --g-color-base-selection-hover: #3c3c45;
+  
+  --g-color-text-primary: #ffffff;
+  --g-color-text-secondary: #9e9ea7;
+  --g-color-text-hint: #6d6d78;
+  --g-color-text-link: #3d9eff;
+  --g-color-text-link-hover: #5db3ff;
+  
+  --g-color-line-generic: #2c2c35;
+  --g-color-line-generic-accent: #3c3c45;
+}

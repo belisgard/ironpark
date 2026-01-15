@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отчёты - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link active">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1 style="margin-bottom: 32px;">Отчёты</h1>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+        <div class="card">
+          <h3 style="margin-bottom: 8px;">Баланс ТС</h3>
+          <p style="color: var(--g-color-text-secondary); margin-bottom: 16px; font-size: var(--g-font-size-sm);">
+            Отчёт по балансу транспортных средств
+          </p>
+          <button class="btn btn--action" onclick="downloadReport('balance')">Скачать CSV</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 8px;">Касса</h3>
+          <p style="color: var(--g-color-text-secondary); margin-bottom: 16px; font-size: var(--g-font-size-sm);">
+            Отчёт по кассовым операциям
+          </p>
+          <button class="btn btn--action" onclick="downloadReport('cash')">Скачать CSV</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 8px;">Реестр штрафов</h3>
+          <p style="color: var(--g-color-text-secondary); margin-bottom: 16px; font-size: var(--g-font-size-sm);">
+            Полный реестр штрафов за период
+          </p>
+          <button class="btn btn--action" onclick="downloadReport('fines')">Скачать CSV</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 8px;">Ведомость водителя</h3>
+          <p style="color: var(--g-color-text-secondary); margin-bottom: 16px; font-size: var(--g-font-size-sm);">
+            Ведомость по конкретному водителю
+          </p>
+          <button class="btn btn--action" onclick="downloadReport('driver')">Скачать CSV</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function downloadReport(type) {
+      let data = [];
+      let filename = '';
+
+      switch(type) {
+        case 'balance':
+          data = mockData.cars.map(car => ({
+            'Госномер': car.plate,
+            'Модель': car.brand ? `${car.brand} ${car.model}` : car.model,
+            'Статус': car.status,
+            'Пробег': car.mileage,
+            'Категория': car.category
+          }));
+          filename = 'balance_' + new Date().toISOString().split('T')[0] + '.csv';
+          break;
+        case 'cash':
+          data = mockData.drivers.map(driver => ({
+            'Водитель': driver.name,
+            'Баланс': driver.balanceAmount,
+            'Задолженность': driver.debtAmount,
+            'Ставка': driver.rentRate
+          }));
+          filename = 'cash_' + new Date().toISOString().split('T')[0] + '.csv';
+          break;
+        case 'fines':
+          data = mockData.fines.map(fine => ({
+            'Дата': fine.date,
+            'Авто': fine.plate,
+            'Водитель': fine.driverName,
+            'Сумма': fine.amount,
+            'Статус': fine.status
+          }));
+          filename = 'fines_' + new Date().toISOString().split('T')[0] + '.csv';
+          break;
+        case 'driver':
+          data = mockData.drivers.map(driver => ({
+            'Водитель': driver.name,
+            'Телефон': driver.phone,
+            'Текущее ТС': driver.currentCarPlate || '-',
+            'Баланс': driver.balanceAmount,
+            'Задолженность': driver.debtAmount
+          }));
+          filename = 'drivers_' + new Date().toISOString().split('T')[0] + '.csv';
+          break;
+      }
+
+      generateCSV(data, filename);
+    }
+  </script>
+</body>
+</html>

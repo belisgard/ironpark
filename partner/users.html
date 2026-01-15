@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Пользователи - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link active">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <h1>Пользователи</h1>
+        <button class="btn btn--primary" data-open-modal="#addUserModal">+ Добавить пользователя</button>
+      </div>
+
+      <div class="filters" style="margin-bottom: 24px;">
+        <div class="filter-group">
+          <label class="form-label">Роль:</label>
+          <select class="form-select" id="roleFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="Партнёр">Партнёр</option>
+            <option value="Механик">Механик</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Статус:</label>
+          <select class="form-select" id="statusFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="Активен">Активен</option>
+            <option value="Неактивен">Неактивен</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Поиск:</label>
+          <input type="text" class="form-input" id="searchInput" placeholder="Имя или email" style="width: 250px;">
+        </div>
+      </div>
+
+      <table class="table" id="usersTable">
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Email</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Дата создания</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <!-- Will be populated by JS -->
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal" id="addUserModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Добавить пользователя</h3>
+        <button class="modal__close" data-close-modal="#addUserModal">×</button>
+      </div>
+      <form id="addUserForm" style="padding: 20px 0;">
+        <div class="form-group">
+          <label class="form-label">ФИО *</label>
+          <input type="text" class="form-input" id="userName" required placeholder="Введите ФИО">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" id="userEmail" required placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Роль *</label>
+          <select class="form-select" id="userRole" required>
+            <option value="">Выберите роль</option>
+            <option value="Партнёр">Партнёр</option>
+            <option value="Механик">Механик</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Статус</label>
+          <select class="form-select" id="userStatus">
+            <option value="Активен" selected>Активен</option>
+            <option value="Неактивен">Неактивен</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Добавить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#addUserModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function renderUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = mockData.users.map(user => `
+        <tr>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td><span class="badge ${user.role === 'Партнёр' ? 'badge--info' : 'badge--warning'}">${user.role}</span></td>
+          <td><span class="badge ${user.status === 'Активен' ? 'badge--success' : 'badge--neutral'}">${user.status}</span></td>
+          <td>${formatDate(user.createdAt)}</td>
+          <td>
+            <button class="btn btn--normal" style="padding: 6px 12px; font-size: var(--g-font-size-sm);" onclick="deleteUser(${user.id})">Удалить</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function applyFilters() {
+      const role = document.getElementById('roleFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      filterTable('#usersTable', (row) => {
+        const cells = row.cells;
+        if (!cells || cells.length === 0) return false;
+
+        if (role && cells[2].textContent.trim() !== role) return false;
+        if (status && cells[3].textContent.trim() !== status) return false;
+        if (search && !cells[0].textContent.toLowerCase().includes(search) && !cells[1].textContent.toLowerCase().includes(search)) return false;
+
+        return true;
+      });
+    }
+
+    function addUser(userData) {
+      const newId = Math.max(...mockData.users.map(u => u.id)) + 1;
+      const newUser = {
+        id: newId,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        status: userData.status || 'Активен',
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      mockData.users.push(newUser);
+      renderUsers();
+    }
+
+    function deleteUser(userId) {
+      if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+        const index = mockData.users.findIndex(u => u.id === userId);
+        if (index > -1) {
+          mockData.users.splice(index, 1);
+          renderUsers();
+        }
+      }
+    }
+
+    // Event listeners
+    document.getElementById('roleFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    // Form submission
+    document.getElementById('addUserForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = {
+        name: document.getElementById('userName').value,
+        email: document.getElementById('userEmail').value,
+        role: document.getElementById('userRole').value,
+        status: document.getElementById('userStatus').value
+      };
+      
+      addUser(formData);
+      document.getElementById('addUserModal').classList.remove('active');
+      document.getElementById('addUserForm').reset();
+    });
+
+    // Initialize modal
+    initModal('#addUserModal', '[data-open-modal="#addUserModal"]', '[data-close-modal="#addUserModal"]');
+
+    // Initial render
+    renderUsers();
+  </script>
+</body>
+</html>

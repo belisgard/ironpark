@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карточка ТС - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link active">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div style="margin-bottom: 24px;">
+        <a href="cars.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к списку</a>
+      </div>
+
+      <div id="carHeader" style="margin-bottom: 32px;">
+        <!-- Will be populated by JS -->
+      </div>
+
+      <div class="tabs" id="carTabs">
+        <button class="tab active" data-tab="main">Основное</button>
+        <button class="tab" data-tab="events">События</button>
+        <button class="tab" data-tab="inspections">Осмотры</button>
+        <button class="tab" data-tab="insurance">Страхование</button>
+        <button class="tab" data-tab="completeness">Комплектность</button>
+        <button class="tab" data-tab="documents">Документы</button>
+        <button class="tab" data-tab="rent-history">История аренды</button>
+      </div>
+
+      <div class="tab-content active" data-tab="main">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0;">Основная информация</h2>
+            <button class="btn btn--primary" id="editCarBtn">Редактировать</button>
+          </div>
+          <div id="carMainInfo">
+            <!-- Will be populated by JS -->
+          </div>
+          <div style="margin-top: 24px;">
+            <button class="btn btn--normal" data-toggle="overdue" data-car-id="">Симулировать: просрочка</button>
+            <button class="btn btn--normal" data-toggle="insurance" data-car-id="" style="margin-left: 12px;">Симулировать: страховка истекает</button>
+            <button class="btn btn--normal" data-toggle="fines" data-car-id="" style="margin-left: 12px;">Симулировать: есть штрафы</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="tab-content" data-tab="events">
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <button class="btn btn--primary" id="addEventBtn">+ Создать</button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Пробег</th>
+                <th>Тип события</th>
+                <th>Статус события</th>
+                <th>Приоритет</th>
+                <th>Ответственный</th>
+                <th>Пользователь</th>
+                <th>Заявка на ремонт</th>
+                <th>Комментарий</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="inspections">
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <button class="btn btn--primary" id="addInspectionBtn">+ Создать</button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Пробег</th>
+                <th>Механик</th>
+                <th>Водитель</th>
+                <th>Повреждения</th>
+                <th>Некомплект</th>
+                <th>Утеря документов</th>
+                <th>Комментарий</th>
+              </tr>
+            </thead>
+            <tbody id="inspectionsTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="insurance">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0;">ОСАГО</h3>
+            <button class="btn btn--primary" data-edit-insurance="osago">Редактировать</button>
+          </div>
+          <div id="osagoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="form-group">
+                  <label class="form-label">Серия</label>
+                  <div id="osagoSeries">XXX</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Номер</label>
+                  <div id="osagoNumber">0584304735</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Страховщик</label>
+                  <div id="osagoInsurer">АльфаСтрахование</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Дата выдачи</label>
+                  <div id="osagoIssueDate">28.12.2025</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Действителен до</label>
+                  <div id="osagoEndDate">27.12.2026</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Премия</label>
+                  <div id="osagoPremium">30 296,86 ₽</div>
+                </div>
+              </div>
+              <div id="insuranceAlert" class="alert alert--warning" style="display: none;">
+                Страховка истекает в течение 10 дней
+              </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
+            <h3 style="margin: 0;">ОСГОП</h3>
+            <button class="btn btn--primary" data-edit-insurance="osgop">Редактировать</button>
+          </div>
+          <div id="osgopData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="form-group">
+                  <label class="form-label">Номер</label>
+                  <div id="osgopNumber">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Страховщик</label>
+                  <div id="osgopInsurer">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Дата выдачи</label>
+                  <div id="osgopIssueDate">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Действителен до</label>
+                  <div id="osgopEndDate">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Премия</label>
+                  <div id="osgopPremium">-</div>
+                </div>
+              </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
+            <h3 style="margin: 0;">ДОСАГО</h3>
+            <button class="btn btn--primary" data-edit-insurance="dosago">Редактировать</button>
+          </div>
+          <div id="dosagoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="form-group">
+                  <label class="form-label">Страховщик</label>
+                  <div id="dosagoInsurer">АльфаСтрахование</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Дата выдачи</label>
+                  <div id="dosagoIssueDate">28.12.2025</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Действителен до</label>
+                  <div id="dosagoEndDate">27.12.2026</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Премия</label>
+                  <div id="dosagoPremium">2 950,00 ₽</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Сумма страхования</label>
+                  <div id="dosagoSum">400 000,00 ₽</div>
+                </div>
+              </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
+            <h3 style="margin: 0;">КАСКО</h3>
+            <button class="btn btn--primary" data-edit-insurance="kasko">Редактировать</button>
+          </div>
+          <div id="kaskoData" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="form-group">
+                  <label class="form-label">Серия</label>
+                  <div id="kaskoSeries">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Номер</label>
+                  <div id="kaskoNumber">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Страховщик</label>
+                  <div id="kaskoInsurer">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Дата выдачи</label>
+                  <div id="kaskoIssueDate">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Действителен до</label>
+                  <div id="kaskoEndDate">-</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Премия</label>
+                  <div id="kaskoPremium">0,00 ₽</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Франшиза</label>
+                  <div id="kaskoFranchise">-</div>
+                </div>
+              </div>
+            </div>
+      </div>
+
+      <div class="tab-content" data-tab="completeness">
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Детали</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="completenessTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="documents">
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <button class="btn btn--primary" id="addDocumentBtn">+ Загрузить документ</button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Тип</th>
+                <th>Имя</th>
+                <th>Дата</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="documentsTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="rent-history">
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Водитель</th>
+                <th>Дата начала</th>
+                <th>Дата окончания</th>
+              </tr>
+            </thead>
+            <tbody id="rentHistoryTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- File Modal -->
+  <div class="modal" id="fileModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Просмотр файла</h3>
+        <button class="modal__close" data-close-modal="#fileModal">×</button>
+      </div>
+      <div style="text-align: center; padding: 40px;">
+        <p style="color: var(--g-color-text-secondary);">Превью файла</p>
+        <div style="width: 100%; height: 300px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md); margin-top: 20px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: var(--g-color-text-hint);">Placeholder изображения</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Car Modal -->
+  <div class="modal" id="editCarModal">
+    <div class="modal__content" style="max-width: 800px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Редактировать автомобиль</h3>
+        <button class="modal__close" data-close-modal="#editCarModal">×</button>
+      </div>
+      <form id="editCarForm" style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
+        <h4 style="margin-top: 0; margin-bottom: 16px;">Основная информация</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Гос. номер</label>
+            <input type="text" class="form-input" id="editCarPlate" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">VIN</label>
+            <input type="text" class="form-input" id="editCarVin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Модель</label>
+            <input type="text" class="form-input" id="editCarModel" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Год выпуска</label>
+            <input type="number" class="form-input" id="editCarYear" min="1900" max="2030">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Цвет кузова</label>
+            <input type="text" class="form-input" id="editCarBodyColor">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Код</label>
+            <input type="text" class="form-input" id="editCarCode">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Категория ТС</label>
+            <select class="form-select" id="editCarCategory">
+              <option value="Эконом">Эконом</option>
+              <option value="Комфорт">Комфорт</option>
+              <option value="Комфорт+">Комфорт+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Подразделение</label>
+            <input type="text" class="form-input" id="editCarDepartment">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Организация</label>
+            <input type="text" class="form-input" id="editCarOrganization">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Арендодатель</label>
+            <input type="text" class="form-input" id="editCarLessor">
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Доп. характеристики</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Тип КПП</label>
+            <select class="form-select" id="editCarTransmissionType">
+              <option value="">Выберите</option>
+              <option value="АКПП">АКПП</option>
+              <option value="МКПП">МКПП</option>
+              <option value="Робот">Робот</option>
+              <option value="Вариатор">Вариатор</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип привода</label>
+            <select class="form-select" id="editCarDriveType">
+              <option value="">Выберите</option>
+              <option value="Передний">Передний</option>
+              <option value="Задний">Задний</option>
+              <option value="Полный">Полный</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер кузова</label>
+            <input type="text" class="form-input" id="editCarBodyNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Масса без нагрузки (кг)</label>
+            <input type="number" class="form-input" id="editCarUnladenMass" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Разрешенная максимальная масса (кг)</label>
+            <input type="number" class="form-input" id="editCarMaxMass" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер двигателя</label>
+            <input type="text" class="form-input" id="editCarEngineNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Объем двигателя</label>
+            <input type="number" class="form-input" id="editCarEngineDisplacement" step="0.1" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Мощность двигателя</label>
+            <input type="number" class="form-input" id="editCarEnginePower" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Вид топлива</label>
+            <select class="form-select" id="editCarFuelType">
+              <option value="">Выберите</option>
+              <option value="АИ-92">АИ-92</option>
+              <option value="АИ-95">АИ-95</option>
+              <option value="АИ-98">АИ-98</option>
+              <option value="Дизель">Дизель</option>
+              <option value="Газ">Газ</option>
+              <option value="Электричество">Электричество</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Экологический класс</label>
+            <input type="text" class="form-input" id="editCarEcologicalClass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип салона</label>
+            <select class="form-select" id="editCarInteriorType">
+              <option value="">Выберите</option>
+              <option value="Тканевый">Тканевый</option>
+              <option value="Кожаный">Кожаный</option>
+              <option value="Комбинированный">Комбинированный</option>
+            </select>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Свидетельство о регистрации</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Серия</label>
+            <input type="text" class="form-input" id="editCarStsSeries">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер</label>
+            <input type="text" class="form-input" id="editCarStsNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="editCarStsIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="editCarStsValidUntil">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата постановки на учет</label>
+            <input type="date" class="form-input" id="editCarStsRegistrationDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Кем выдан</label>
+            <input type="text" class="form-input" id="editCarStsIssuedBy">
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Паспорт транспортного средства</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Серия</label>
+            <input type="text" class="form-input" id="editCarPtsSeries">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер</label>
+            <input type="text" class="form-input" id="editCarPtsNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="editCarPtsIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Кем выдан</label>
+            <input type="text" class="form-input" id="editCarPtsIssuedBy">
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Техосмотр</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Техосмотр. Серия, номер</label>
+            <input type="text" class="form-input" id="editCarTechInspectionNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="editCarTechInspectionIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="editCarTechInspectionValidUntil">
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Доп. данные</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Дата ввода в эксплуатацию</label>
+            <input type="date" class="form-input" id="editCarCommissioningDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выбытия ТС</label>
+            <input type="date" class="form-input" id="editCarDeregistrationDate">
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 16px;">Реестр перевозчиков</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Перевозчик</label>
+            <input type="text" class="form-input" id="editCarCarrier">
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="editCarCarrierActive" style="width: auto;">
+              <span>Активна</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер записи в реестре легковых такси</label>
+            <input type="text" class="form-input" id="editCarTaxiRegisterNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата записи</label>
+            <input type="date" class="form-input" id="editCarTaxiRegisterDate">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#editCarModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Event Modal -->
+  <div class="modal" id="eventModal">
+    <div class="modal__content" style="max-width: 700px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="eventModalTitle">Добавить событие</h3>
+        <button class="modal__close" data-close-modal="#eventModal">×</button>
+      </div>
+      <form id="eventForm" style="padding: 20px 24px;">
+        <input type="hidden" id="eventId">
+        <div class="form-group">
+          <label class="form-label">Дата *</label>
+          <input type="datetime-local" class="form-input" id="eventDate" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пробег *</label>
+          <input type="number" class="form-input" id="eventMileage" required min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Тип события *</label>
+          <select class="form-select" id="eventType" required>
+            <option value="">Выберите тип</option>
+            <option value="ДТП">ДТП</option>
+            <option value="Обнаружено повреждение">Обнаружено повреждение</option>
+            <option value="Повреждения колёс">Повреждения колёс</option>
+            <option value="Ремонт">Ремонт</option>
+            <option value="Осмотр">Осмотр</option>
+            <option value="Прочее">Прочее</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Статус события *</label>
+          <select class="form-select" id="eventStatus" required>
+            <option value="Открыто">Открыто</option>
+            <option value="Закрыто">Закрыто</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Приоритет *</label>
+          <select class="form-select" id="eventPriority" required>
+            <option value="1">1 - Высокий</option>
+            <option value="2">2 - Средний</option>
+            <option value="3">3 - Низкий</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ответственный *</label>
+          <input type="text" class="form-input" id="eventResponsible" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пользователь *</label>
+          <input type="text" class="form-input" id="eventUser" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Заявка на ремонт</label>
+          <select class="form-select" id="eventRepairRequest">
+            <option value="Нет">Нет</option>
+            <option value="Да">Да</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Комментарий</label>
+          <textarea class="form-input" id="eventComment" rows="3" style="resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#eventModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Inspection Modal -->
+  <div class="modal" id="inspectionModal">
+    <div class="modal__content" style="max-width: 700px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="inspectionModalTitle">Добавить осмотр</h3>
+        <button class="modal__close" data-close-modal="#inspectionModal">×</button>
+      </div>
+      <form id="inspectionForm" style="padding: 20px 24px;">
+        <input type="hidden" id="inspectionId">
+        <div class="form-group">
+          <label class="form-label">Дата и время *</label>
+          <input type="datetime-local" class="form-input" id="inspectionDate" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Тип осмотра *</label>
+          <select class="form-select" id="inspectionType" required>
+            <option value="">Выберите тип</option>
+            <option value="Выдача">Выдача</option>
+            <option value="Возврат">Возврат</option>
+            <option value="Плановый">Плановый</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пробег (км) *</label>
+          <input type="number" class="form-input" id="inspectionMileage" required min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Механик *</label>
+          <input type="text" class="form-input" id="inspectionMechanic" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Водитель</label>
+          <input type="text" class="form-input" id="inspectionDriver">
+        </div>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="inspectionHasDamages" style="width: auto;">
+            <span>Повреждения</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="inspectionHasIncomplete" style="width: auto;">
+            <span>Некомплект</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="inspectionHasLostDocuments" style="width: auto;">
+            <span>Утеря документов</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Комментарий</label>
+          <textarea class="form-input" id="inspectionComment" rows="3" style="resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#inspectionModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Insurance Modal -->
+  <div class="modal" id="insuranceModal">
+    <div class="modal__content" style="max-width: 700px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="insuranceModalTitle">Редактировать страховой полис</h3>
+        <button class="modal__close" data-close-modal="#insuranceModal">×</button>
+      </div>
+      <form id="insuranceForm" style="padding: 20px 24px;">
+        <input type="hidden" id="insuranceType">
+        <div id="osagoFields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Серия</label>
+            <input type="text" class="form-input" id="insuranceSeries" maxlength="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер</label>
+            <input type="text" class="form-input" id="insuranceNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Страховщик</label>
+            <input type="text" class="form-input" id="insuranceInsurer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="insuranceIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="insuranceEndDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Премия (₽)</label>
+            <input type="number" class="form-input" id="insurancePremium" step="0.01" min="0">
+          </div>
+        </div>
+        <div id="osgopFields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Номер</label>
+            <input type="text" class="form-input" id="osgopNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Страховщик</label>
+            <input type="text" class="form-input" id="osgopInsurer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="osgopIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="osgopEndDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Премия (₽)</label>
+            <input type="number" class="form-input" id="osgopPremium" step="0.01" min="0">
+          </div>
+        </div>
+        <div id="dosagoFields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Страховщик</label>
+            <input type="text" class="form-input" id="dosagoInsurer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="dosagoIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="dosagoEndDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Премия (₽)</label>
+            <input type="number" class="form-input" id="dosagoPremium" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сумма страхования (₽)</label>
+            <input type="number" class="form-input" id="dosagoSum" step="0.01" min="0">
+          </div>
+        </div>
+        <div id="kaskoFields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Серия</label>
+            <input type="text" class="form-input" id="kaskoSeries" maxlength="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер</label>
+            <input type="text" class="form-input" id="kaskoNumber">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Страховщик</label>
+            <input type="text" class="form-input" id="kaskoInsurer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата выдачи</label>
+            <input type="date" class="form-input" id="kaskoIssueDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Действителен до</label>
+            <input type="date" class="form-input" id="kaskoEndDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Премия (₽)</label>
+            <input type="number" class="form-input" id="kaskoPremium" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Франшиза</label>
+            <input type="text" class="form-input" id="kaskoFranchise">
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#insuranceModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Document Modal -->
+  <div class="modal" id="documentModal">
+    <div class="modal__content" style="max-width: 600px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Загрузить документ</h3>
+        <button class="modal__close" data-close-modal="#documentModal">×</button>
+      </div>
+      <form id="documentForm" style="padding: 20px 24px;">
+        <div class="form-group">
+          <label class="form-label">Название документа *</label>
+          <input type="text" class="form-input" id="documentName" required placeholder="Например: ПТС, СТС, Фото авто">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Тип документа *</label>
+          <select class="form-select" id="documentType" required>
+            <option value="">Выберите тип</option>
+            <option value="Документ">Документ</option>
+            <option value="Фото">Фото</option>
+            <option value="Скан">Скан</option>
+            <option value="Прочее">Прочее</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Файл *</label>
+          <input type="file" class="form-input" id="documentFile" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+          <div style="margin-top: 8px; font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">
+            Поддерживаемые форматы: PDF, JPG, PNG, DOC, DOCX
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn btn--primary" style="flex: 1;">Загрузить</button>
+          <button type="button" class="btn btn--normal" data-close-modal="#documentModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/ui-state.js"></script>
+  <script>
+    const carId = getUrlParameter('id');
+    const car = getCarById(carId);
+
+    if (!car) {
+      document.body.innerHTML = '<div class="container"><h1>Автомобиль не найден</h1><a href="cars.html">Вернуться к списку</a></div>';
+    } else {
+      // Ensure carId is a number for consistency
+      const numericCarId = parseInt(carId);
+      // Render header
+      const carTitle = car.brand ? `${car.brand} ${car.model}` : car.model;
+      document.getElementById('carHeader').innerHTML = `
+        <h1>${car.plate} - ${carTitle}</h1>
+        <div style="margin-top: 12px;">
+          <span class="badge ${getStatusBadgeClass(car.status)}" id="carStatusBadge">${car.status}</span>
+        </div>
+      `;
+
+      // Render main info
+      function renderCarMainInfo() {
+        document.getElementById('carMainInfo').innerHTML = `
+          <div class="alert alert--danger alert--overdue" style="display: ${car.status === 'Просрочка' ? 'block' : 'none'}; margin-bottom: 16px;">
+            Просрочка > 2 суток
+          </div>
+          <div class="alert alert--warning alert--insurance" style="display: ${car.insuranceExpiringDays <= 10 ? 'block' : 'none'}; margin-bottom: 16px;">
+            Страховка истекает через ${car.insuranceExpiringDays} дней
+          </div>
+          
+          <h3 style="margin-top: 0; margin-bottom: 16px;">Основная информация</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Гос. номер</label>
+              <div>${car.plate}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">VIN</label>
+              <div>${car.vin || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Модель</label>
+              <div>${car.model || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Год выпуска</label>
+              <div>${car.year || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Цвет кузова</label>
+              <div>${car.bodyColor || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Код</label>
+              <div>${car.code || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Категория ТС</label>
+              <div>${car.category || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Подразделение</label>
+              <div>${car.department || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Организация</label>
+              <div>${car.organization || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Арендодатель</label>
+              <div>${car.lessor || '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Доп. характеристики</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Тип КПП</label>
+              <div>${car.transmissionType || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Тип привода</label>
+              <div>${car.driveType || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер кузова</label>
+              <div>${car.bodyNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Масса без нагрузки (кг)</label>
+              <div>${car.unladenMass || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Разрешенная максимальная масса (кг)</label>
+              <div>${car.maxMass || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер двигателя</label>
+              <div>${car.engineNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Объем двигателя</label>
+              <div>${car.engineDisplacement ? car.engineDisplacement.toFixed(1) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Мощность двигателя</label>
+              <div>${car.enginePower ? car.enginePower.toFixed(2) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Вид топлива</label>
+              <div>${car.fuelType || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Экологический класс</label>
+              <div>${car.ecologicalClass || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Тип салона</label>
+              <div>${car.interiorType || '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Свидетельство о регистрации</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Серия</label>
+              <div>${car.stsSeries || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер</label>
+              <div>${car.stsNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выдачи</label>
+              <div>${car.stsIssueDate ? formatDate(car.stsIssueDate) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Действителен до</label>
+              <div>${car.stsValidUntil ? formatDate(car.stsValidUntil) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата постановки на учет</label>
+              <div>${car.stsRegistrationDate ? formatDate(car.stsRegistrationDate) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Кем выдан</label>
+              <div>${car.stsIssuedBy || '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Паспорт транспортного средства</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Серия</label>
+              <div>${car.ptsSeries || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер</label>
+              <div>${car.ptsNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выдачи</label>
+              <div>${car.ptsIssueDate ? formatDate(car.ptsIssueDate) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Кем выдан</label>
+              <div>${car.ptsIssuedBy || '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Техосмотр</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Техосмотр. Серия, номер</label>
+              <div>${car.techInspectionNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выдачи</label>
+              <div>${car.techInspectionIssueDate ? formatDate(car.techInspectionIssueDate) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Действителен до</label>
+              <div>${car.techInspectionValidUntil ? formatDate(car.techInspectionValidUntil) : '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Доп. данные</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="form-group">
+              <label class="form-label">Дата ввода в эксплуатацию</label>
+              <div>${car.commissioningDate ? formatDate(car.commissioningDate) : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выбытия ТС</label>
+              <div>${car.deregistrationDate ? formatDate(car.deregistrationDate) : '-'}</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 16px;">Реестр перевозчиков</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Перевозчик</label>
+              <div>${car.carrier || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Активна</label>
+              <div><input type="checkbox" ${car.carrierActive ? 'checked' : ''} disabled></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер записи в реестре легковых такси</label>
+              <div>${car.taxiRegisterNumber || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата записи</label>
+              <div>${car.taxiRegisterDate ? formatDate(car.taxiRegisterDate) : '-'}</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      renderCarMainInfo();
+
+      // Update toggle buttons
+      document.querySelectorAll('[data-toggle]').forEach(btn => {
+        btn.dataset.carId = carId;
+      });
+
+      // Render inspections
+      function renderInspections() {
+        const inspections = mockData.inspections.filter(i => i.plate === car.plate);
+        const inspectionsTableBody = document.getElementById('inspectionsTableBody');
+        if (!inspectionsTableBody) return;
+        
+        if (inspections.length === 0) {
+          inspectionsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Осмотры не найдены</td></tr>';
+          return;
+        }
+        
+        inspectionsTableBody.innerHTML = inspections.map(ins => {
+          const inspectionDate = new Date(ins.date);
+          const dateStr = inspectionDate.toLocaleString('ru-RU', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          return `
+          <tr data-inspection-id="${ins.id}">
+            <td>${dateStr}</td>
+            <td>${ins.type}</td>
+            <td>${formatNumber(ins.mileage)} км</td>
+            <td>${ins.mechanicName}</td>
+            <td>${ins.driverName || '-'}</td>
+            <td style="text-align: center;"><input type="checkbox" ${ins.hasDamages ? 'checked' : ''} disabled></td>
+            <td style="text-align: center;"><input type="checkbox" ${ins.hasIncomplete ? 'checked' : ''} disabled></td>
+            <td style="text-align: center;"><input type="checkbox" ${ins.hasLostDocuments ? 'checked' : ''} disabled></td>
+            <td>${ins.notes || '-'}</td>
+          </tr>
+        `;
+        }).join('');
+
+        // Add click handlers to rows
+        inspectionsTableBody.querySelectorAll('tr[data-inspection-id]').forEach(row => {
+          row.addEventListener('click', () => {
+            const inspectionId = row.dataset.inspectionId;
+            openInspectionModal(inspectionId);
+          });
+        });
+      }
+      
+      renderInspections();
+
+      // Render events
+      function renderEvents() {
+        const events = getEventsByCarId(numericCarId);
+        const eventsTableBody = document.getElementById('eventsTableBody');
+        if (!eventsTableBody) return;
+        
+        if (events.length === 0) {
+          eventsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">События не найдены</td></tr>';
+          return;
+        }
+        
+        eventsTableBody.innerHTML = events.map(ev => {
+          const eventDate = new Date(ev.date);
+          const dateStr = eventDate.toLocaleString('ru-RU', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          return `
+          <tr data-event-id="${ev.id}">
+            <td>${dateStr}</td>
+            <td>${formatNumber(ev.mileage)}</td>
+            <td>${ev.type}</td>
+            <td><span class="badge ${ev.status === 'Открыто' ? 'badge--warning' : 'badge--success'}">${ev.status}</span></td>
+            <td>${ev.priority}</td>
+            <td>${ev.responsible}</td>
+            <td>${ev.user}</td>
+            <td>${ev.repairRequest || 'Нет'}</td>
+            <td>${ev.comment || '-'}</td>
+          </tr>
+        `;
+        }).join('');
+
+        // Add click handlers to rows
+        eventsTableBody.querySelectorAll('tr[data-event-id]').forEach(row => {
+          row.addEventListener('click', () => {
+            const eventId = row.dataset.eventId;
+            openEventModal(eventId);
+          });
+        });
+      }
+      
+      renderEvents();
+
+      // Render insurance data
+      function renderInsurance() {
+        let insurance = getInsuranceByCarId(numericCarId);
+        if (!insurance) {
+          // Create default insurance data if not exists
+          insurance = {
+            carId: numericCarId,
+            osago: { series: 'XXX', number: '0584304735', insurer: 'АльфаСтрахование', issueDate: '2025-12-28', endDate: '2026-12-27', premium: 30296.86 },
+            osgop: { number: null, insurer: null, issueDate: null, endDate: null, premium: null },
+            dosago: { insurer: 'АльфаСтрахование', issueDate: '2025-12-28', endDate: '2026-12-27', premium: 2950.00, sum: 400000.00 },
+            kasko: { series: null, number: null, insurer: null, issueDate: null, endDate: null, premium: null, franchise: null }
+          };
+          if (!mockData.insurances) {
+            mockData.insurances = [];
+          }
+          mockData.insurances.push(insurance);
+        }
+
+        // Render OSAGO
+        document.getElementById('osagoSeries').textContent = insurance.osago.series || '-';
+        document.getElementById('osagoNumber').textContent = insurance.osago.number || '-';
+        document.getElementById('osagoInsurer').textContent = insurance.osago.insurer || '-';
+        document.getElementById('osagoIssueDate').textContent = insurance.osago.issueDate ? formatDate(insurance.osago.issueDate) : '-';
+        document.getElementById('osagoEndDate').textContent = insurance.osago.endDate ? formatDate(insurance.osago.endDate) : '-';
+        document.getElementById('osagoPremium').textContent = insurance.osago.premium ? formatCurrency(insurance.osago.premium) : '-';
+
+        // Render OSGOP
+        document.getElementById('osgopNumber').textContent = insurance.osgop.number || '-';
+        document.getElementById('osgopInsurer').textContent = insurance.osgop.insurer || '-';
+        document.getElementById('osgopIssueDate').textContent = insurance.osgop.issueDate ? formatDate(insurance.osgop.issueDate) : '-';
+        document.getElementById('osgopEndDate').textContent = insurance.osgop.endDate ? formatDate(insurance.osgop.endDate) : '-';
+        document.getElementById('osgopPremium').textContent = insurance.osgop.premium ? formatCurrency(insurance.osgop.premium) : '-';
+
+        // Render DOSAGO
+        document.getElementById('dosagoInsurer').textContent = insurance.dosago.insurer || '-';
+        document.getElementById('dosagoIssueDate').textContent = insurance.dosago.issueDate ? formatDate(insurance.dosago.issueDate) : '-';
+        document.getElementById('dosagoEndDate').textContent = insurance.dosago.endDate ? formatDate(insurance.dosago.endDate) : '-';
+        document.getElementById('dosagoPremium').textContent = insurance.dosago.premium ? formatCurrency(insurance.dosago.premium) : '-';
+        document.getElementById('dosagoSum').textContent = insurance.dosago.sum ? formatCurrency(insurance.dosago.sum) : '-';
+
+        // Render KASKO
+        document.getElementById('kaskoSeries').textContent = insurance.kasko.series || '-';
+        document.getElementById('kaskoNumber').textContent = insurance.kasko.number || '-';
+        document.getElementById('kaskoInsurer').textContent = insurance.kasko.insurer || '-';
+        document.getElementById('kaskoIssueDate').textContent = insurance.kasko.issueDate ? formatDate(insurance.kasko.issueDate) : '-';
+        document.getElementById('kaskoEndDate').textContent = insurance.kasko.endDate ? formatDate(insurance.kasko.endDate) : '-';
+        document.getElementById('kaskoPremium').textContent = insurance.kasko.premium ? formatCurrency(insurance.kasko.premium) : '-';
+        document.getElementById('kaskoFranchise').textContent = insurance.kasko.franchise || '-';
+
+        // Update insurance alert
+        if (insurance.osago.endDate) {
+          const endDate = new Date(insurance.osago.endDate);
+          const today = new Date();
+          const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+          if (daysLeft <= 10 && daysLeft > 0) {
+            document.getElementById('insuranceAlert').style.display = 'block';
+          }
+        }
+      }
+
+      renderInsurance();
+
+      // Render completeness
+      function renderCompleteness() {
+        let completeness = getCompletenessByCarId(numericCarId);
+        const completenessTableBody = document.getElementById('completenessTableBody');
+        if (!completenessTableBody) return;
+
+        // If no completeness data exists, create default data
+        if (completeness.length === 0) {
+          const defaultItems = [
+            'Шашка такси', 'Магнитола', 'Видеорегистратор', 'Зарядное устройство', 'Планшет для рекламы',
+            'Детское кресло', 'Бустер', 'Зонт', 'Аптечка', 'Огнетушитель', 'Знак аварийной остановки',
+            'Трос', 'Крюк', 'Ключ', 'Отвертка', 'Домкрат', 'Баллонный ключ', 'Запаска', 'ГБО',
+            'СТС', 'ОСАГО', 'Диагностическая карта', 'Лицензия', 'Грязный салон', 'Запах табака',
+            'Повреждение салонных ковриков', 'Повреждение обшивки дверей', 'Сломанные ручки', 'Требуется химчистка'
+          ];
+          completeness = defaultItems.map((item, index) => ({
+            carId: numericCarId,
+            item: item,
+            status: index < 15 // First 15 items are present by default
+          }));
+          if (!mockData.completeness) {
+            mockData.completeness = [];
+          }
+          mockData.completeness.push(...completeness);
+        }
+
+        completenessTableBody.innerHTML = completeness.map((comp) => `
+          <tr>
+            <td>${comp.item}</td>
+            <td>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                <input type="checkbox" 
+                       data-completeness-item="${comp.item}"
+                       ${comp.status ? 'checked' : ''} 
+                       style="width: 18px; height: 18px; cursor: pointer;">
+                <span style="min-width: 100px;">${comp.status ? 'Есть' : 'Отсутствует'}</span>
+              </label>
+            </td>
+          </tr>
+        `).join('');
+
+        // Add change handlers for checkboxes
+        completenessTableBody.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+          checkbox.addEventListener('change', (e) => {
+            const item = e.target.dataset.completenessItem;
+            const completenessItem = mockData.completeness.find(c => c.carId === numericCarId && c.item === item);
+            if (completenessItem) {
+              completenessItem.status = e.target.checked;
+              // Update text
+              const span = e.target.nextElementSibling;
+              if (span) {
+                span.textContent = e.target.checked ? 'Есть' : 'Отсутствует';
+              }
+            }
+          });
+        });
+      }
+
+      renderCompleteness();
+
+      // Render documents
+      function renderDocuments() {
+        const documents = getDocumentsByCarId(numericCarId);
+        const documentsTableBody = document.getElementById('documentsTableBody');
+        if (!documentsTableBody) return;
+
+        if (documents.length === 0) {
+          documentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Документы не найдены</td></tr>';
+          return;
+        }
+
+        documentsTableBody.innerHTML = documents.map(doc => `
+          <tr>
+            <td>${doc.type}</td>
+            <td>${doc.name}</td>
+            <td>${formatDate(doc.date)}</td>
+            <td><button class="btn btn--normal" data-open-modal="#fileModal">Просмотр</button></td>
+          </tr>
+        `).join('');
+      }
+
+      renderDocuments();
+
+      // Render rent history
+      function renderRentHistory() {
+        const rentHistory = getRentHistoryByCarId(numericCarId);
+        const rentHistoryTableBody = document.getElementById('rentHistoryTableBody');
+        if (!rentHistoryTableBody) return;
+
+        if (rentHistory.length === 0) {
+          rentHistoryTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">История аренды не найдена</td></tr>';
+          return;
+        }
+
+        rentHistoryTableBody.innerHTML = rentHistory.map(rent => {
+          const startDate = new Date(rent.startDate);
+          const endDate = new Date(rent.endDate);
+          const startDateStr = startDate.toLocaleString('ru-RU', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const endDateStr = endDate.toLocaleString('ru-RU', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          return `
+          <tr>
+            <td>${rent.driverName}</td>
+            <td>${startDateStr}</td>
+            <td>${endDateStr}</td>
+          </tr>
+        `;
+        }).join('');
+      }
+
+      renderRentHistory();
+
+      // Initialize tabs
+      initTabs('#carTabs');
+
+      // Initialize modals
+      initModal('#fileModal', '[data-open-modal="#fileModal"]', '[data-close-modal="#fileModal"]');
+      initModal('#editCarModal', '#editCarBtn', '[data-close-modal="#editCarModal"]');
+      initModal('#eventModal', '#addEventBtn', '[data-close-modal="#eventModal"]');
+      initModal('#inspectionModal', null, '[data-close-modal="#inspectionModal"]');
+      initModal('#insuranceModal', null, '[data-close-modal="#insuranceModal"]');
+      initModal('#documentModal', '#addDocumentBtn', '[data-close-modal="#documentModal"]');
+      
+      // Add inspection button handler
+      document.getElementById('addInspectionBtn').addEventListener('click', () => {
+        openInspectionModal();
+      });
+
+      // Initialize UI state
+      initUIStateToggles();
+
+      // Edit car functionality
+      function openEditCarModal() {
+        document.getElementById('editCarPlate').value = car.plate || '';
+        document.getElementById('editCarVin').value = car.vin || '';
+        document.getElementById('editCarModel').value = car.model || '';
+        document.getElementById('editCarYear').value = car.year || '';
+        document.getElementById('editCarBodyColor').value = car.bodyColor || '';
+        document.getElementById('editCarCode').value = car.code || '';
+        document.getElementById('editCarCategory').value = car.category || '';
+        document.getElementById('editCarDepartment').value = car.department || '';
+        document.getElementById('editCarOrganization').value = car.organization || '';
+        document.getElementById('editCarLessor').value = car.lessor || '';
+        document.getElementById('editCarTransmissionType').value = car.transmissionType || '';
+        document.getElementById('editCarDriveType').value = car.driveType || '';
+        document.getElementById('editCarBodyNumber').value = car.bodyNumber || '';
+        document.getElementById('editCarUnladenMass').value = car.unladenMass || '';
+        document.getElementById('editCarMaxMass').value = car.maxMass || '';
+        document.getElementById('editCarEngineNumber').value = car.engineNumber || '';
+        document.getElementById('editCarEngineDisplacement').value = car.engineDisplacement || '';
+        document.getElementById('editCarEnginePower').value = car.enginePower || '';
+        document.getElementById('editCarFuelType').value = car.fuelType || '';
+        document.getElementById('editCarEcologicalClass').value = car.ecologicalClass || '';
+        document.getElementById('editCarInteriorType').value = car.interiorType || '';
+        document.getElementById('editCarStsSeries').value = car.stsSeries || '';
+        document.getElementById('editCarStsNumber').value = car.stsNumber || '';
+        document.getElementById('editCarStsIssueDate').value = car.stsIssueDate || '';
+        document.getElementById('editCarStsValidUntil').value = car.stsValidUntil || '';
+        document.getElementById('editCarStsRegistrationDate').value = car.stsRegistrationDate || '';
+        document.getElementById('editCarStsIssuedBy').value = car.stsIssuedBy || '';
+        document.getElementById('editCarPtsSeries').value = car.ptsSeries || '';
+        document.getElementById('editCarPtsNumber').value = car.ptsNumber || '';
+        document.getElementById('editCarPtsIssueDate').value = car.ptsIssueDate || '';
+        document.getElementById('editCarPtsIssuedBy').value = car.ptsIssuedBy || '';
+        document.getElementById('editCarTechInspectionNumber').value = car.techInspectionNumber || '';
+        document.getElementById('editCarTechInspectionIssueDate').value = car.techInspectionIssueDate || '';
+        document.getElementById('editCarTechInspectionValidUntil').value = car.techInspectionValidUntil || '';
+        document.getElementById('editCarCommissioningDate').value = car.commissioningDate || '';
+        document.getElementById('editCarDeregistrationDate').value = car.deregistrationDate || '';
+        document.getElementById('editCarCarrier').value = car.carrier || '';
+        document.getElementById('editCarCarrierActive').checked = car.carrierActive || false;
+        document.getElementById('editCarTaxiRegisterNumber').value = car.taxiRegisterNumber || '';
+        document.getElementById('editCarTaxiRegisterDate').value = car.taxiRegisterDate || '';
+      }
+
+      document.getElementById('editCarForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        car.plate = document.getElementById('editCarPlate').value;
+        car.vin = document.getElementById('editCarVin').value;
+        car.model = document.getElementById('editCarModel').value;
+        car.year = parseInt(document.getElementById('editCarYear').value) || null;
+        car.bodyColor = document.getElementById('editCarBodyColor').value || null;
+        car.code = document.getElementById('editCarCode').value || null;
+        car.category = document.getElementById('editCarCategory').value || null;
+        car.department = document.getElementById('editCarDepartment').value || null;
+        car.organization = document.getElementById('editCarOrganization').value || null;
+        car.lessor = document.getElementById('editCarLessor').value || null;
+        car.transmissionType = document.getElementById('editCarTransmissionType').value || null;
+        car.driveType = document.getElementById('editCarDriveType').value || null;
+        car.bodyNumber = document.getElementById('editCarBodyNumber').value || null;
+        car.unladenMass = parseFloat(document.getElementById('editCarUnladenMass').value) || null;
+        car.maxMass = parseFloat(document.getElementById('editCarMaxMass').value) || null;
+        car.engineNumber = document.getElementById('editCarEngineNumber').value || null;
+        car.engineDisplacement = parseFloat(document.getElementById('editCarEngineDisplacement').value) || null;
+        car.enginePower = parseFloat(document.getElementById('editCarEnginePower').value) || null;
+        car.fuelType = document.getElementById('editCarFuelType').value || null;
+        car.ecologicalClass = document.getElementById('editCarEcologicalClass').value || null;
+        car.interiorType = document.getElementById('editCarInteriorType').value || null;
+        car.stsSeries = document.getElementById('editCarStsSeries').value || null;
+        car.stsNumber = document.getElementById('editCarStsNumber').value || null;
+        car.stsIssueDate = document.getElementById('editCarStsIssueDate').value || null;
+        car.stsValidUntil = document.getElementById('editCarStsValidUntil').value || null;
+        car.stsRegistrationDate = document.getElementById('editCarStsRegistrationDate').value || null;
+        car.stsIssuedBy = document.getElementById('editCarStsIssuedBy').value || null;
+        car.ptsSeries = document.getElementById('editCarPtsSeries').value || null;
+        car.ptsNumber = document.getElementById('editCarPtsNumber').value || null;
+        car.ptsIssueDate = document.getElementById('editCarPtsIssueDate').value || null;
+        car.ptsIssuedBy = document.getElementById('editCarPtsIssuedBy').value || null;
+        car.techInspectionNumber = document.getElementById('editCarTechInspectionNumber').value || null;
+        car.techInspectionIssueDate = document.getElementById('editCarTechInspectionIssueDate').value || null;
+        car.techInspectionValidUntil = document.getElementById('editCarTechInspectionValidUntil').value || null;
+        car.commissioningDate = document.getElementById('editCarCommissioningDate').value || null;
+        car.deregistrationDate = document.getElementById('editCarDeregistrationDate').value || null;
+        car.carrier = document.getElementById('editCarCarrier').value || null;
+        car.carrierActive = document.getElementById('editCarCarrierActive').checked;
+        car.taxiRegisterNumber = document.getElementById('editCarTaxiRegisterNumber').value || null;
+        car.taxiRegisterDate = document.getElementById('editCarTaxiRegisterDate').value || null;
+        
+        // Update header
+        const carTitle = car.brand ? `${car.brand} ${car.model}` : car.model;
+        document.getElementById('carHeader').innerHTML = `
+          <h1>${car.plate} - ${carTitle}</h1>
+          <div style="margin-top: 12px;">
+            <span class="badge ${getStatusBadgeClass(car.status)}" id="carStatusBadge">${car.status}</span>
+          </div>
+        `;
+        
+        // Re-render main info
+        renderCarMainInfo();
+        
+        document.querySelector('#editCarModal').classList.remove('active');
+      });
+
+      document.getElementById('editCarBtn').addEventListener('click', openEditCarModal);
+
+      // Event modal functionality
+      function openEventModal(eventId = null) {
+        const modal = document.querySelector('#eventModal');
+        const form = document.getElementById('eventForm');
+        const title = document.getElementById('eventModalTitle');
+        
+        if (eventId) {
+          const event = getEventById(eventId);
+          if (!event) return;
+          
+          title.textContent = 'Редактировать событие';
+          document.getElementById('eventId').value = event.id;
+          const eventDate = new Date(event.date);
+          const dateStr = eventDate.toISOString().slice(0, 16);
+          document.getElementById('eventDate').value = dateStr;
+          document.getElementById('eventMileage').value = event.mileage;
+          document.getElementById('eventType').value = event.type;
+          document.getElementById('eventStatus').value = event.status;
+          document.getElementById('eventPriority').value = event.priority;
+          document.getElementById('eventResponsible').value = event.responsible;
+          document.getElementById('eventUser').value = event.user;
+          document.getElementById('eventRepairRequest').value = event.repairRequest || 'Нет';
+          document.getElementById('eventComment').value = event.comment || '';
+        } else {
+          title.textContent = 'Добавить событие';
+          form.reset();
+          document.getElementById('eventId').value = '';
+          // Set default values
+          const now = new Date();
+          document.getElementById('eventDate').value = now.toISOString().slice(0, 16);
+          document.getElementById('eventMileage').value = car.mileage || 0;
+          document.getElementById('eventPriority').value = '2';
+          document.getElementById('eventStatus').value = 'Открыто';
+          document.getElementById('eventRepairRequest').value = 'Нет';
+        }
+        
+        modal.classList.add('active');
+      }
+
+      document.getElementById('eventForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const eventId = document.getElementById('eventId').value;
+        const eventDate = document.getElementById('eventDate').value;
+        const eventMileage = parseInt(document.getElementById('eventMileage').value);
+        const eventType = document.getElementById('eventType').value;
+        const eventStatus = document.getElementById('eventStatus').value;
+        const eventPriority = parseInt(document.getElementById('eventPriority').value);
+        const eventResponsible = document.getElementById('eventResponsible').value;
+        const eventUser = document.getElementById('eventUser').value;
+        const eventRepairRequest = document.getElementById('eventRepairRequest').value;
+        const eventComment = document.getElementById('eventComment').value;
+
+        // Convert datetime-local to ISO string
+        const dateISO = new Date(eventDate).toISOString();
+
+        if (eventId) {
+          // Update existing event
+          const event = getEventById(eventId);
+          if (event) {
+            event.date = dateISO;
+            event.mileage = eventMileage;
+            event.type = eventType;
+            event.status = eventStatus;
+            event.priority = eventPriority;
+            event.responsible = eventResponsible;
+            event.user = eventUser;
+            event.repairRequest = eventRepairRequest;
+            event.comment = eventComment;
+          }
+        } else {
+          // Create new event
+          const newEvent = {
+            id: mockData.events.length > 0 ? Math.max(...mockData.events.map(e => e.id)) + 1 : 1,
+            carId: numericCarId,
+            date: dateISO,
+            mileage: eventMileage,
+            type: eventType,
+            status: eventStatus,
+            priority: eventPriority,
+            responsible: eventResponsible,
+            user: eventUser,
+            repairRequest: eventRepairRequest,
+            comment: eventComment
+          };
+          mockData.events.push(newEvent);
+        }
+
+        renderEvents();
+        document.querySelector('#eventModal').classList.remove('active');
+      });
+
+      // Inspection modal functionality
+      function openInspectionModal(inspectionId = null) {
+        const modal = document.querySelector('#inspectionModal');
+        const form = document.getElementById('inspectionForm');
+        const title = document.getElementById('inspectionModalTitle');
+        
+        if (inspectionId) {
+          const inspection = mockData.inspections.find(ins => ins.id === parseInt(inspectionId));
+          if (!inspection) return;
+          
+          title.textContent = 'Редактировать осмотр';
+          document.getElementById('inspectionId').value = inspection.id;
+          const inspectionDate = new Date(inspection.date);
+          const dateStr = inspectionDate.toISOString().slice(0, 16);
+          document.getElementById('inspectionDate').value = dateStr;
+          document.getElementById('inspectionType').value = inspection.type;
+          document.getElementById('inspectionMileage').value = inspection.mileage;
+          document.getElementById('inspectionMechanic').value = inspection.mechanicName;
+          document.getElementById('inspectionDriver').value = inspection.driverName || '';
+          document.getElementById('inspectionHasDamages').checked = inspection.hasDamages || false;
+          document.getElementById('inspectionHasIncomplete').checked = inspection.hasIncomplete || false;
+          document.getElementById('inspectionHasLostDocuments').checked = inspection.hasLostDocuments || false;
+          document.getElementById('inspectionComment').value = inspection.notes || '';
+        } else {
+          title.textContent = 'Добавить осмотр';
+          form.reset();
+          document.getElementById('inspectionId').value = '';
+          // Set default values
+          const now = new Date();
+          document.getElementById('inspectionDate').value = now.toISOString().slice(0, 16);
+          document.getElementById('inspectionMileage').value = car.mileage || 0;
+          document.getElementById('inspectionType').value = '';
+          document.getElementById('inspectionMechanic').value = '';
+          document.getElementById('inspectionDriver').value = car.currentDriver || '';
+          document.getElementById('inspectionHasDamages').checked = false;
+          document.getElementById('inspectionHasIncomplete').checked = false;
+          document.getElementById('inspectionHasLostDocuments').checked = false;
+        }
+        
+        modal.classList.add('active');
+      }
+
+      document.getElementById('inspectionForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const inspectionId = document.getElementById('inspectionId').value;
+        const inspectionDate = document.getElementById('inspectionDate').value;
+        const inspectionType = document.getElementById('inspectionType').value;
+        const inspectionMileage = parseInt(document.getElementById('inspectionMileage').value);
+        const inspectionMechanic = document.getElementById('inspectionMechanic').value;
+        const inspectionDriver = document.getElementById('inspectionDriver').value;
+        const inspectionHasDamages = document.getElementById('inspectionHasDamages').checked;
+        const inspectionHasIncomplete = document.getElementById('inspectionHasIncomplete').checked;
+        const inspectionHasLostDocuments = document.getElementById('inspectionHasLostDocuments').checked;
+        const inspectionComment = document.getElementById('inspectionComment').value;
+
+        // Convert datetime-local to ISO string
+        const dateISO = new Date(inspectionDate).toISOString();
+
+        if (inspectionId) {
+          // Update existing inspection
+          const inspection = mockData.inspections.find(ins => ins.id === parseInt(inspectionId));
+          if (inspection) {
+            inspection.date = dateISO;
+            inspection.type = inspectionType;
+            inspection.mileage = inspectionMileage;
+            inspection.mechanicName = inspectionMechanic;
+            inspection.driverName = inspectionDriver || null;
+            inspection.hasDamages = inspectionHasDamages;
+            inspection.hasIncomplete = inspectionHasIncomplete;
+            inspection.hasLostDocuments = inspectionHasLostDocuments;
+            inspection.notes = inspectionComment || null;
+          }
+        } else {
+          // Create new inspection
+          const newInspection = {
+            id: mockData.inspections.length > 0 ? Math.max(...mockData.inspections.map(i => i.id)) + 1 : 1,
+            date: dateISO,
+            plate: car.plate,
+            type: inspectionType,
+            mechanicName: inspectionMechanic,
+            driverName: inspectionDriver || null,
+            mileage: inspectionMileage,
+            hasDamages: inspectionHasDamages,
+            hasIncomplete: inspectionHasIncomplete,
+            hasLostDocuments: inspectionHasLostDocuments,
+            notes: inspectionComment || null
+          };
+          mockData.inspections.push(newInspection);
+        }
+
+        renderInspections();
+        document.querySelector('#inspectionModal').classList.remove('active');
+      });
+
+      // Insurance modal functionality
+      function openInsuranceModal(type) {
+        const modal = document.querySelector('#insuranceModal');
+        const form = document.getElementById('insuranceForm');
+        const title = document.getElementById('insuranceModalTitle');
+        
+        // Hide all fields
+        document.getElementById('osagoFields').style.display = 'none';
+        document.getElementById('osgopFields').style.display = 'none';
+        document.getElementById('dosagoFields').style.display = 'none';
+        document.getElementById('kaskoFields').style.display = 'none';
+
+        let insurance = getInsuranceByCarId(numericCarId);
+        if (!insurance) {
+          insurance = {
+            carId: numericCarId,
+            osago: { series: 'XXX', number: '0584304735', insurer: 'АльфаСтрахование', issueDate: '2025-12-28', endDate: '2026-12-27', premium: 30296.86 },
+            osgop: { number: null, insurer: null, issueDate: null, endDate: null, premium: null },
+            dosago: { insurer: 'АльфаСтрахование', issueDate: '2025-12-28', endDate: '2026-12-27', premium: 2950.00, sum: 400000.00 },
+            kasko: { series: null, number: null, insurer: null, issueDate: null, endDate: null, premium: null, franchise: null }
+          };
+        }
+
+        document.getElementById('insuranceType').value = type;
+        const typeNames = { osago: 'ОСАГО', osgop: 'ОСГОП', dosago: 'ДОСАГО', kasko: 'КАСКО' };
+        title.textContent = `Редактировать ${typeNames[type]}`;
+
+        if (type === 'osago') {
+          document.getElementById('osagoFields').style.display = 'block';
+          document.getElementById('insuranceSeries').value = insurance.osago.series || '';
+          document.getElementById('insuranceNumber').value = insurance.osago.number || '';
+          document.getElementById('insuranceInsurer').value = insurance.osago.insurer || '';
+          document.getElementById('insuranceIssueDate').value = insurance.osago.issueDate || '';
+          document.getElementById('insuranceEndDate').value = insurance.osago.endDate || '';
+          document.getElementById('insurancePremium').value = insurance.osago.premium || '';
+        } else if (type === 'osgop') {
+          document.getElementById('osgopFields').style.display = 'block';
+          document.getElementById('osgopNumber').value = insurance.osgop.number || '';
+          document.getElementById('osgopInsurer').value = insurance.osgop.insurer || '';
+          document.getElementById('osgopIssueDate').value = insurance.osgop.issueDate || '';
+          document.getElementById('osgopEndDate').value = insurance.osgop.endDate || '';
+          document.getElementById('osgopPremium').value = insurance.osgop.premium || '';
+        } else if (type === 'dosago') {
+          document.getElementById('dosagoFields').style.display = 'block';
+          document.getElementById('dosagoInsurer').value = insurance.dosago.insurer || '';
+          document.getElementById('dosagoIssueDate').value = insurance.dosago.issueDate || '';
+          document.getElementById('dosagoEndDate').value = insurance.dosago.endDate || '';
+          document.getElementById('dosagoPremium').value = insurance.dosago.premium || '';
+          document.getElementById('dosagoSum').value = insurance.dosago.sum || '';
+        } else if (type === 'kasko') {
+          document.getElementById('kaskoFields').style.display = 'block';
+          document.getElementById('kaskoSeries').value = insurance.kasko.series || '';
+          document.getElementById('kaskoNumber').value = insurance.kasko.number || '';
+          document.getElementById('kaskoInsurer').value = insurance.kasko.insurer || '';
+          document.getElementById('kaskoIssueDate').value = insurance.kasko.issueDate || '';
+          document.getElementById('kaskoEndDate').value = insurance.kasko.endDate || '';
+          document.getElementById('kaskoPremium').value = insurance.kasko.premium || '';
+          document.getElementById('kaskoFranchise').value = insurance.kasko.franchise || '';
+        }
+
+        modal.classList.add('active');
+      }
+
+      // Add click handlers for insurance edit buttons
+      document.querySelectorAll('[data-edit-insurance]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.editInsurance;
+          openInsuranceModal(type);
+        });
+      });
+
+      document.getElementById('insuranceForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = document.getElementById('insuranceType').value;
+        
+        let insurance = getInsuranceByCarId(numericCarId);
+        if (!insurance) {
+          insurance = {
+            carId: numericCarId,
+            osago: {},
+            osgop: {},
+            dosago: {},
+            kasko: {}
+          };
+          if (!mockData.insurances) {
+            mockData.insurances = [];
+          }
+          mockData.insurances.push(insurance);
+        }
+
+        if (type === 'osago') {
+          insurance.osago = {
+            series: document.getElementById('insuranceSeries').value || null,
+            number: document.getElementById('insuranceNumber').value || null,
+            insurer: document.getElementById('insuranceInsurer').value || null,
+            issueDate: document.getElementById('insuranceIssueDate').value || null,
+            endDate: document.getElementById('insuranceEndDate').value || null,
+            premium: parseFloat(document.getElementById('insurancePremium').value) || null
+          };
+        } else if (type === 'osgop') {
+          insurance.osgop = {
+            number: document.getElementById('osgopNumber').value || null,
+            insurer: document.getElementById('osgopInsurer').value || null,
+            issueDate: document.getElementById('osgopIssueDate').value || null,
+            endDate: document.getElementById('osgopEndDate').value || null,
+            premium: parseFloat(document.getElementById('osgopPremium').value) || null
+          };
+        } else if (type === 'dosago') {
+          insurance.dosago = {
+            insurer: document.getElementById('dosagoInsurer').value || null,
+            issueDate: document.getElementById('dosagoIssueDate').value || null,
+            endDate: document.getElementById('dosagoEndDate').value || null,
+            premium: parseFloat(document.getElementById('dosagoPremium').value) || null,
+            sum: parseFloat(document.getElementById('dosagoSum').value) || null
+          };
+        } else if (type === 'kasko') {
+          insurance.kasko = {
+            series: document.getElementById('kaskoSeries').value || null,
+            number: document.getElementById('kaskoNumber').value || null,
+            insurer: document.getElementById('kaskoInsurer').value || null,
+            issueDate: document.getElementById('kaskoIssueDate').value || null,
+            endDate: document.getElementById('kaskoEndDate').value || null,
+            premium: parseFloat(document.getElementById('kaskoPremium').value) || null,
+            franchise: document.getElementById('kaskoFranchise').value || null
+          };
+        }
+
+        renderInsurance();
+        document.querySelector('#insuranceModal').classList.remove('active');
+      });
+
+      // Document upload functionality
+      document.getElementById('documentForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const documentName = document.getElementById('documentName').value;
+        const documentType = document.getElementById('documentType').value;
+        const documentFile = document.getElementById('documentFile').files[0];
+
+        if (!documentFile) {
+          alert('Пожалуйста, выберите файл для загрузки');
+          return;
+        }
+
+        // Get file name
+        const fileName = documentFile.name;
+        
+        // Create new document entry
+        const newDocument = {
+          id: mockData.documents.length > 0 ? Math.max(...mockData.documents.map(d => d.id)) + 1 : 1,
+          carId: numericCarId,
+          type: documentType,
+          name: documentName,
+          date: new Date().toISOString().split('T')[0],
+          fileName: fileName
+        };
+
+        if (!mockData.documents) {
+          mockData.documents = [];
+        }
+        mockData.documents.push(newDocument);
+
+        // In a real application, you would upload the file to a server here
+        // For this prototype, we just store the metadata
+        console.log('File would be uploaded:', {
+          name: documentName,
+          type: documentType,
+          file: fileName,
+          size: documentFile.size
+        });
+
+        renderDocuments();
+        document.getElementById('documentForm').reset();
+        document.querySelector('#documentModal').classList.remove('active');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ремонты - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link active">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1 style="margin-bottom: 32px;">Заказ-наряды / Ремонты</h1>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label class="form-label">Статус ремонта:</label>
+          <select class="form-select" id="statusFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="В работе">В работе</option>
+            <option value="Завершён">Завершён</option>
+            <option value="Ожидает оплаты">Ожидает оплаты</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Статус оплаты:</label>
+          <select class="form-select" id="paymentFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="Оплачен">Оплачен</option>
+            <option value="Не оплачен">Не оплачен</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="table" id="ordersTable">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Статус ремонта</th>
+            <th>Статус оплаты</th>
+            <th>Авто</th>
+            <th>Водитель</th>
+            <th>Пробег</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function renderOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      tbody.innerHTML = mockData.serviceOrders.map(order => `
+        <tr>
+          <td>${formatDate(order.createdAt)}</td>
+          <td><span class="badge ${getStatusBadgeClass(order.status)}">${order.status}</span></td>
+          <td><span class="badge ${getStatusBadgeClass(order.paymentStatus)}">${order.paymentStatus}</span></td>
+          <td>${order.plate} (${order.model})</td>
+          <td>${order.driverName || '-'}</td>
+          <td>${formatNumber(order.mileage)} км</td>
+        </tr>
+      `).join('');
+    }
+
+    function applyFilters() {
+      const status = document.getElementById('statusFilter').value;
+      const payment = document.getElementById('paymentFilter').value;
+
+      filterTable('#ordersTable', (row) => {
+        const cells = row.cells;
+        if (status && cells[1].textContent.trim() !== status) return false;
+        if (payment && cells[2].textContent.trim() !== payment) return false;
+        return true;
+      });
+    }
+
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('paymentFilter').addEventListener('change', applyFilters);
+
+    renderOrders();
+  </script>
+</body>
+</html>

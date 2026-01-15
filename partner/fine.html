@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карточка штрафа - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link active">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div style="margin-bottom: 24px;">
+        <a href="fines.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к списку</a>
+      </div>
+
+      <div class="card" id="fineInfo" style="margin-bottom: 32px;"></div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 16px;">История платежей</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Сумма</th>
+              <th>Способ оплаты</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="paid-date" style="display: none;">-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <h3 style="margin-bottom: 16px;">Фото/вложения</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+          <div style="width: 100%; height: 150px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md); display: flex; align-items: center; justify-content: center;">
+            <span style="color: var(--g-color-text-hint);">Placeholder</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/ui-state.js"></script>
+  <script>
+    const fineId = getUrlParameter('id');
+    const fine = getFineById(fineId);
+
+    if (!fine) {
+      document.body.innerHTML = '<div class="container"><h1>Штраф не найден</h1><a href="fines.html">Вернуться к списку</a></div>';
+    } else {
+      document.getElementById('fineInfo').innerHTML = `
+        <div class="alert alert--warning alert--discount" style="display: ${fine.discountAvailable ? 'block' : 'none'}; margin-bottom: 16px;">
+          Скидка доступна до ${formatDate(fine.discountDeadline)}
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Номер протокола</label>
+            <div>ПРОТ-${fine.id}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Авто</label>
+            <div>${fine.plate}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Водитель</label>
+            <div>${fine.driverName}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата/время</label>
+            <div>${formatDate(fine.date)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сумма</label>
+            <div>${formatCurrency(fine.amount)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Скидка</label>
+            <div>${fine.discountAvailable ? 'Доступна' : 'Недоступна'}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Статус</label>
+            <div><span class="badge ${getStatusBadgeClass(fine.status)} badge--status">${fine.status}</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Изменить статус</label>
+            <select class="form-select" data-change-status data-fine-id="${fine.id}">
+              <option value="Новый" ${fine.status === 'Новый' ? 'selected' : ''}>Новый</option>
+              <option value="Начислен" ${fine.status === 'Начислен' ? 'selected' : ''}>Начислен</option>
+              <option value="Оплачен" ${fine.status === 'Оплачен' ? 'selected' : ''}>Оплачен</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      if (fine.paidDate) {
+        document.querySelector('.paid-date').textContent = formatDate(fine.paidDate);
+        document.querySelector('.paid-date').style.display = 'table-cell';
+      }
+
+      initUIStateToggles();
+    }
+  </script>
+</body>
+</html>

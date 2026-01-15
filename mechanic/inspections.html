@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>История осмотров - Механик</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <main class="main-content" style="max-width: 600px; margin: 0 auto; padding: 24px;">
+    <div style="margin-bottom: 24px;">
+      <a href="home.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к задачам</a>
+    </div>
+
+    <h1 style="margin-bottom: 32px;">История осмотров</h1>
+
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label class="form-label">Фильтр по авто</label>
+      <select class="form-select" id="carFilter" onchange="filterInspections()">
+        <option value="">Все авто</option>
+        <option value="А123БВ777">А123БВ777</option>
+        <option value="Е345КЛ777">Е345КЛ777</option>
+        <option value="З901ОП777">З901ОП777</option>
+      </select>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;" id="inspectionsList">
+      <!-- Will be populated by JS -->
+    </div>
+  </main>
+
+  <!-- Inspection Modal -->
+  <div class="modal" id="inspectionModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Детали осмотра</h3>
+        <button class="modal__close" onclick="closeModal()">×</button>
+      </div>
+      <div id="inspectionDetails" style="padding: 20px 0;">
+        <!-- Will be populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function renderInspections(filterPlate = '') {
+      const list = document.getElementById('inspectionsList');
+      let inspections = mockData.inspections;
+      
+      if (filterPlate) {
+        inspections = inspections.filter(i => i.plate === filterPlate);
+      }
+
+      list.innerHTML = inspections.map(ins => `
+        <div class="card" onclick="showInspectionDetails(${ins.id})" style="cursor: pointer;">
+          <div style="margin-bottom: 8px;"><strong>${formatDate(ins.date)}</strong></div>
+          <div style="margin-bottom: 8px;">Авто: ${ins.plate}</div>
+          <div style="margin-bottom: 8px;">Тип: ${ins.type}</div>
+          <div>Результат: ${ins.hasDamages ? '<span class="badge badge--danger">Есть повреждения</span>' : '<span class="badge badge--success">Без повреждений</span>'}</div>
+        </div>
+      `).join('');
+    }
+
+    function filterInspections() {
+      const filter = document.getElementById('carFilter').value;
+      renderInspections(filter);
+    }
+
+    function showInspectionDetails(id) {
+      const inspection = mockData.inspections.find(i => i.id === id);
+      if (!inspection) return;
+
+      document.getElementById('inspectionDetails').innerHTML = `
+        <div style="margin-bottom: 16px;">
+          <strong>Дата:</strong> ${formatDate(inspection.date)}
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Авто:</strong> ${inspection.plate}
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Тип:</strong> ${inspection.type}
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Пробег:</strong> ${formatNumber(inspection.mileage)} км
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Механик:</strong> ${inspection.mechanicName}
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Результат:</strong> ${inspection.hasDamages ? '<span class="badge badge--danger">Есть повреждения</span>' : '<span class="badge badge--success">Без повреждений</span>'}
+        </div>
+        ${inspection.notes ? `<div style="margin-bottom: 16px;"><strong>Заметки:</strong> ${inspection.notes}</div>` : ''}
+        <div style="margin-top: 24px;">
+          <strong>Фото:</strong>
+          <div style="width: 100%; height: 200px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md); margin-top: 12px; display: flex; align-items: center; justify-content: center;">
+            <span style="color: var(--g-color-text-hint);">Placeholder изображения</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('inspectionModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('inspectionModal').classList.remove('active');
+    }
+
+    renderInspections();
+  </script>
+</body>
+</html>

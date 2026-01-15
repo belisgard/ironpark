@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выдача авто - Механик</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <main class="main-content" style="max-width: 600px; margin: 0 auto; padding: 24px;">
+    <div style="margin-bottom: 24px;">
+      <a href="home.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к задачам</a>
+    </div>
+
+    <h1 style="margin-bottom: 32px;">Выдача авто</h1>
+
+    <!-- Progress Steps -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 32px; position: relative;">
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--info" id="step1" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">1</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Авто/Водитель</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step2" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">2</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Фото</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step3" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">3</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Чек-лист</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step4" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">4</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Подпись</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step5" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">5</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Завершение</div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="card" id="step1Content">
+      <h3 style="margin-bottom: 16px;">Шаг 1: Авто и водитель</h3>
+      <div class="form-group">
+        <label class="form-label">Автомобиль</label>
+        <select class="form-select" id="carSelect">
+          <option value="">Выберите авто</option>
+          <option value="А123БВ777">А123БВ777 - Toyota Camry</option>
+          <option value="Е345КЛ777">Е345КЛ777 - Skoda Octavia</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Водитель</label>
+        <select class="form-select" id="driverSelect">
+          <option value="">Выберите водителя</option>
+          <option value="1">Иванов Иван Иванович</option>
+          <option value="2">Козлов Константин Константинович</option>
+        </select>
+      </div>
+      <button class="btn btn--action" onclick="goToStep(2)" style="width: 100%; margin-top: 16px;">Далее</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card" id="step2Content" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Шаг 2: Фотофиксация</h3>
+      <div class="form-group">
+        <label class="form-label">Загрузить фото (минимум 1)</label>
+        <input type="file" class="form-input" id="photoInput" multiple accept="image/*" onchange="handlePhotoUpload(event)">
+      </div>
+      <div id="photoPreview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;"></div>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button class="btn btn--normal" onclick="goToStep(1)" style="flex: 1;">Назад</button>
+        <button class="btn btn--action" onclick="goToStep(3)" id="step2Next" style="flex: 1;" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card" id="step3Content" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Шаг 3: Чек-лист</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <label style="display: flex; align-items: center;">
+          <input type="checkbox" class="form-checkbox" id="check1" onchange="checkChecklist()">
+          <span style="margin-left: 8px;">Комплектность полная</span>
+        </label>
+        <label style="display: flex; align-items: center;">
+          <input type="checkbox" class="form-checkbox" id="check2" onchange="checkChecklist()">
+          <span style="margin-left: 8px;">Нет повреждений</span>
+        </label>
+        <label style="display: flex; align-items: center;">
+          <input type="checkbox" class="form-checkbox" id="check3" onchange="checkChecklist()">
+          <span style="margin-left: 8px;">Техническое состояние в норме</span>
+        </label>
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button class="btn btn--normal" onclick="goToStep(2)" style="flex: 1;">Назад</button>
+        <button class="btn btn--action" onclick="goToStep(4)" id="step3Next" style="flex: 1;" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="card" id="step4Content" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Шаг 4: Подпись</h3>
+      <canvas id="signatureCanvas" width="100%" height="200" style="border: 1px solid var(--g-color-line-generic); border-radius: var(--g-border-radius-md); cursor: crosshair; touch-action: none;"></canvas>
+      <button class="btn btn--normal" onclick="clearSignature()" style="width: 100%; margin-top: 12px;">Очистить</button>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button class="btn btn--normal" onclick="goToStep(3)" style="flex: 1;">Назад</button>
+        <button class="btn btn--action" onclick="goToStep(5)" id="step4Next" style="flex: 1;" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="card" id="step5Content" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Шаг 5: Завершение</h3>
+      <p style="margin-bottom: 24px; color: var(--g-color-text-secondary);">
+        Проверьте все данные перед завершением выдачи
+      </p>
+      <button class="btn btn--action" id="completeBtn" onclick="completeIssue()" style="width: 100%;" disabled>Завершить выдачу</button>
+      <button class="btn btn--normal" onclick="goToStep(4)" style="width: 100%; margin-top: 12px;">Назад</button>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="card" id="successScreen" style="display: none; text-align: center;">
+      <h2 style="margin-bottom: 16px; color: var(--g-color-base-success);">Выдача завершена</h2>
+      <p style="margin-bottom: 24px; color: var(--g-color-text-secondary);">
+        Автомобиль успешно выдан
+      </p>
+      <a href="home.html" class="btn btn--action" style="width: 100%; text-align: center; display: block;">Назад к задачам</a>
+    </div>
+  </main>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script>
+    let currentStep = 1;
+    let photos = [];
+    let signatureDrawn = false;
+
+    function goToStep(step) {
+      document.getElementById(`step${currentStep}Content`).style.display = 'none';
+      document.getElementById(`step${currentStep}`).className = 'badge badge--neutral';
+      
+      currentStep = step;
+      document.getElementById(`step${currentStep}Content`).style.display = 'block';
+      document.getElementById(`step${currentStep}`).className = 'badge badge--info';
+      
+      if (step === 4) {
+        initSignature();
+      }
+      if (step === 5) {
+        checkComplete();
+      }
+    }
+
+    function handlePhotoUpload(event) {
+      const files = Array.from(event.target.files);
+      photos = files;
+      const preview = document.getElementById('photoPreview');
+      preview.innerHTML = files.map((file, index) => `
+        <div style="position: relative;">
+          <img src="${URL.createObjectURL(file)}" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--g-border-radius-md);">
+        </div>
+      `).join('');
+      document.getElementById('step2Next').disabled = files.length === 0;
+    }
+
+    function checkChecklist() {
+      const allChecked = document.getElementById('check1').checked &&
+                        document.getElementById('check2').checked &&
+                        document.getElementById('check3').checked;
+      document.getElementById('step3Next').disabled = !allChecked;
+    }
+
+    function initSignature() {
+      const canvas = document.getElementById('signatureCanvas');
+      const ctx = canvas.getContext('2d');
+      let isDrawing = false;
+
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        startDrawing({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        draw({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
+      });
+      canvas.addEventListener('touchend', stopDrawing);
+
+      function startDrawing(e) {
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+      }
+
+      function draw(e) {
+        if (!isDrawing) return;
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        signatureDrawn = true;
+        document.getElementById('step4Next').disabled = false;
+      }
+
+      function stopDrawing() {
+        isDrawing = false;
+      }
+    }
+
+    function clearSignature() {
+      const canvas = document.getElementById('signatureCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      signatureDrawn = false;
+      document.getElementById('step4Next').disabled = true;
+    }
+
+    function checkComplete() {
+      const canComplete = photos.length > 0 && 
+                         document.getElementById('check1').checked &&
+                         document.getElementById('check2').checked &&
+                         document.getElementById('check3').checked &&
+                         signatureDrawn;
+      document.getElementById('completeBtn').disabled = !canComplete;
+    }
+
+    function completeIssue() {
+      document.getElementById('step5Content').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

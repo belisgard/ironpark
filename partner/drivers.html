@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Водители - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link active">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1 style="margin-bottom: 32px;">Водители</h1>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label><input type="checkbox" class="form-checkbox" id="hasDebtFilter"> Есть задолженность</label>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Статус:</label>
+          <select class="form-select" id="statusFilter" style="width: 200px;">
+            <option value="">Все</option>
+            <option value="Активен">Активен</option>
+            <option value="Неактивен">Неактивен</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Поиск:</label>
+          <input type="text" class="form-input" id="searchInput" placeholder="ФИО" style="width: 200px;">
+        </div>
+      </div>
+
+      <table class="table" id="driversTable">
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Статус</th>
+            <th>Текущее ТС</th>
+            <th>Задолженность</th>
+            <th>Баланс</th>
+            <th>Ставка аренды</th>
+          </tr>
+        </thead>
+        <tbody id="driversTableBody"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    function renderDrivers() {
+      const tbody = document.getElementById('driversTableBody');
+      tbody.innerHTML = mockData.drivers.map(driver => `
+        <tr onclick="window.location.href='driver.html?id=${driver.id}'">
+          <td>${driver.name}</td>
+          <td><span class="badge ${getStatusBadgeClass(driver.status)}">${driver.status}</span></td>
+          <td>${driver.currentCarPlate || '-'}</td>
+          <td>${driver.debtAmount > 0 ? '<span style="color: var(--g-color-base-danger);">' + formatCurrency(driver.debtAmount) + '</span>' : '-'}</td>
+          <td>${formatCurrency(driver.balanceAmount)}</td>
+          <td>${formatCurrency(driver.rentRate)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function applyFilters() {
+      const hasDebt = document.getElementById('hasDebtFilter').checked;
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      filterTable('#driversTable', (row) => {
+        const cells = row.cells;
+        if (hasDebt && cells[3].textContent === '-') return false;
+        if (status && cells[1].textContent.trim() !== status) return false;
+        if (search && !cells[0].textContent.toLowerCase().includes(search)) return false;
+        return true;
+      });
+    }
+
+    document.getElementById('hasDebtFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    renderDrivers();
+  </script>
+</body>
+</html>

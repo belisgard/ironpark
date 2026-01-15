@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карточка водителя - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link active">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div style="margin-bottom: 24px;">
+        <a href="drivers.html" style="color: var(--g-color-text-link); text-decoration: none;">← Назад к списку</a>
+      </div>
+
+      <div id="driverHeader" style="margin-bottom: 32px;"></div>
+
+      <div class="tabs" id="driverTabs">
+        <button class="tab active" data-tab="main">Основное</button>
+        <button class="tab" data-tab="vehicle-history">История ТС</button>
+        <button class="tab" data-tab="rent-contracts">Договора аренды</button>
+        <button class="tab" data-tab="finance">Финансы</button>
+        <button class="tab" data-tab="fines">Штрафы</button>
+        <button class="tab" data-tab="documents">Документы</button>
+        <button class="tab" data-tab="change-history">История изменений</button>
+      </div>
+
+      <div class="tab-content active" data-tab="main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="margin: 0;">Основная информация</h2>
+          <button class="btn btn--action" data-open-modal="#editDriverModal">Редактировать</button>
+        </div>
+        <div class="card" id="driverMainInfo"></div>
+        <div style="margin-top: 24px;">
+          <button class="btn btn--normal" data-toggle="debt" data-driver-id="">Симулировать: есть задолженность</button>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="vehicle-history">
+        <div class="card">
+          <h2 style="margin: 0 0 24px 0;">История транспортных средств</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Наименование транспортного средства</th>
+                <th>Госномер</th>
+                <th>Дата выдачи</th>
+                <th>Период окончания</th>
+              </tr>
+            </thead>
+            <tbody id="vehicleHistoryTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="rent-contracts">
+        <div class="card">
+          <h2 style="margin: 0 0 24px 0;">Договора аренды</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Номер</th>
+                <th>Статус</th>
+                <th>Транспортное средство</th>
+                <th>Начало действия</th>
+                <th>Окончание действия</th>
+                <th>Стоимость аренды в сутки</th>
+                <th>Водитель</th>
+              </tr>
+            </thead>
+            <tbody id="rentContractsTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" data-tab="finance">
+        <div class="card">
+              <div class="alert alert--danger debt-banner" style="display: none; margin-bottom: 16px;">
+                Есть задолженность
+              </div>
+              <div style="margin-bottom: 24px; padding: 16px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md);">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                  <div>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Разделы баланса:</label>
+                    <div style="margin-top: 4px;">
+                      <label style="display: inline-flex; align-items: center; gap: 4px; margin-right: 12px;">
+                        <input type="checkbox" checked> Аренда
+                      </label>
+                      <label style="display: inline-flex; align-items: center; gap: 4px; margin-right: 12px;">
+                        <input type="checkbox" checked> Прочее
+                      </label>
+                      <label style="display: inline-flex; align-items: center; gap: 4px;">
+                        <input type="checkbox" checked> Штрафы
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Период:</label>
+                    <div style="display: flex; gap: 8px; margin-top: 4px; align-items: center;">
+                      <input type="date" class="form-input" id="financeDateFrom" style="width: 150px;">
+                      <span style="color: var(--g-color-text-secondary);">—</span>
+                      <input type="date" class="form-input" id="financeDateTo" style="width: 150px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Раздел</th>
+                    <th>Время</th>
+                    <th>Приход</th>
+                    <th>Расход</th>
+                    <th>Остаток</th>
+                    <th>Способ оплаты</th>
+                    <th>Описание</th>
+                  </tr>
+                </thead>
+                <tbody id="financeTableBody">
+                  <!-- Will be populated by JS -->
+                </tbody>
+              </table>
+            </div>
+        </div>
+
+      <div class="tab-content" data-tab="fines">
+        <div class="card">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Авто</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                  </tr>
+                </thead>
+                <tbody id="driverFinesTableBody">                </tbody>
+              </table>
+            </div>
+        </div>
+
+      <div class="tab-content" data-tab="documents">
+        <div class="card">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Тип</th>
+                    <th>Имя</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Паспорт</td>
+                    <td>Паспорт.pdf</td>
+                    <td>01.01.2024</td>
+                    <td><button class="btn btn--normal" data-open-modal="#fileModal">Просмотр</button></td>
+                  </tr>
+                  <tr>
+                    <td>Водительское удостоверение</td>
+                    <td>ВУ.pdf</td>
+                    <td>01.01.2024</td>
+                    <td><button class="btn btn--normal" data-open-modal="#fileModal">Просмотр</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </div>
+
+      <div class="tab-content" data-tab="change-history">
+        <div class="card">
+          <h2 style="margin: 0 0 24px 0;">История изменений</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата время</th>
+                <th>Поле измененное</th>
+                <th>Значение было</th>
+                <th>Значение стало</th>
+                <th>ФИО редактора</th>
+              </tr>
+            </thead>
+            <tbody id="changeHistoryTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="fileModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Просмотр файла</h3>
+        <button class="modal__close" data-close-modal="#fileModal">×</button>
+      </div>
+      <div style="text-align: center; padding: 40px;">
+        <p style="color: var(--g-color-text-secondary);">Превью файла</p>
+        <div style="width: 100%; height: 300px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md); margin-top: 20px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: var(--g-color-text-hint);">Placeholder изображения</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="editDriverModal">
+    <div class="modal__content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal__header">
+        <h3 class="modal__title">Редактирование водителя</h3>
+        <button class="modal__close" data-close-modal="#editDriverModal">×</button>
+      </div>
+      <div class="modal__body" style="padding: var(--g-spacing-xl);">
+        <form id="editDriverForm">
+          <div style="margin-bottom: 32px;">
+            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Основное</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">ФИО</label>
+                <input type="text" class="form-input" id="editFullName" name="fullName" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Статус</label>
+                <select class="form-input" id="editStatus" name="status" required>
+                  <option value="Работает">Работает</option>
+                  <option value="Активен">Активен</option>
+                  <option value="Неактивен">Неактивен</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Паспорт/СНИЛС</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Серия/номер (без пробелов)</label>
+                <input type="text" class="form-input" id="editPassportSeries" placeholder="Серия" style="width: 48%; display: inline-block;">
+                <input type="text" class="form-input" id="editPassportNumber" placeholder="Номер" style="width: 48%; display: inline-block; margin-left: 4%;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Гражданство</label>
+                <input type="text" class="form-input" id="editCitizenship" name="citizenship">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Кем выдан</label>
+                <input type="text" class="form-input" id="editPassportIssuedBy" name="passportIssuedBy">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Пол</label>
+                <select class="form-input" id="editGender" name="gender">
+                  <option value="Мужской">Мужской</option>
+                  <option value="Женский">Женский</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата выдачи</label>
+                <input type="date" class="form-input" id="editPassportIssueDate" name="passportIssueDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Срок действия</label>
+                <input type="date" class="form-input" id="editPassportValidUntil" name="passportValidUntil">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Код подразделения</label>
+                <input type="text" class="form-input" id="editPassportDepartmentCode" name="passportDepartmentCode">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Адрес регистрации</label>
+                <input type="text" class="form-input" id="editRegistrationAddress" name="registrationAddress">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата рождения</label>
+                <input type="date" class="form-input" id="editBirthDate" name="birthDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Место рождения</label>
+                <input type="text" class="form-input" id="editBirthPlace" name="birthPlace">
+              </div>
+              <div class="form-group">
+                <label class="form-label">СНИЛС</label>
+                <input type="text" class="form-input" id="editSnils" name="snils">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Водительские права</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Серия/номер (без пробелов)</label>
+                <input type="text" class="form-input" id="editLicenseSeries" placeholder="Серия" style="width: 48%; display: inline-block;">
+                <input type="text" class="form-input" id="editLicenseNumber" placeholder="Номер" style="width: 48%; display: inline-block; margin-left: 4%;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата начала водительского стажа</label>
+                <input type="date" class="form-input" id="editLicenseExperienceStartDate" name="licenseExperienceStartDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата выдачи</label>
+                <input type="date" class="form-input" id="editLicenseIssueDate" name="licenseIssueDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Страна выдачи</label>
+                <input type="text" class="form-input" id="editLicenseCountry" name="licenseCountry">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Срок действия</label>
+                <input type="date" class="form-input" id="editLicenseValidUntil" name="licenseValidUntil">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Недействительны</label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" class="form-checkbox" id="editLicenseInvalid" name="licenseInvalid">
+                  <span>Недействительны</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <h4 style="margin-bottom: 16px; font-size: var(--g-font-size-md); font-weight: 600;">Условия работы</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Условие работы</label>
+                <input type="text" class="form-input" id="editWorkCondition" name="workCondition">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата начала списания</label>
+                <input type="date" class="form-input" id="editWriteOffStartDate" name="writeOffStartDate">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 12px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <button type="button" class="btn btn--normal" data-close-modal="#editDriverModal">Отмена</button>
+            <button type="submit" class="btn btn--action">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/ui-state.js"></script>
+  <script>
+    const driverId = getUrlParameter('id');
+    const driver = getDriverById(driverId);
+
+    if (!driver) {
+      document.body.innerHTML = '<div class="container"><h1>Водитель не найден</h1><a href="drivers.html">Вернуться к списку</a></div>';
+    } else {
+      document.getElementById('driverHeader').innerHTML = `
+        <h1>${driver.name}</h1>
+        <div style="margin-top: 12px;">
+          <span class="badge ${getStatusBadgeClass(driver.status)}">${driver.status}</span>
+        </div>
+      `;
+
+      // Helper function to format date
+      const formatDateDisplay = (dateString) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      };
+
+      // Ensure all fields have values
+      const driverName = driver.name || '-';
+      const driverPhone = driver.phone || '-';
+      const driverStatus = driver.status || '-';
+      const driverMyTaxPhone = driver.myTaxPhone || '-';
+
+      // Build main info HTML
+      let mainInfoHTML = `
+        <div style="margin-bottom: 32px;">
+          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Основное</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="form-group">
+              <label class="form-label">ФИО</label>
+              <div id="driverFullName" style="min-height: 24px;">${driverName}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Статус</label>
+              <div id="driverStatus" style="min-height: 24px;">
+                ${driverStatus !== '-' ? `<span class="badge ${getStatusBadgeClass(driverStatus)}">${driverStatus}</span>` : '-'}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Телефон (формат +79123456789)</label>
+              <div id="driverPhone" style="min-height: 24px;">${driverPhone}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Телефон "Мой налог"</label>
+              <div id="driverMyTaxPhone" style="min-height: 24px;">${driverMyTaxPhone}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Паспорт</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="form-group">
+              <label class="form-label">Серия/номер (без пробелов)</label>
+              <div style="min-height: 24px;">${driver.passportSeries && driver.passportNumber ? `${driver.passportSeries} ${driver.passportNumber}` : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Гражданство</label>
+              <div style="min-height: 24px;">${driver.citizenship || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Кем выдан</label>
+              <div style="min-height: 24px;">${driver.passportIssuedBy || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Пол</label>
+              <div style="min-height: 24px;">${driver.gender || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выдачи</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.passportIssueDate)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Срок действия</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.passportValidUntil)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата регистрации</label>
+              <div style="min-height: 24px;">-</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Код подразделения</label>
+              <div style="min-height: 24px;">${driver.passportDepartmentCode || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Адрес регистрации</label>
+              <div style="min-height: 24px;">${driver.registrationAddress || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата рождения</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.birthDate)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Фактический адрес проживания</label>
+              <div style="min-height: 24px;">-</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Место рождения</label>
+              <div style="min-height: 24px;">${driver.birthPlace || '-'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">СНИЛС</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="form-group">
+              <label class="form-label">СНИЛС</label>
+              <div style="min-height: 24px;">${driver.snils || '-'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Водительские права</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="form-group">
+              <label class="form-label">Серия/номер (без пробелов)</label>
+              <div style="min-height: 24px;">${driver.licenseSeries && driver.licenseNumber ? `${driver.licenseSeries} ${driver.licenseNumber}` : '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата начала водительского стажа</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.licenseExperienceStartDate)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата выдачи</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.licenseIssueDate)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Страна выдачи</label>
+              <div style="min-height: 24px;">${driver.licenseCountry || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Срок действия</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.licenseValidUntil)}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Недействительны</label>
+              <div style="min-height: 24px;">${driver.licenseInvalid ? 'Да' : 'Нет'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Условия работы</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="form-group">
+              <label class="form-label">Условие работы</label>
+              <div style="min-height: 24px;">${driver.workCondition || '-'}</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата начала списания</label>
+              <div style="min-height: 24px;">${formatDateDisplay(driver.writeOffStartDate)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Add vehicle section as table
+      if (driver.vehiclePlate || driver.currentCarPlate) {
+        const vehiclePlate = driver.vehiclePlate || driver.currentCarPlate;
+        const vehicleBrand = driver.vehicleBrand || '-';
+        const vehicleModel = driver.vehicleModel || '-';
+        const vehicleName = vehicleBrand !== '-' && vehicleModel !== '-' ? `${vehicleBrand} ${vehicleModel}` : '-';
+        const vehicleStatus = driver.vehicleStatus || '-';
+
+        mainInfoHTML += `
+          <div style="margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--g-color-line-generic);">
+            <h3 style="margin-bottom: 16px; font-size: var(--g-font-size-lg); font-weight: 600;">Текущее транспортное средство</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Наименование транспортного средства</th>
+                  <th>Госномер</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${vehicleName}</td>
+                  <td>${vehiclePlate}</td>
+                  <td>${vehicleStatus !== '-' ? `<span class="badge ${getStatusBadgeClass(vehicleStatus)}">${vehicleStatus}</span>` : '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      document.getElementById('driverMainInfo').innerHTML = mainInfoHTML;
+
+      const driverFines = mockData.fines.filter(f => f.driverName === driver.name);
+      document.getElementById('driverFinesTableBody').innerHTML = driverFines.map(fine => `
+        <tr>
+          <td>${formatDate(fine.date)}</td>
+          <td>${fine.plate}</td>
+          <td>${formatCurrency(fine.amount)}</td>
+          <td><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
+        </tr>
+      `).join('');
+
+      // Render vehicle history
+      const vehicleHistory = getVehicleHistoryByDriverId(driverId);
+      document.getElementById('vehicleHistoryTableBody').innerHTML = vehicleHistory.length > 0 
+        ? vehicleHistory.map(history => `
+          <tr>
+            <td>${history.vehicleName}</td>
+            <td>${history.plate}</td>
+            <td>${formatDateTime(history.issueDate)}</td>
+            <td>${history.endDate ? formatDateTime(history.endDate) : '-'}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+
+      // Render rent contracts
+      const rentContracts = getRentContractsByDriverId(driverId);
+      document.getElementById('rentContractsTableBody').innerHTML = rentContracts.length > 0 
+        ? rentContracts.map(contract => {
+            const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
+            const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
+            return `
+              <tr>
+                <td>${formatDateTime(contract.date)}</td>
+                <td>${contract.number}</td>
+                <td><span class="badge ${statusClass}">${contract.status}</span></td>
+                <td>${vehicleInfo}</td>
+                <td>${formatDate(contract.startDate)}</td>
+                <td>${formatDate(contract.endDate)}</td>
+                <td>${formatCurrency(contract.dailyRent)}</td>
+                <td>${contract.driverName}</td>
+              </tr>
+            `;
+          }).join('')
+        : '<tr><td colspan="8" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+
+      // Render change history
+      const changeHistory = getChangeHistoryByDriverId(driverId);
+      document.getElementById('changeHistoryTableBody').innerHTML = changeHistory.length > 0 
+        ? changeHistory.map(history => `
+          <tr>
+            <td>${formatDateTime(history.dateTime)}</td>
+            <td>${history.field}</td>
+            <td>${history.oldValue || '-'}</td>
+            <td>${history.newValue || '-'}</td>
+            <td>${history.editorName}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="5" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+
+      // Render finance transactions
+      const financeTransactions = [
+        { date: '2025-12-26', section: 'Аренда', time: '0:10:03', income: 3200, expense: 0, balance: 1950, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' },
+        { date: '2025-12-25', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1250, paymentGroup: '', paymentMethod: 'Внутренний', user: '1C', description: 'аренда автомобиля, ТС К477МВ122' },
+        { date: '2025-12-25', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 1300, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' },
+        { date: '2025-12-24', section: 'Аренда', time: '18:00:01', income: 0, expense: 2550, balance: -1900, paymentGroup: '', paymentMethod: 'Внутренний', user: '1C', description: 'аренда автомобиля, ТС К477МВ122' },
+        { date: '2025-12-24', section: 'Аренда', time: '9:58:46', income: 3200, expense: 0, balance: 650, paymentGroup: '', paymentMethod: 'Безналичные', user: '1C', description: 'Пополнение баланса через мобильное приложение' }
+      ];
+
+      // Function to render finance table
+      function renderFinanceTable() {
+        const dateFrom = document.getElementById('financeDateFrom')?.value;
+        const dateTo = document.getElementById('financeDateTo')?.value;
+
+        let filteredTransactions = financeTransactions;
+
+        if (dateFrom || dateTo) {
+          filteredTransactions = financeTransactions.filter(t => {
+            const transactionDate = new Date(t.date);
+            if (dateFrom && transactionDate < new Date(dateFrom)) return false;
+            if (dateTo && transactionDate > new Date(dateTo)) return false;
+            return true;
+          });
+        }
+
+        document.getElementById('financeTableBody').innerHTML = filteredTransactions.map(t => `
+          <tr>
+            <td>${formatDate(t.date)}</td>
+            <td>${t.section}</td>
+            <td>${t.time}</td>
+            <td>${t.income > 0 ? formatCurrency(t.income) : '-'}</td>
+            <td>${t.expense > 0 ? formatCurrency(t.expense) : '-'}</td>
+            <td>${formatCurrency(t.balance)}</td>
+            <td>${t.paymentMethod}</td>
+            <td>${t.description}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Initial render
+      renderFinanceTable();
+
+      // Add event listeners for date filters
+      const financeDateFrom = document.getElementById('financeDateFrom');
+      const financeDateTo = document.getElementById('financeDateTo');
+      if (financeDateFrom) {
+        financeDateFrom.addEventListener('change', renderFinanceTable);
+      }
+      if (financeDateTo) {
+        financeDateTo.addEventListener('change', renderFinanceTable);
+      }
+
+      document.querySelector('[data-toggle="debt"]').dataset.driverId = driverId;
+
+      initTabs('#driverTabs');
+      initModal('#fileModal', '[data-open-modal="#fileModal"]', '[data-close-modal="#fileModal"]');
+      initModal('#editDriverModal', '[data-open-modal="#editDriverModal"]', '[data-close-modal="#editDriverModal"]');
+      initUIStateToggles();
+
+      // Initialize edit form
+      const editForm = document.getElementById('editDriverForm');
+      if (editForm) {
+        // Helper to format date for input[type="date"]
+        const formatDateForInput = (dateString) => {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toISOString().split('T')[0];
+        };
+
+        // Populate form with current values
+        document.getElementById('editFullName').value = driver.name || '';
+        document.getElementById('editStatus').value = driver.status || 'Работает';
+        
+        // Passport fields
+        document.getElementById('editPassportSeries').value = driver.passportSeries || '';
+        document.getElementById('editPassportNumber').value = driver.passportNumber || '';
+        document.getElementById('editCitizenship').value = driver.citizenship || '';
+        document.getElementById('editPassportIssuedBy').value = driver.passportIssuedBy || '';
+        document.getElementById('editGender').value = driver.gender || 'Мужской';
+        document.getElementById('editPassportIssueDate').value = formatDateForInput(driver.passportIssueDate);
+        document.getElementById('editPassportValidUntil').value = formatDateForInput(driver.passportValidUntil);
+        document.getElementById('editPassportDepartmentCode').value = driver.passportDepartmentCode || '';
+        document.getElementById('editRegistrationAddress').value = driver.registrationAddress || '';
+        document.getElementById('editBirthDate').value = formatDateForInput(driver.birthDate);
+        document.getElementById('editBirthPlace').value = driver.birthPlace || '';
+        document.getElementById('editSnils').value = driver.snils || '';
+        
+        // License fields
+        document.getElementById('editLicenseSeries').value = driver.licenseSeries || '';
+        document.getElementById('editLicenseNumber').value = driver.licenseNumber || '';
+        document.getElementById('editLicenseExperienceStartDate').value = formatDateForInput(driver.licenseExperienceStartDate);
+        document.getElementById('editLicenseIssueDate').value = formatDateForInput(driver.licenseIssueDate);
+        document.getElementById('editLicenseCountry').value = driver.licenseCountry || '';
+        document.getElementById('editLicenseValidUntil').value = formatDateForInput(driver.licenseValidUntil);
+        document.getElementById('editLicenseInvalid').checked = driver.licenseInvalid || false;
+        
+        // Work conditions
+        document.getElementById('editWorkCondition').value = driver.workCondition || '';
+        document.getElementById('editWriteOffStartDate').value = formatDateForInput(driver.writeOffStartDate);
+
+        editForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          // Get updated values
+          const updatedName = document.getElementById('editFullName').value;
+          const updatedStatus = document.getElementById('editStatus').value;
+          
+          // Update driver data
+          driver.name = updatedName;
+          driver.status = updatedStatus;
+          
+          // Passport data
+          driver.passportSeries = document.getElementById('editPassportSeries').value;
+          driver.passportNumber = document.getElementById('editPassportNumber').value;
+          driver.citizenship = document.getElementById('editCitizenship').value;
+          driver.passportIssuedBy = document.getElementById('editPassportIssuedBy').value;
+          driver.gender = document.getElementById('editGender').value;
+          driver.passportIssueDate = document.getElementById('editPassportIssueDate').value;
+          driver.passportValidUntil = document.getElementById('editPassportValidUntil').value;
+          driver.passportDepartmentCode = document.getElementById('editPassportDepartmentCode').value;
+          driver.registrationAddress = document.getElementById('editRegistrationAddress').value;
+          driver.birthDate = document.getElementById('editBirthDate').value;
+          driver.birthPlace = document.getElementById('editBirthPlace').value;
+          driver.snils = document.getElementById('editSnils').value;
+          
+          // License data
+          driver.licenseSeries = document.getElementById('editLicenseSeries').value;
+          driver.licenseNumber = document.getElementById('editLicenseNumber').value;
+          driver.licenseExperienceStartDate = document.getElementById('editLicenseExperienceStartDate').value;
+          driver.licenseIssueDate = document.getElementById('editLicenseIssueDate').value;
+          driver.licenseCountry = document.getElementById('editLicenseCountry').value;
+          driver.licenseValidUntil = document.getElementById('editLicenseValidUntil').value;
+          driver.licenseInvalid = document.getElementById('editLicenseInvalid').checked;
+          
+          // Work conditions
+          driver.workCondition = document.getElementById('editWorkCondition').value;
+          driver.writeOffStartDate = document.getElementById('editWriteOffStartDate').value;
+
+          // Reload the page to show updated data
+          location.reload();
+        });
+      }
+    }
+  </script>
+</body>
+</html>
