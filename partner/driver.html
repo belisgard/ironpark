@@ -21,7 +21,7 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link active">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
@@ -42,7 +42,6 @@
         <button class="tab" data-tab="rent-contracts">Договора аренды</button>
         <button class="tab" data-tab="finance">Финансы</button>
         <button class="tab" data-tab="fines">Штрафы</button>
-        <button class="tab" data-tab="documents">Документы</button>
         <button class="tab" data-tab="change-history">История изменений</button>
       </div>
 
@@ -158,38 +157,10 @@
                     <th>Авто</th>
                     <th>Сумма</th>
                     <th>Статус</th>
+                    <th>Действие</th>
                   </tr>
                 </thead>
                 <tbody id="driverFinesTableBody">                </tbody>
-              </table>
-            </div>
-        </div>
-
-      <div class="tab-content" data-tab="documents">
-        <div class="card">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Тип</th>
-                    <th>Имя</th>
-                    <th>Дата</th>
-                    <th>Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Паспорт</td>
-                    <td>Паспорт.pdf</td>
-                    <td>01.01.2024</td>
-                    <td><button class="btn btn--normal" data-open-modal="#fileModal">Просмотр</button></td>
-                  </tr>
-                  <tr>
-                    <td>Водительское удостоверение</td>
-                    <td>ВУ.pdf</td>
-                    <td>01.01.2024</td>
-                    <td><button class="btn btn--normal" data-open-modal="#fileModal">Просмотр</button></td>
-                  </tr>
-                </tbody>
               </table>
             </div>
         </div>
@@ -567,14 +538,20 @@
       document.getElementById('driverMainInfo').innerHTML = mainInfoHTML;
 
       const driverFines = mockData.fines.filter(f => f.driverName === driver.name);
-      document.getElementById('driverFinesTableBody').innerHTML = driverFines.map(fine => `
+      document.getElementById('driverFinesTableBody').innerHTML = driverFines.map(fine => {
+        const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
+        return `
         <tr>
           <td>${formatDate(fine.date)}</td>
           <td>${fine.plate}</td>
           <td>${formatCurrency(fine.amount)}</td>
           <td><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
+          <td>
+            ${canGeneratePP ? `<button class="btn btn--normal" onclick="generatePPForDriver(${fine.id})" style="white-space: nowrap;">Сгенерировать ПП</button>` : '-'}
+          </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
 
       // Render vehicle history
       const vehicleHistory = getVehicleHistoryByDriverId(driverId);
@@ -772,6 +749,17 @@
           location.reload();
         });
       }
+
+      // Generate PP function for driver fines
+      window.generatePPForDriver = function(fineId) {
+        const fine = mockData.fines.find(f => f.id === fineId);
+        if (!fine) {
+          alert('Штраф не найден');
+          return;
+        }
+        alert(`Генерация ПП для штрафа #${fineId}\nДата: ${formatDate(fine.date)}\nАвто: ${fine.plate}\nВодитель: ${fine.driverName}\nСумма: ${formatCurrency(fine.amount)}`);
+        // Здесь можно добавить реальную логику генерации ПП
+      };
     }
   </script>
 </body>

@@ -21,14 +21,17 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link active">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
     </aside>
 
     <main class="main-content">
-      <h1>Штрафы</h1>
+      <div class="page-header">
+        <h1>Штрафы</h1>
+        <button class="btn btn--primary" onclick="openRegisterModal()">Сгенерировать реестр</button>
+      </div>
 
       <div class="filters">
         <div class="filter-group">
@@ -63,6 +66,7 @@
             <th>Статус</th>
             <th>Дедлайн скидки</th>
             <th>Дата оплаты</th>
+            <th>Действие</th>
           </tr>
         </thead>
         <tbody id="finesTableBody"></tbody>
@@ -75,35 +79,130 @@
   <script>
     function renderFines() {
       const tbody = document.getElementById('finesTableBody');
-      tbody.innerHTML = mockData.fines.map(fine => `
-        <tr onclick="window.location.href='fine.html?id=${fine.id}'" data-fine-id="${fine.id}" class="${fine.discountAvailable ? 'has-discount' : ''}">
-          <td>${formatDate(fine.date)}</td>
-          <td>${fine.plate}</td>
-          <td>${fine.driverName}</td>
-          <td>${formatCurrency(fine.amount)}</td>
-          <td><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
-          <td>${fine.discountDeadline ? formatDate(fine.discountDeadline) : '-'}</td>
-          <td>${fine.paidDate ? formatDate(fine.paidDate) : '-'}</td>
+      tbody.innerHTML = mockData.fines.map(fine => {
+        const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
+        return `
+        <tr data-fine-id="${fine.id}" data-fine-date="${fine.date}" class="${fine.discountAvailable ? 'has-discount' : ''}">
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${formatDate(fine.date)}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.plate}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.driverName}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${formatCurrency(fine.amount)}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;"><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.discountDeadline ? formatDate(fine.discountDeadline) : '-'}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.paidDate ? formatDate(fine.paidDate) : '-'}</td>
+          <td style="cursor: default;" onclick="event.stopPropagation();">
+            ${canGeneratePP ? `<button class="btn btn--normal" onclick="generatePP(${fine.id})" style="white-space: nowrap;">Сгенерировать ПП</button>` : '-'}
+          </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function applyFilters() {
       const status = document.getElementById('statusFilter').value;
       const discount = document.getElementById('discountFilter').checked;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
 
       filterTable('#finesTable', (row) => {
         const cells = row.cells;
         if (status && cells[4].textContent.trim() !== status) return false;
         if (discount && !row.classList.contains('has-discount')) return false;
+        
+        // Date filter
+        if (dateFrom || dateTo) {
+          const rowDate = row.getAttribute('data-fine-date');
+          if (rowDate) {
+            const rowDateObj = new Date(rowDate);
+            if (dateFrom && rowDateObj < new Date(dateFrom)) return false;
+            if (dateTo) {
+              const dateToObj = new Date(dateTo);
+              dateToObj.setHours(23, 59, 59, 999); // Include the entire end date
+              if (rowDateObj > dateToObj) return false;
+            }
+          }
+        }
+        
         return true;
       });
     }
 
-    document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    document.getElementById('discountFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('discountFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
+    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
+
+    // Generate PP function
+    window.generatePP = function(fineId) {
+      const fine = mockData.fines.find(f => f.id === fineId);
+      if (!fine) {
+        alert('Штраф не найден');
+        return;
+      }
+      alert(`Генерация ПП для штрафа #${fineId}\nДата: ${formatDate(fine.date)}\nАвто: ${fine.plate}\nВодитель: ${fine.driverName}\nСумма: ${formatCurrency(fine.amount)}`);
+      // Здесь можно добавить реальную логику генерации ПП
+    };
+
+    // Register modal functions
+    window.openRegisterModal = function() {
+      document.getElementById('registerModal').classList.add('active');
+    };
+
+    window.closeRegisterModal = function() {
+      document.getElementById('registerModal').classList.remove('active');
+    };
+
+    window.generateRegister = function() {
+      const dateFrom = document.getElementById('registerDateFrom').value;
+      const dateTo = document.getElementById('registerDateTo').value;
+      
+      if (!dateFrom || !dateTo) {
+        alert('Пожалуйста, выберите период');
+        return;
+      }
+
+      if (new Date(dateFrom) > new Date(dateTo)) {
+        alert('Дата начала не может быть позже даты окончания');
+        return;
+      }
+
+      alert(`Генерация реестра штрафов\nПериод: с ${dateFrom} по ${dateTo}`);
+      // Здесь можно добавить реальную логику генерации реестра
+      closeRegisterModal();
+    };
+
+    // Close modal on backdrop click
+    document.getElementById('registerModal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('registerModal')) {
+        closeRegisterModal();
+      }
+    });
 
     renderFines();
   </script>
+
+  <!-- Register Modal -->
+  <div class="modal" id="registerModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Сгенерировать реестр</h3>
+        <button class="modal__close" onclick="closeRegisterModal()">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="form-label">Период</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="date" class="form-input" id="registerDateFrom" style="width: 150px;">
+            <span style="color: var(--g-color-text-secondary);">—</span>
+            <input type="date" class="form-input" id="registerDateTo" style="width: 150px;">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+          <button type="button" class="btn btn--normal" onclick="closeRegisterModal()">Отмена</button>
+          <button type="button" class="btn btn--action" onclick="generateRegister()">Сгенерировать</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

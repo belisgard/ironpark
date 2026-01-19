@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Данные из СТС - Шаг выбора авто</title>
+  <title>Выбор авто - Шаг выбора авто</title>
   <link rel="stylesheet" href="../assets/css/gravity-theme.css">
   <link rel="stylesheet" href="../assets/css/styles.css">
   <style>
@@ -157,6 +157,10 @@
       flex-direction: column;
     }
 
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
     .form-label {
       font-size: var(--g-font-size-sm);
       color: var(--g-color-text-primary);
@@ -246,6 +250,12 @@
       background: #CC2E00;
     }
 
+    .continue-button:disabled {
+      background: var(--g-color-base-generic);
+      color: var(--g-color-text-secondary);
+      cursor: not-allowed;
+    }
+
     .footer-actions {
       display: flex;
       flex-direction: column;
@@ -286,6 +296,67 @@
       color: var(--g-color-text-primary);
     }
 
+    .multi-select-container {
+      position: relative;
+    }
+
+    .multi-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--g-color-line-generic);
+      border-radius: 8px;
+      font-size: var(--g-font-size-md);
+      background: white;
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .multi-select-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--g-color-line-generic);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .multi-select-item:hover {
+      background: var(--g-color-base-generic);
+    }
+
+    .multi-select-item.selected {
+      background: var(--g-color-base-selection);
+    }
+
+    .multi-select-item:last-child {
+      border-bottom: none;
+    }
+
+    .car-item-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .car-item-details {
+      flex: 1;
+    }
+
+    .car-item-name {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .car-item-specs {
+      font-size: var(--g-font-size-sm);
+      color: var(--g-color-text-secondary);
+    }
+
+    .car-item-price {
+      font-weight: 600;
+      color: #FF3D00;
+      margin-left: 16px;
+    }
+
     @media (max-width: 768px) {
       .form-grid {
         grid-template-columns: 1fr;
@@ -309,144 +380,202 @@
     <div class="form-header">
       <div class="form-header-left">
         <button class="back-button" onclick="window.history.back()">‹</button>
-        <h1 class="form-title">Данные из СТС</h1>
+        <h1 class="form-title" id="pageTitle">Выбор типа авто</h1>
       </div>
       <div class="progress-section">
         <div class="progress-bar">
-          <div class="progress-segment active"></div>
-          <div class="progress-segment"></div>
-          <div class="progress-segment"></div>
-          <div class="progress-segment"></div>
+          <div class="progress-segment" id="progress1"></div>
+          <div class="progress-segment" id="progress2"></div>
         </div>
-        <span class="progress-text">Этап 3 из 4</span>
+        <span class="progress-text" id="progressText">Шаг 1 из 2</span>
       </div>
     </div>
 
-    <div class="car-type-toggle">
-      <button type="button" class="car-type-button active" id="ownCarBtn" onclick="toggleCarType('own')">
-        Собственное авто
-      </button>
-      <button type="button" class="car-type-button" id="rentalCarBtn" onclick="toggleCarType('rental')">
-        Арендное авто
-      </button>
+    <!-- Step 1: Car Type Selection -->
+    <div id="step1Content">
+      <p class="form-subtitle">Выберите тип автомобиля</p>
+      
+      <div class="car-type-toggle">
+        <button type="button" class="car-type-button active" id="ownCarBtn" onclick="selectCarType('own')">
+          Собственное авто
+        </button>
+        <button type="button" class="car-type-button" id="rentalCarBtn" onclick="selectCarType('rental')">
+          Арендованное авто
+        </button>
+      </div>
+
+      <button type="button" class="continue-button" id="step1Continue" onclick="goToStep2()" disabled>Продолжить</button>
     </div>
 
-    <p class="form-subtitle" id="formSubtitle">Введите данные из свидетельство о регистрации транспортного средства</p>
+    <!-- Step 2: STS Data / Rental Selection -->
+    <div id="step2Content" style="display: none;">
+      <p class="form-subtitle" id="formSubtitle">Введите данные из свидетельство о регистрации транспортного средства</p>
 
-    <form id="stsForm" onsubmit="handleSubmit(event)">
-      <div class="form-grid">
+      <form id="stsForm" onsubmit="handleSubmit(event)">
         <!-- Own car fields -->
-        <div id="ownCarFields">
-          <div class="form-group">
-            <label class="form-label">
-              Регистрационный знак<span class="required">*</span>
-            </label>
-            <input 
-              type="text" 
-              class="form-input" 
-              id="registrationMark" 
-              value="В 113 УУ 13"
-              placeholder="Введите регистрационный знак"
-            >
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              Год выпуска автомобиля<span class="required">*</span>
-            </label>
-            <div class="date-input-wrapper">
+        <div id="ownCarFields" style="display: none;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">
+                Регистрационный знак<span class="required">*</span>
+              </label>
               <input 
-                type="date" 
+                type="text" 
                 class="form-input" 
-                id="productionYear" 
-                placeholder="Выберите дату"
+                id="registrationMark" 
+                placeholder="Введите регистрационный знак"
               >
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              Марка<span class="required">*</span>
-            </label>
-            <div class="form-select-wrapper">
-              <select class="form-select" id="carBrand">
-                <option value="">Выберите марку</option>
-              </select>
+            <div class="form-group">
+              <label class="form-label">
+                Год выпуска автомобиля<span class="required">*</span>
+              </label>
+              <div class="date-input-wrapper">
+                <input 
+                  type="date" 
+                  class="form-input" 
+                  id="productionYear" 
+                  placeholder="Выберите дату"
+                >
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              Цвет автомобиля<span class="required">*</span>
-            </label>
-            <div class="form-select-wrapper">
-              <select class="form-select" id="carColor">
-                <option value="">Выберите цвет</option>
-                <option value="Белый">Белый</option>
-                <option value="Чёрный">Чёрный</option>
-                <option value="Серебристый">Серебристый</option>
-                <option value="Серый">Серый</option>
-                <option value="Синий">Синий</option>
-                <option value="Красный">Красный</option>
-                <option value="Зелёный">Зелёный</option>
-                <option value="Коричневый">Коричневый</option>
-                <option value="Бежевый">Бежевый</option>
-                <option value="Жёлтый">Жёлтый</option>
-                <option value="Оранжевый">Оранжевый</option>
-                <option value="Фиолетовый">Фиолетовый</option>
-              </select>
+            <div class="form-group">
+              <label class="form-label">
+                Марка<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="carBrand">
+                  <option value="">Выберите марку</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              Модель<span class="required">*</span>
-            </label>
-            <div class="form-select-wrapper">
-              <select class="form-select" id="carModel" disabled>
-                <option value="">Выберите модель</option>
-              </select>
+            <div class="form-group">
+              <label class="form-label">
+                Модель<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="carModel" disabled>
+                  <option value="">Выберите модель</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Цвет автомобиля<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="carColor">
+                  <option value="">Выберите цвет</option>
+                  <option value="Белый">Белый</option>
+                  <option value="Чёрный">Чёрный</option>
+                  <option value="Серебристый">Серебристый</option>
+                  <option value="Серый">Серый</option>
+                  <option value="Синий">Синий</option>
+                  <option value="Красный">Красный</option>
+                  <option value="Зелёный">Зелёный</option>
+                  <option value="Коричневый">Коричневый</option>
+                  <option value="Бежевый">Бежевый</option>
+                  <option value="Жёлтый">Жёлтый</option>
+                  <option value="Оранжевый">Оранжевый</option>
+                  <option value="Фиолетовый">Фиолетовый</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Rental car fields -->
         <div id="rentalCarFields" style="display: none;">
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label class="form-label">
-              Автомобиль<span class="required">*</span>
-            </label>
-            <div class="form-select-wrapper">
-              <select class="form-select" id="rentalCarSelect">
-                <option value="">Выберите автомобиль</option>
-              </select>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">
+                Тариф<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="tariffSelect">
+                  <option value="">Выберите тариф</option>
+                  <option value="Эконом">Эконом</option>
+                  <option value="Комфорт">Комфорт</option>
+                  <option value="Ультима">Ультима</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              Пробег<span class="required">*</span>
-            </label>
-            <input 
-              type="text" 
-              class="form-input" 
-              id="rentalMileage" 
-              placeholder="Выберите автомобиль из списка"
-              readonly
-            >
-          </div>
-
-          <div id="rentalPriceInfo" class="rental-info" style="display: none; grid-column: 1 / -1;">
-            <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">
-              Стоимость аренды в сутки:
+            <div class="form-group">
+              <label class="form-label">
+                Вид топлива<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="fuelTypeSelect">
+                  <option value="">Выберите вид топлива</option>
+                  <option value="АИ-92">АИ-92</option>
+                  <option value="АИ-95">АИ-95</option>
+                  <option value="АИ-98">АИ-98</option>
+                  <option value="Дизель">Дизель</option>
+                  <option value="Газ">Газ</option>
+                  <option value="Электричество">Электричество</option>
+                </select>
+              </div>
             </div>
-            <div class="rental-price" id="rentalPrice"></div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Марка<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="rentalBrandSelect">
+                  <option value="">Выберите марку</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Модель<span class="required">*</span>
+              </label>
+              <div class="form-select-wrapper">
+                <select class="form-select" id="rentalModelSelect" disabled>
+                  <option value="">Выберите модель</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">
+                Выберите автомобиль<span class="required">*</span>
+              </label>
+              <div class="multi-select-container">
+                <div class="multi-select" id="rentalCarMultiSelect">
+                  <div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">
+                    Сначала выберите тариф, вид топлива, марку и модель
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="selectedCarInfo" class="rental-info" style="display: none; grid-column: 1 / -1;">
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-bottom: 8px;">
+                Выбранный автомобиль:
+              </div>
+              <div id="selectedCarDetails" style="font-weight: 500; margin-bottom: 8px;"></div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">
+                Пробег: <span id="selectedCarMileage"></span>
+              </div>
+              <div class="rental-price" id="selectedCarPrice"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <button type="submit" class="continue-button">Продолжить</button>
-    </form>
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
+          <button type="button" class="btn btn--normal" onclick="goToStep1()" style="flex: 1;">Назад</button>
+          <button type="submit" class="continue-button" style="flex: 1;">Продолжить</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <div class="footer-actions">
@@ -457,85 +586,93 @@
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
-    let currentCarType = 'own';
+    let currentStep = 1;
+    let selectedCarType = null;
+    let selectedRentalCar = null;
 
-    function toggleCarType(type) {
-      currentCarType = type;
+    function selectCarType(type) {
+      selectedCarType = type;
       const ownBtn = document.getElementById('ownCarBtn');
       const rentalBtn = document.getElementById('rentalCarBtn');
-      const ownFields = document.getElementById('ownCarFields');
-      const rentalFields = document.getElementById('rentalCarFields');
-      const subtitle = document.getElementById('formSubtitle');
+      const continueBtn = document.getElementById('step1Continue');
 
       if (type === 'own') {
         ownBtn.classList.add('active');
         rentalBtn.classList.remove('active');
-        ownFields.style.display = 'grid';
-        rentalFields.style.display = 'none';
-        subtitle.textContent = 'Введите данные из свидетельство о регистрации транспортного средства';
-        
-        // Set required attributes for own car fields
-        document.getElementById('registrationMark').required = true;
-        document.getElementById('productionYear').required = true;
-        document.getElementById('carBrand').required = true;
-        document.getElementById('carColor').required = true;
-        document.getElementById('carModel').required = true;
-        
-        // Remove required from rental fields
-        document.getElementById('rentalCarSelect').required = false;
       } else {
         ownBtn.classList.remove('active');
         rentalBtn.classList.add('active');
-        ownFields.style.display = 'none';
-        rentalFields.style.display = 'grid';
-        subtitle.textContent = 'Выберите автомобиль из доступных для аренды';
-        
-        // Remove required from own car fields
-        document.getElementById('registrationMark').required = false;
-        document.getElementById('productionYear').required = false;
-        document.getElementById('carBrand').required = false;
-        document.getElementById('carColor').required = false;
-        document.getElementById('carModel').required = false;
-        
-        // Set required for rental fields
-        document.getElementById('rentalCarSelect').required = true;
+      }
+      
+      continueBtn.disabled = false;
+    }
+
+    function goToStep1() {
+      currentStep = 1;
+      document.getElementById('step1Content').style.display = 'block';
+      document.getElementById('step2Content').style.display = 'none';
+      document.getElementById('pageTitle').textContent = 'Выбор типа авто';
+      document.getElementById('progressText').textContent = 'Шаг 1 из 2';
+      document.getElementById('progress1').classList.add('active');
+      document.getElementById('progress2').classList.remove('active');
+    }
+
+    function goToStep2() {
+      if (!selectedCarType) return;
+      
+      currentStep = 2;
+      document.getElementById('step1Content').style.display = 'none';
+      document.getElementById('step2Content').style.display = 'block';
+      document.getElementById('pageTitle').textContent = selectedCarType === 'own' ? 'Данные из СТС' : 'Выбор автомобиля';
+      document.getElementById('progressText').textContent = 'Шаг 2 из 2';
+      document.getElementById('progress1').classList.add('active');
+      document.getElementById('progress2').classList.add('active');
+
+      if (selectedCarType === 'own') {
+        document.getElementById('ownCarFields').style.display = 'block';
+        document.getElementById('rentalCarFields').style.display = 'none';
+        document.getElementById('formSubtitle').textContent = 'Введите данные из свидетельство о регистрации транспортного средства';
+        populateBrandSelects();
+      } else {
+        document.getElementById('ownCarFields').style.display = 'none';
+        document.getElementById('rentalCarFields').style.display = 'block';
+        document.getElementById('formSubtitle').textContent = 'Выберите автомобиль из доступных для аренды';
+        populateRentalBrandSelects();
       }
     }
 
-    // Populate brand selects
+    // Populate brand selects for own car
     function populateBrandSelects() {
       const brandSelect = document.getElementById('carBrand');
-      const rentalCarSelect = document.getElementById('rentalCarSelect');
-      
       const uniqueBrands = [...new Set(mockData.cars.map(c => c.brand))].sort();
       
-      if (brandSelect) {
-        uniqueBrands.forEach(brand => {
-          const option = document.createElement('option');
-          option.value = brand;
-          option.textContent = brand;
-          brandSelect.appendChild(option);
-        });
-      }
+      brandSelect.innerHTML = '<option value="">Выберите марку</option>';
+      uniqueBrands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand;
+        option.textContent = brand;
+        brandSelect.appendChild(option);
+      });
+    }
 
-      // Populate rental car select with all available cars
-      if (rentalCarSelect) {
-        mockData.cars.forEach(car => {
-          const option = document.createElement('option');
-          option.value = car.id;
-          option.textContent = `${car.brand} ${car.model} - ${car.plate}`;
-          option.dataset.carId = car.id;
-          rentalCarSelect.appendChild(option);
-        });
-      }
+    // Populate brand selects for rental car
+    function populateRentalBrandSelects() {
+      const brandSelect = document.getElementById('rentalBrandSelect');
+      const uniqueBrands = [...new Set(mockData.cars.map(c => c.brand))].sort();
+      
+      brandSelect.innerHTML = '<option value="">Выберите марку</option>';
+      uniqueBrands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand;
+        option.textContent = brand;
+        brandSelect.appendChild(option);
+      });
     }
 
     // Update model select when brand changes (own car)
-    const brandSelect = document.getElementById('carBrand');
-    const modelSelect = document.getElementById('carModel');
-    
-    brandSelect?.addEventListener('change', (e) => {
+    document.getElementById('carBrand')?.addEventListener('change', (e) => {
       const selectedBrand = e.target.value;
+      const modelSelect = document.getElementById('carModel');
       modelSelect.innerHTML = '<option value="">Выберите модель</option>';
       
       if (selectedBrand) {
@@ -557,38 +694,109 @@
       }
     });
 
-    // Update car info when rental car is selected
-    const rentalCarSelect = document.getElementById('rentalCarSelect');
-    const rentalMileageInput = document.getElementById('rentalMileage');
-    const rentalPriceInfo = document.getElementById('rentalPriceInfo');
-    const rentalPriceEl = document.getElementById('rentalPrice');
-
-    rentalCarSelect?.addEventListener('change', (e) => {
-      const selectedCarId = parseInt(e.target.value);
+    // Update model select when brand changes (rental car)
+    document.getElementById('rentalBrandSelect')?.addEventListener('change', (e) => {
+      const selectedBrand = e.target.value;
+      const modelSelect = document.getElementById('rentalModelSelect');
+      modelSelect.innerHTML = '<option value="">Выберите модель</option>';
       
-      if (selectedCarId) {
-        const car = getCarById(selectedCarId);
+      if (selectedBrand) {
+        modelSelect.disabled = false;
+        const uniqueModels = [...new Set(
+          mockData.cars
+            .filter(c => c.brand === selectedBrand)
+            .map(c => c.model)
+        )].sort();
         
-        if (car) {
-          rentalMileageInput.value = car.mileage ? formatNumber(car.mileage).replace(/,/g, ' ') + ' км' : '-';
-          
-          // Find rent contract for this car
-          const contract = mockData.rentContracts.find(c => c.vehiclePlate === car.plate && c.status === 'действующий');
-          const dailyRent = contract ? contract.dailyRent : 2000; // Default or from contract
-          
-          rentalPriceEl.textContent = formatCurrency(dailyRent) + ' / сутки';
-          rentalPriceInfo.style.display = 'block';
-        }
+        uniqueModels.forEach(model => {
+          const option = document.createElement('option');
+          option.value = model;
+          option.textContent = model;
+          modelSelect.appendChild(option);
+        });
       } else {
-        rentalMileageInput.value = '';
-        rentalPriceInfo.style.display = 'none';
+        modelSelect.disabled = true;
       }
+      
+      updateRentalCarList();
     });
+
+    // Update rental car list when filters change
+    function updateRentalCarList() {
+      const tariff = document.getElementById('tariffSelect').value;
+      const fuelType = document.getElementById('fuelTypeSelect').value;
+      const brand = document.getElementById('rentalBrandSelect').value;
+      const model = document.getElementById('rentalModelSelect').value;
+      const multiSelect = document.getElementById('rentalCarMultiSelect');
+      
+      if (!tariff || !fuelType || !brand || !model) {
+        multiSelect.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">Сначала выберите тариф, вид топлива, марку и модель</div>';
+        selectedRentalCar = null;
+        document.getElementById('selectedCarInfo').style.display = 'none';
+        return;
+      }
+
+      // Filter cars by criteria
+      const filteredCars = mockData.cars.filter(car => {
+        return car.brand === brand && 
+               car.model === model && 
+               car.category === tariff &&
+               (car.fuelType || 'АИ-95') === fuelType;
+      });
+
+      if (filteredCars.length === 0) {
+        multiSelect.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">Нет доступных автомобилей с выбранными параметрами</div>';
+        selectedRentalCar = null;
+        document.getElementById('selectedCarInfo').style.display = 'none';
+        return;
+      }
+
+      multiSelect.innerHTML = filteredCars.map(car => {
+        const contract = mockData.rentContracts.find(c => c.vehiclePlate === car.plate && c.status === 'действующий');
+        const dailyRent = contract ? contract.dailyRent : (tariff === 'Эконом' ? 2000 : tariff === 'Комфорт' ? 3500 : 5000);
+        const isSelected = selectedRentalCar && selectedRentalCar.id === car.id;
+        
+        return `
+          <div class="multi-select-item ${isSelected ? 'selected' : ''}" onclick="selectRentalCar(${car.id})">
+            <div class="car-item-info">
+              <div class="car-item-details">
+                <div class="car-item-name">${car.brand} ${car.model} - ${car.plate}</div>
+                <div class="car-item-specs">Пробег: ${formatNumber(car.mileage || 0).replace(/,/g, ' ')} км</div>
+              </div>
+              <div class="car-item-price">${formatCurrency(dailyRent)} / сутки</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectRentalCar(carId) {
+      const car = getCarById(carId);
+      if (!car) return;
+
+      selectedRentalCar = car;
+      const contract = mockData.rentContracts.find(c => c.vehiclePlate === car.plate && c.status === 'действующий');
+      const tariff = document.getElementById('tariffSelect').value;
+      const dailyRent = contract ? contract.dailyRent : (tariff === 'Эконом' ? 2000 : tariff === 'Комфорт' ? 3500 : 5000);
+
+      document.getElementById('selectedCarDetails').textContent = `${car.brand} ${car.model} - ${car.plate}`;
+      document.getElementById('selectedCarMileage').textContent = formatNumber(car.mileage || 0).replace(/,/g, ' ') + ' км';
+      document.getElementById('selectedCarPrice').textContent = formatCurrency(dailyRent) + ' / сутки';
+      document.getElementById('selectedCarInfo').style.display = 'block';
+
+      // Update visual selection
+      updateRentalCarList();
+    }
+
+    // Add event listeners for rental car filters
+    document.getElementById('tariffSelect')?.addEventListener('change', updateRentalCarList);
+    document.getElementById('fuelTypeSelect')?.addEventListener('change', updateRentalCarList);
+    document.getElementById('rentalModelSelect')?.addEventListener('change', updateRentalCarList);
 
     function handleSubmit(event) {
       event.preventDefault();
       
-      if (currentCarType === 'own') {
+      if (selectedCarType === 'own') {
         const formData = {
           registrationMark: document.getElementById('registrationMark').value,
           brand: document.getElementById('carBrand').value,
@@ -604,31 +812,25 @@
 
         alert(`Данные сохранены!\n\nРегистрационный знак: ${formData.registrationMark}\nМарка: ${formData.brand}\nМодель: ${formData.model}\nГод: ${formData.productionYear}\nЦвет: ${formData.color}`);
       } else {
-        const selectedCarId = document.getElementById('rentalCarSelect').value;
-        const mileage = document.getElementById('rentalMileage').value;
-
-        if (!selectedCarId) {
+        if (!selectedRentalCar) {
           alert('Пожалуйста, выберите автомобиль');
           return;
         }
 
-        const car = getCarById(parseInt(selectedCarId));
-        const contract = car ? mockData.rentContracts.find(c => c.vehiclePlate === car.plate && c.status === 'действующий') : null;
-        const dailyRent = contract ? contract.dailyRent : 2000;
+        const tariff = document.getElementById('tariffSelect').value;
+        const contract = mockData.rentContracts.find(c => c.vehiclePlate === selectedRentalCar.plate && c.status === 'действующий');
+        const dailyRent = contract ? contract.dailyRent : (tariff === 'Эконом' ? 2000 : tariff === 'Комфорт' ? 3500 : 5000);
 
-        alert(`Данные сохранены!\n\nМарка: ${car.brand}\nМодель: ${car.model}\nГосномер: ${car.plate}\nПробег: ${mileage}\nСтоимость аренды: ${formatCurrency(dailyRent)} / сутки`);
+        alert(`Данные сохранены!\n\nМарка: ${selectedRentalCar.brand}\nМодель: ${selectedRentalCar.model}\nГосномер: ${selectedRentalCar.plate}\nПробег: ${formatNumber(selectedRentalCar.mileage || 0).replace(/,/g, ' ')} км\nСтоимость аренды: ${formatCurrency(dailyRent)} / сутки`);
       }
-      
-      // Navigate to next step (you can change this URL)
-      // window.location.href = 'step4.html';
     }
 
     function showSupport() {
       alert('Свяжитесь с поддержкой по телефону или email для получения помощи.');
     }
 
-    // Initialize
-    populateBrandSelects();
+    // Initialize progress
+    document.getElementById('progress1').classList.add('active');
   </script>
 </body>
 </html>

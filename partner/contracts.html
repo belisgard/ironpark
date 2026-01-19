@@ -21,7 +21,7 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
@@ -90,7 +90,9 @@
             <th>Водитель</th>
             <th>Начало действия</th>
             <th>Окончание действия</th>
+            <th>Количество дней в аренду</th>
             <th>Стоимость аренды в сутки</th>
+            <th>Итоговая стоимость аренды</th>
           </tr>
         </thead>
         <tbody id="contractsTableBody">
@@ -149,6 +151,21 @@
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    // Helper function to calculate days
+    function calculateDays(startDate, endDate) {
+      if (!startDate || !endDate) return 0;
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+
+    // Helper function to calculate total amount
+    function calculateTotalAmount(dailyRent, days) {
+      return dailyRent * days;
+    }
+
     function renderContracts() {
       const tbody = document.getElementById('contractsTableBody');
       if (!tbody) return;
@@ -190,7 +207,7 @@
       }
 
       if (contracts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Договора не найдены</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Договора не найдены</td></tr>';
         return;
       }
 
@@ -213,6 +230,11 @@
           const issuanceStatusClass = getIssuanceStatusBadgeClass(contract.issuanceStatus || '');
           const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
           const issuanceStatus = contract.issuanceStatus || '-';
+          
+          // Calculate days and total amount
+          const days = calculateDays(contract.startDate, contract.endDate);
+          const totalAmount = contract.totalAmount || calculateTotalAmount(contract.dailyRent, days);
+          
           return `
             <tr style="cursor: pointer;" onclick="window.location.href='contract.html?id=${contract.id}'">
               <td>${formatDateTime(contract.date)}</td>
@@ -224,7 +246,9 @@
               <td>${contract.driverName}</td>
               <td>${formatDate(contract.startDate)}</td>
               <td>${formatDate(contract.endDate)}</td>
+              <td>${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}</td>
               <td>${formatCurrency(contract.dailyRent)}</td>
+              <td>${formatCurrency(totalAmount)}</td>
             </tr>
           `;
         }).join('');
@@ -317,6 +341,10 @@
           return;
         }
 
+        // Calculate days and total amount
+        const days = formData.endDate ? calculateDays(formData.startDate, formData.endDate) : 0;
+        const totalAmount = calculateTotalAmount(formData.dailyRent, days);
+
         // Create new contract
         const newId = Math.max(...mockData.rentContracts.map(c => c.id), 0) + 1;
         const newContract = {
@@ -333,7 +361,7 @@
           startDate: formData.startDate,
           endDate: formData.endDate,
           dailyRent: formData.dailyRent,
-          totalAmount: 0, // Calculate if needed
+          totalAmount: totalAmount,
           driverName: driver.name
         };
 

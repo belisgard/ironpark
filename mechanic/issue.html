@@ -49,10 +49,10 @@
       <h3 style="margin-bottom: 16px;">Шаг 1: Авто и водитель</h3>
       <div class="form-group">
         <label class="form-label">Автомобиль</label>
-        <select class="form-select" id="carSelect">
+        <select class="form-select" id="carSelect" onchange="loadPreviousComment()">
           <option value="">Выберите авто</option>
-          <option value="А123БВ777">А123БВ777 - Toyota Camry</option>
-          <option value="Е345КЛ777">Е345КЛ777 - Skoda Octavia</option>
+          <option value="А123БВ777" data-plate="А123БВ777">А123БВ777 - Toyota Camry</option>
+          <option value="Е345КЛ777" data-plate="Е345КЛ777">Е345КЛ777 - Skoda Octavia</option>
         </select>
       </div>
       <div class="form-group">
@@ -62,6 +62,10 @@
           <option value="1">Иванов Иван Иванович</option>
           <option value="2">Козлов Константин Константинович</option>
         </select>
+      </div>
+      <div id="previousCommentSection" style="display: none; margin-top: 16px; padding: 16px; background: var(--g-color-base-generic); border-radius: 8px;">
+        <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-bottom: 8px;">Предыдущий комментарий по данному автомобилю:</div>
+        <div id="previousCommentText" style="font-size: var(--g-font-size-md); color: var(--g-color-text-primary);"></div>
       </div>
       <button class="btn btn--action" onclick="goToStep(2)" style="width: 100%; margin-top: 16px;">Далее</button>
     </div>
@@ -83,23 +87,32 @@
     <!-- Step 3 -->
     <div class="card" id="step3Content" style="display: none;">
       <h3 style="margin-bottom: 16px;">Шаг 3: Чек-лист</h3>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <label style="display: flex; align-items: center;">
-          <input type="checkbox" class="form-checkbox" id="check1" onchange="checkChecklist()">
-          <span style="margin-left: 8px;">Комплектность полная</span>
-        </label>
-        <label style="display: flex; align-items: center;">
-          <input type="checkbox" class="form-checkbox" id="check2" onchange="checkChecklist()">
-          <span style="margin-left: 8px;">Нет повреждений</span>
-        </label>
-        <label style="display: flex; align-items: center;">
-          <input type="checkbox" class="form-checkbox" id="check3" onchange="checkChecklist()">
-          <span style="margin-left: 8px;">Техническое состояние в норме</span>
-        </label>
+      <div class="form-group">
+        <label class="form-label">Пробег<span class="required" style="color: #FF3D00; margin-left: 2px;">*</span></label>
+        <input 
+          type="text" 
+          class="form-input" 
+          id="mileageInput" 
+          placeholder="Введите пробег в км"
+        >
+      </div>
+      <div class="form-group">
+        <button type="button" class="btn btn--normal" onclick="showCompletenessModal()" style="width: 100%;">
+          Комплектность
+        </button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Комментарий</label>
+        <textarea class="form-input" id="commentInput" rows="4" placeholder="Опишите повреждения или состояние"></textarea>
+      </div>
+      <div class="form-group" style="margin-top: 16px;">
+        <button type="button" class="btn btn--normal" onclick="showCommentsModal()" style="width: 100%;">
+          Показать комментарий
+        </button>
       </div>
       <div style="display: flex; gap: 12px; margin-top: 16px;">
         <button class="btn btn--normal" onclick="goToStep(2)" style="flex: 1;">Назад</button>
-        <button class="btn btn--action" onclick="goToStep(4)" id="step3Next" style="flex: 1;" disabled>Далее</button>
+        <button class="btn btn--action" onclick="goToStep(4)" id="step3Next" style="flex: 1;">Далее</button>
       </div>
     </div>
 
@@ -134,11 +147,258 @@
     </div>
   </main>
 
+  <!-- Comments Modal -->
+  <div class="modal" id="commentsModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">История комментариев</h3>
+        <button class="modal__close" onclick="closeCommentsModal()">×</button>
+      </div>
+      <div class="modal__body">
+        <div id="commentsList" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Comments will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completeness Modal -->
+  <div class="modal" id="completenessModal">
+    <div class="modal__content" style="max-width: 800px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Комплектность</h3>
+        <button class="modal__close" onclick="closeCompletenessModal()">×</button>
+      </div>
+      <div class="modal__body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Детали</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="completenessTableBody">
+            <!-- Will be populated by JS -->
+          </tbody>
+        </table>
+        <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--g-color-line-generic);">
+          <button type="button" class="btn btn--primary" onclick="saveCompleteness()" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" onclick="closeCompletenessModal()" style="flex: 1;">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/js/mock-data.js"></script>
+  <script src="../assets/js/app.js"></script>
   <script>
     let currentStep = 1;
     let photos = [];
     let signatureDrawn = false;
+    let selectedCarPlate = null;
+
+    function loadPreviousComment() {
+      const carSelect = document.getElementById('carSelect');
+      const selectedPlate = carSelect.value;
+      selectedCarPlate = selectedPlate;
+      const previousCommentSection = document.getElementById('previousCommentSection');
+      const previousCommentText = document.getElementById('previousCommentText');
+      
+      if (!selectedPlate) {
+        previousCommentSection.style.display = 'none';
+        return;
+      }
+
+      // Find the most recent inspection/return for this car
+      const inspections = mockData.inspections.filter(ins => ins.plate === selectedPlate && ins.type === 'Возврат');
+      if (inspections.length > 0) {
+        // Sort by date descending
+        inspections.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const latestInspection = inspections[0];
+        
+        if (latestInspection.notes) {
+          previousCommentText.textContent = latestInspection.notes;
+          previousCommentSection.style.display = 'block';
+        } else {
+          previousCommentText.textContent = 'Нет комментариев';
+          previousCommentSection.style.display = 'block';
+        }
+      } else {
+        previousCommentText.textContent = 'Нет предыдущих комментариев';
+        previousCommentSection.style.display = 'block';
+      }
+    }
+
+    window.showCompletenessModal = function() {
+      let carPlate = selectedCarPlate;
+      
+      if (!carPlate) {
+        const carSelect = document.getElementById('carSelect');
+        if (carSelect) {
+          carPlate = carSelect.value;
+        }
+      }
+      
+      if (!carPlate) {
+        alert('Сначала выберите автомобиль');
+        return;
+      }
+
+      const car = mockData.cars.find(c => c.plate === carPlate);
+      if (!car) {
+        alert('Автомобиль не найден');
+        return;
+      }
+
+      const numericCarId = car.id;
+      let completeness = getCompletenessByCarId(numericCarId);
+      const completenessTableBody = document.getElementById('completenessTableBody');
+      
+      if (!completenessTableBody) {
+        alert('Ошибка: элемент таблицы не найден');
+        return;
+      }
+
+      // If no completeness data exists, create default data
+      if (completeness.length === 0) {
+        const defaultItems = [
+          'Шашка такси', 'Магнитола', 'Видеорегистратор', 'Зарядное устройство', 'Планшет для рекламы',
+          'Детское кресло', 'Бустер', 'Зонт', 'Аптечка', 'Огнетушитель', 'Знак аварийной остановки',
+          'Трос', 'Крюк', 'Ключ', 'Отвертка', 'Домкрат', 'Баллонный ключ', 'Запаска', 'ГБО',
+          'СТС', 'ОСАГО', 'Диагностическая карта', 'Лицензия', 'Грязный салон', 'Запах табака',
+          'Повреждение салонных ковриков', 'Повреждение обшивки дверей', 'Сломанные ручки', 'Требуется химчистка'
+        ];
+        completeness = defaultItems.map((item, index) => ({
+          carId: numericCarId,
+          item: item,
+          status: index < 15 // First 15 items are present by default
+        }));
+        if (!mockData.completeness) {
+          mockData.completeness = [];
+        }
+        mockData.completeness.push(...completeness);
+        completeness = getCompletenessByCarId(numericCarId);
+      }
+
+      completenessTableBody.innerHTML = completeness.map((comp) => `
+        <tr>
+          <td>${comp.item}</td>
+          <td>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+              <input type="checkbox" 
+                     data-completeness-item="${comp.item}"
+                     data-car-id="${numericCarId}"
+                     ${comp.status ? 'checked' : ''} 
+                     style="width: 18px; height: 18px; cursor: pointer;"
+                     onchange="updateCompletenessStatus(this)">
+              <span style="min-width: 100px;">${comp.status ? 'Есть' : 'Отсутствует'}</span>
+            </label>
+          </td>
+        </tr>
+      `).join('');
+
+      const modal = document.getElementById('completenessModal');
+      if (modal) {
+        modal.classList.add('active');
+      } else {
+        alert('Ошибка: модальное окно не найдено');
+      }
+    };
+
+    window.updateCompletenessStatus = function(checkbox) {
+      const item = checkbox.dataset.completenessItem;
+      const carId = parseInt(checkbox.dataset.carId);
+      const span = checkbox.nextElementSibling;
+      
+      if (span) {
+        span.textContent = checkbox.checked ? 'Есть' : 'Отсутствует';
+      }
+      
+      // Update in mock data
+      const completenessItem = mockData.completeness.find(c => c.carId === carId && c.item === item);
+      if (completenessItem) {
+        completenessItem.status = checkbox.checked;
+      }
+    };
+
+    window.saveCompleteness = function() {
+      closeCompletenessModal();
+    };
+
+    window.closeCompletenessModal = function() {
+      const modal = document.getElementById('completenessModal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+    };
+
+    window.showCommentsModal = function() {
+      let carPlate = selectedCarPlate;
+      
+      if (!carPlate) {
+        const carSelect = document.getElementById('carSelect');
+        if (carSelect) {
+          carPlate = carSelect.value;
+        }
+      }
+      
+      if (!carPlate) {
+        alert('Сначала выберите автомобиль');
+        return;
+      }
+
+      const commentsList = document.getElementById('commentsList');
+      
+      // Get all inspections with comments for this car
+      const inspections = mockData.inspections.filter(ins => 
+        ins.plate === carPlate && ins.notes
+      );
+
+      if (inspections.length === 0) {
+        commentsList.innerHTML = '<div style="text-align: center; color: var(--g-color-text-secondary); padding: 24px;">Нет комментариев для данного автомобиля</div>';
+      } else {
+        // Sort by date descending
+        inspections.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        commentsList.innerHTML = inspections.map(ins => {
+          const date = new Date(ins.date);
+          const formattedDate = date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
+          const formattedTime = date.toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          return `
+            <div style="padding: 16px; background: var(--g-color-base-generic); border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <div>
+                  <div style="font-weight: 500; margin-bottom: 4px;">${formattedDate}</div>
+                  <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">${formattedTime}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 500; margin-bottom: 4px;">${ins.mechanicName}</div>
+                  <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Механик</div>
+                </div>
+              </div>
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g-color-line-generic);">
+                <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-bottom: 4px;">Комментарий:</div>
+                <div style="color: var(--g-color-text-primary);">${ins.notes}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('commentsModal').classList.add('active');
+    };
+
+    window.closeCommentsModal = function() {
+      document.getElementById('commentsModal').classList.remove('active');
+    };
 
     function goToStep(step) {
       document.getElementById(`step${currentStep}Content`).style.display = 'none';
@@ -168,12 +428,6 @@
       document.getElementById('step2Next').disabled = files.length === 0;
     }
 
-    function checkChecklist() {
-      const allChecked = document.getElementById('check1').checked &&
-                        document.getElementById('check2').checked &&
-                        document.getElementById('check3').checked;
-      document.getElementById('step3Next').disabled = !allChecked;
-    }
 
     function initSignature() {
       const canvas = document.getElementById('signatureCanvas');
@@ -226,12 +480,22 @@
 
     function checkComplete() {
       const canComplete = photos.length > 0 && 
-                         document.getElementById('check1').checked &&
-                         document.getElementById('check2').checked &&
-                         document.getElementById('check3').checked &&
                          signatureDrawn;
       document.getElementById('completeBtn').disabled = !canComplete;
     }
+
+    // Close modals on backdrop click
+    document.getElementById('completenessModal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('completenessModal')) {
+        closeCompletenessModal();
+      }
+    });
+
+    document.getElementById('commentsModal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('commentsModal')) {
+        closeCommentsModal();
+      }
+    });
 
     function completeIssue() {
       document.getElementById('step5Content').style.display = 'none';

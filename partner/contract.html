@@ -58,7 +58,7 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
@@ -72,6 +72,7 @@
       <div id="contractStatusList" style="margin-bottom: 24px;"></div>
 
       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn--normal" onclick="openPassportModal()">Загрузить паспорт</button>
         <button class="btn btn--normal" id="printContractBtn">Распечатать</button>
         <label for="uploadScanInput" class="btn btn--normal" style="cursor: pointer; margin: 0;">
           Загрузить скан договора
@@ -97,6 +98,75 @@
         <button class="btn btn--normal" id="removeScanBtn" style="display: none;">Удалить скан</button>
       </div>
     </main>
+  </div>
+
+  <!-- Passport Modal -->
+  <div class="modal" id="passportModal">
+    <div class="modal__content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal__header">
+        <h3 class="modal__title">Загрузить паспорт</h3>
+        <button class="modal__close" onclick="closePassportModal()">×</button>
+      </div>
+      <div class="modal__body" style="padding: var(--g-spacing-xl);">
+        <form id="passportForm">
+          <div style="margin-bottom: 32px;">
+            <h4>Паспорт</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+              <div class="form-group">
+                <label class="form-label">Серия/номер (без пробелов)</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" class="form-input" id="passportSeries" placeholder="Серия" style="flex: 1;">
+                  <input type="text" class="form-input" id="passportNumber" placeholder="Номер" style="flex: 1;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Гражданство</label>
+                <input type="text" class="form-input" id="passportCitizenship" placeholder="Российская Федерация">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Кем выдан</label>
+                <input type="text" class="form-input" id="passportIssuedBy" placeholder="ОУФМС России">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Пол</label>
+                <select class="form-select" id="passportGender">
+                  <option value="Мужской">Мужской</option>
+                  <option value="Женский">Женский</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата выдачи</label>
+                <input type="date" class="form-input" id="passportIssueDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Срок действия</label>
+                <input type="date" class="form-input" id="passportValidUntil">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Код подразделения</label>
+                <input type="text" class="form-input" id="passportDepartmentCode" placeholder="220-001">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Адрес регистрации</label>
+                <input type="text" class="form-input" id="passportRegistrationAddress" placeholder="Адрес регистрации">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата рождения</label>
+                <input type="date" class="form-input" id="passportBirthDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Место рождения</label>
+                <input type="text" class="form-input" id="passportBirthPlace" placeholder="Место рождения">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 12px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
+            <button type="button" class="btn btn--normal" onclick="closePassportModal()">Отмена</button>
+            <button type="submit" class="btn btn--action">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Edit Contract Modal -->
@@ -269,6 +339,25 @@
         `;
       }
 
+      // Helper function to calculate days
+      function calculateDays(startDate, endDate) {
+        if (!startDate || !endDate) return 0;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+
+      // Helper function to calculate total amount
+      function calculateTotalAmount(dailyRent, days) {
+        return dailyRent * days;
+      }
+
+      // Calculate days and total amount
+      const days = calculateDays(contract.startDate, contract.endDate);
+      const totalAmount = contract.totalAmount || calculateTotalAmount(contract.dailyRent, days);
+
       // Render contract info
       document.getElementById('contractInfo').innerHTML = `
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
@@ -299,8 +388,16 @@
             <div style="min-height: 24px;">${formatDate(contract.endDate)}</div>
           </div>
           <div class="form-group">
+            <label class="form-label">Количество дней в аренду</label>
+            <div style="min-height: 24px;">${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}</div>
+          </div>
+          <div class="form-group">
             <label class="form-label">Стоимость аренды в сутки</label>
             <div style="min-height: 24px;">${formatCurrency(contract.dailyRent)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Итоговая стоимость аренды</label>
+            <div style="min-height: 24px; font-weight: 600; color: var(--g-color-text-primary);">${formatCurrency(totalAmount)}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Водитель</label>
@@ -561,6 +658,10 @@
             return;
           }
 
+          // Calculate days and total amount
+          const updatedDays = updatedEndDate ? calculateDays(updatedStartDate, updatedEndDate) : 0;
+          const updatedTotalAmount = calculateTotalAmount(updatedDailyRent, updatedDays);
+
           // Update contract
           contract.driverId = updatedDriverId;
           contract.driverName = updatedDriver.name;
@@ -569,6 +670,7 @@
           contract.startDate = updatedStartDate;
           contract.endDate = updatedEndDate || null;
           contract.dailyRent = updatedDailyRent;
+          contract.totalAmount = updatedTotalAmount;
           contract.contractStatus = updatedContractStatus;
           contract.issuanceStatus = updatedIssuanceStatus;
           contract.status = updatedEndDate && new Date(updatedEndDate) < new Date() ? 'истекший' : 'действующий';
@@ -577,6 +679,81 @@
           location.reload();
         });
       }
+
+      // Passport modal functionality
+      window.openPassportModal = function() {
+        const driver = getDriverById(contract.driverId);
+        if (!driver) {
+          alert('Водитель не найден');
+          return;
+        }
+
+        // Populate form with existing driver passport data if available
+        document.getElementById('passportSeries').value = driver.passportSeries || '';
+        document.getElementById('passportNumber').value = driver.passportNumber || '';
+        document.getElementById('passportCitizenship').value = driver.citizenship || '';
+        document.getElementById('passportIssuedBy').value = driver.passportIssuedBy || '';
+        document.getElementById('passportGender').value = driver.gender || 'Мужской';
+        document.getElementById('passportIssueDate').value = driver.passportIssueDate || '';
+        document.getElementById('passportValidUntil').value = driver.passportValidUntil || '';
+        document.getElementById('passportDepartmentCode').value = driver.passportDepartmentCode || '';
+        document.getElementById('passportRegistrationAddress').value = driver.registrationAddress || '';
+        document.getElementById('passportBirthDate').value = driver.birthDate || '';
+        document.getElementById('passportBirthPlace').value = driver.birthPlace || '';
+
+        document.getElementById('passportModal').classList.add('active');
+      };
+
+      window.closePassportModal = function() {
+        document.getElementById('passportModal').classList.remove('active');
+      };
+
+      // Passport form submission
+      const passportForm = document.getElementById('passportForm');
+      if (passportForm) {
+        passportForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const driver = getDriverById(contract.driverId);
+          if (!driver) {
+            alert('Водитель не найден');
+            return;
+          }
+
+          // Update driver passport data
+          driver.passportSeries = document.getElementById('passportSeries').value;
+          driver.passportNumber = document.getElementById('passportNumber').value;
+          driver.citizenship = document.getElementById('passportCitizenship').value;
+          driver.passportIssuedBy = document.getElementById('passportIssuedBy').value;
+          driver.gender = document.getElementById('passportGender').value;
+          driver.passportIssueDate = document.getElementById('passportIssueDate').value;
+          driver.passportValidUntil = document.getElementById('passportValidUntil').value;
+          driver.passportDepartmentCode = document.getElementById('passportDepartmentCode').value;
+          driver.registrationAddress = document.getElementById('passportRegistrationAddress').value;
+          driver.birthDate = document.getElementById('passportBirthDate').value;
+          driver.birthPlace = document.getElementById('passportBirthPlace').value;
+
+          // Update contract status if needed
+          if (driver.passportSeries && driver.passportNumber) {
+            if (contract.contractStatus === 'требуется заполнение паспорта') {
+              contract.contractStatus = 'требуется подписание';
+            }
+          }
+
+          alert('Данные паспорта успешно сохранены');
+          closePassportModal();
+          
+          // Reload the page to show updated data
+          location.reload();
+        });
+      }
+
+      // Close passport modal on backdrop click
+      document.getElementById('passportModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('passportModal')) {
+          closePassportModal();
+        }
+      });
     }
   </script>
 </body>

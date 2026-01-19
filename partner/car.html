@@ -21,7 +21,7 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link active">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
@@ -99,12 +99,15 @@
               <tr>
                 <th>Дата</th>
                 <th>Тип</th>
-                <th>Пробег</th>
+                <th>Пробег Выдача</th>
+                <th>Пробег Приемка</th>
                 <th>Механик</th>
                 <th>Водитель</th>
                 <th>Повреждения</th>
                 <th>Некомплект</th>
                 <th>Утеря документов</th>
+                <th>Фотоосмотра Выдача</th>
+                <th>Фотоосмотра Приемка</th>
                 <th>Комментарий</th>
               </tr>
             </thead>
@@ -625,7 +628,7 @@
 
   <!-- Add/Edit Inspection Modal -->
   <div class="modal" id="inspectionModal">
-    <div class="modal__content" style="max-width: 700px;">
+    <div class="modal__content" style="max-width: 800px;">
       <div class="modal__header">
         <h3 class="modal__title" id="inspectionModalTitle">Добавить осмотр</h3>
         <button class="modal__close" data-close-modal="#inspectionModal">×</button>
@@ -646,6 +649,18 @@
             <option value="Плановый">Плановый</option>
           </select>
         </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+          <div class="form-group">
+            <label class="form-label">Пробег Выдача (км)</label>
+            <input type="number" class="form-input" id="inspectionMileageIssue" min="0" readonly style="background: var(--g-color-base-generic);">
+            <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-top: 4px;" id="inspectionMileageIssueDisplay"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Пробег Приемка (км)</label>
+            <input type="number" class="form-input" id="inspectionMileageReturn" min="0" readonly style="background: var(--g-color-base-generic);">
+            <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-top: 4px;" id="inspectionMileageReturnDisplay"></div>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Пробег (км) *</label>
           <input type="number" class="form-input" id="inspectionMileage" required min="0">
@@ -664,17 +679,40 @@
             <span>Повреждения</span>
           </label>
         </div>
-        <div class="form-group">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <div class="form-group" style="display: flex; align-items: center; gap: 12px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
             <input type="checkbox" id="inspectionHasIncomplete" style="width: auto;">
             <span>Некомплект</span>
           </label>
+          <button type="button" class="btn btn--normal" onclick="showCompletenessModalFromInspection()" style="white-space: nowrap;">
+            Комплектность
+          </button>
         </div>
         <div class="form-group">
           <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
             <input type="checkbox" id="inspectionHasLostDocuments" style="width: auto;">
             <span>Утеря документов</span>
           </label>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px;">
+          <div class="form-group">
+            <label class="form-label">Фотоосмотра Выдача</label>
+            <div id="inspectionPhotosIssueContainer" style="margin-top: 8px;">
+              <!-- Photos will be displayed here -->
+            </div>
+            <button type="button" class="btn btn--normal" id="showIssuePhotosBtn" onclick="showInspectionPhotos('issue')" style="width: 100%; margin-top: 8px; display: none;">
+              Показать фото
+            </button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Фотоосмотра Приемка</label>
+            <div id="inspectionPhotosReturnContainer" style="margin-top: 8px;">
+              <!-- Photos will be displayed here -->
+            </div>
+            <button type="button" class="btn btn--normal" id="showReturnPhotosBtn" onclick="showInspectionPhotos('return')" style="width: 100%; margin-top: 8px; display: none;">
+              Показать фото
+            </button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Комментарий</label>
@@ -843,6 +881,51 @@
           <button type="button" class="btn btn--normal" data-close-modal="#documentModal">Отмена</button>
         </div>
       </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Gallery Modal -->
+  <div class="modal" id="photoGalleryModal">
+    <div class="modal__content" style="max-width: 900px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="photoGalleryTitle">Галерея фотографий</h3>
+        <button class="modal__close" onclick="closePhotoGallery()">×</button>
+      </div>
+      <div class="modal__body">
+        <div id="photoGalleryContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+          <!-- Photos will be populated here -->
+        </div>
+        <div style="margin-top: 24px; text-align: center;">
+          <button type="button" class="btn btn--normal" onclick="closePhotoGallery()">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completeness Modal -->
+  <div class="modal" id="completenessModal">
+    <div class="modal__content" style="max-width: 800px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Комплектность</h3>
+        <button class="modal__close" onclick="closeCompletenessModal()">×</button>
+      </div>
+      <div class="modal__body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Детали</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="completenessModalTableBody">
+            <!-- Will be populated by JS -->
+          </tbody>
+        </table>
+        <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--g-color-line-generic);">
+          <button type="button" class="btn btn--primary" onclick="saveCompleteness()" style="flex: 1;">Сохранить</button>
+          <button type="button" class="btn btn--normal" onclick="closeCompletenessModal()" style="flex: 1;">Закрыть</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1083,9 +1166,12 @@
         if (!inspectionsTableBody) return;
         
         if (inspections.length === 0) {
-          inspectionsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Осмотры не найдены</td></tr>';
+          inspectionsTableBody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Осмотры не найдены</td></tr>';
           return;
         }
+        
+        // Sort inspections by date descending
+        inspections.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         inspectionsTableBody.innerHTML = inspections.map(ins => {
           const inspectionDate = new Date(ins.date);
@@ -1096,16 +1182,37 @@
             hour: '2-digit',
             minute: '2-digit'
           });
+          
+          // Show mileage in appropriate column based on type
+          const issueMileage = ins.type === 'Выдача' ? formatNumber(ins.mileage) + ' км' : '-';
+          const returnMileage = ins.type === 'Возврат' ? formatNumber(ins.mileage) + ' км' : '-';
+          
+          // Get photos count
+          const photos = ins.photos || [];
+          const photosCount = photos.length;
+          
+          // Show photo button only for appropriate type
+          const issuePhotoButton = ins.type === 'Выдача' && photosCount > 0 
+            ? `<button class="btn btn--normal" onclick="showPhotoGallery(${ins.id}, 'issue'); event.stopPropagation();" style="font-size: var(--g-font-size-sm); padding: 4px 12px;">Показать фото (${photosCount})</button>`
+            : '-';
+          
+          const returnPhotoButton = ins.type === 'Возврат' && photosCount > 0 
+            ? `<button class="btn btn--normal" onclick="showPhotoGallery(${ins.id}, 'return'); event.stopPropagation();" style="font-size: var(--g-font-size-sm); padding: 4px 12px;">Показать фото (${photosCount})</button>`
+            : '-';
+          
           return `
           <tr data-inspection-id="${ins.id}">
             <td>${dateStr}</td>
             <td>${ins.type}</td>
-            <td>${formatNumber(ins.mileage)} км</td>
+            <td>${issueMileage}</td>
+            <td>${returnMileage}</td>
             <td>${ins.mechanicName}</td>
             <td>${ins.driverName || '-'}</td>
             <td style="text-align: center;"><input type="checkbox" ${ins.hasDamages ? 'checked' : ''} disabled></td>
             <td style="text-align: center;"><input type="checkbox" ${ins.hasIncomplete ? 'checked' : ''} disabled></td>
             <td style="text-align: center;"><input type="checkbox" ${ins.hasLostDocuments ? 'checked' : ''} disabled></td>
+            <td style="text-align: center;">${issuePhotoButton}</td>
+            <td style="text-align: center;">${returnPhotoButton}</td>
             <td>${ins.notes || '-'}</td>
           </tr>
         `;
@@ -1115,7 +1222,9 @@
         inspectionsTableBody.querySelectorAll('tr[data-inspection-id]').forEach(row => {
           row.addEventListener('click', () => {
             const inspectionId = row.dataset.inspectionId;
-            openInspectionModal(inspectionId);
+            if (inspectionId) {
+              openInspectionModal(inspectionId);
+            }
           });
         });
       }
@@ -1577,23 +1686,121 @@
           const inspection = mockData.inspections.find(ins => ins.id === parseInt(inspectionId));
           if (!inspection) return;
           
-          title.textContent = 'Редактировать осмотр';
+          title.textContent = 'Детали осмотра';
           document.getElementById('inspectionId').value = inspection.id;
           const inspectionDate = new Date(inspection.date);
           const dateStr = inspectionDate.toISOString().slice(0, 16);
           document.getElementById('inspectionDate').value = dateStr;
+          document.getElementById('inspectionDate').readOnly = true;
           document.getElementById('inspectionType').value = inspection.type;
+          document.getElementById('inspectionType').disabled = true;
           document.getElementById('inspectionMileage').value = inspection.mileage;
+          document.getElementById('inspectionMileage').readOnly = true;
           document.getElementById('inspectionMechanic').value = inspection.mechanicName;
+          document.getElementById('inspectionMechanic').readOnly = true;
           document.getElementById('inspectionDriver').value = inspection.driverName || '';
+          document.getElementById('inspectionDriver').readOnly = true;
           document.getElementById('inspectionHasDamages').checked = inspection.hasDamages || false;
+          document.getElementById('inspectionHasDamages').disabled = true;
           document.getElementById('inspectionHasIncomplete').checked = inspection.hasIncomplete || false;
+          document.getElementById('inspectionHasIncomplete').disabled = true;
           document.getElementById('inspectionHasLostDocuments').checked = inspection.hasLostDocuments || false;
+          document.getElementById('inspectionHasLostDocuments').disabled = true;
           document.getElementById('inspectionComment').value = inspection.notes || '';
+          document.getElementById('inspectionComment').readOnly = true;
+          
+          // Find related inspection (issue/return)
+          let relatedInspection = null;
+          if (inspection.type === 'Выдача') {
+            // Find corresponding return inspection
+            const returnInspections = mockData.inspections
+              .filter(ins => ins.plate === inspection.plate && ins.type === 'Возврат')
+              .filter(ins => new Date(ins.date) >= inspectionDate)
+              .sort((a, b) => new Date(a.date) - new Date(b.date));
+            relatedInspection = returnInspections[0] || null;
+          } else if (inspection.type === 'Возврат') {
+            // Find corresponding issue inspection
+            const issueInspections = mockData.inspections
+              .filter(ins => ins.plate === inspection.plate && ins.type === 'Выдача')
+              .filter(ins => new Date(ins.date) <= inspectionDate)
+              .sort((a, b) => new Date(b.date) - new Date(a.date));
+            relatedInspection = issueInspections[0] || null;
+          }
+          
+          // Display mileage
+          if (inspection.type === 'Выдача') {
+            document.getElementById('inspectionMileageIssue').value = inspection.mileage;
+            document.getElementById('inspectionMileageIssueDisplay').textContent = formatNumber(inspection.mileage) + ' км';
+            if (relatedInspection) {
+              document.getElementById('inspectionMileageReturn').value = relatedInspection.mileage;
+              document.getElementById('inspectionMileageReturnDisplay').textContent = formatNumber(relatedInspection.mileage) + ' км';
+            } else {
+              document.getElementById('inspectionMileageReturn').value = '';
+              document.getElementById('inspectionMileageReturnDisplay').textContent = 'Не найдено';
+            }
+          } else if (inspection.type === 'Возврат') {
+            document.getElementById('inspectionMileageReturn').value = inspection.mileage;
+            document.getElementById('inspectionMileageReturnDisplay').textContent = formatNumber(inspection.mileage) + ' км';
+            if (relatedInspection) {
+              document.getElementById('inspectionMileageIssue').value = relatedInspection.mileage;
+              document.getElementById('inspectionMileageIssueDisplay').textContent = formatNumber(relatedInspection.mileage) + ' км';
+            } else {
+              document.getElementById('inspectionMileageIssue').value = '';
+              document.getElementById('inspectionMileageIssueDisplay').textContent = 'Не найдено';
+            }
+          } else {
+            document.getElementById('inspectionMileageIssue').value = '';
+            document.getElementById('inspectionMileageIssueDisplay').textContent = '-';
+            document.getElementById('inspectionMileageReturn').value = '';
+            document.getElementById('inspectionMileageReturnDisplay').textContent = '-';
+          }
+          
+          // Display photos
+          const issuePhotos = inspection.type === 'Выдача' ? (inspection.photos || []) : (relatedInspection && relatedInspection.photos ? relatedInspection.photos : []);
+          const returnPhotos = inspection.type === 'Возврат' ? (inspection.photos || []) : (relatedInspection && relatedInspection.photos ? relatedInspection.photos : []);
+          
+          const issuePhotosContainer = document.getElementById('inspectionPhotosIssueContainer');
+          const returnPhotosContainer = document.getElementById('inspectionPhotosReturnContainer');
+          const showIssuePhotosBtn = document.getElementById('showIssuePhotosBtn');
+          const showReturnPhotosBtn = document.getElementById('showReturnPhotosBtn');
+          
+          if (issuePhotos.length > 0) {
+            issuePhotosContainer.innerHTML = `<div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Найдено фотографий: ${issuePhotos.length}</div>`;
+            showIssuePhotosBtn.style.display = 'block';
+            showIssuePhotosBtn.dataset.inspectionId = inspection.type === 'Выдача' ? inspection.id : (relatedInspection ? relatedInspection.id : '');
+          } else {
+            issuePhotosContainer.innerHTML = '<div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Нет фотографий</div>';
+            showIssuePhotosBtn.style.display = 'none';
+          }
+          
+          if (returnPhotos.length > 0) {
+            returnPhotosContainer.innerHTML = `<div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Найдено фотографий: ${returnPhotos.length}</div>`;
+            showReturnPhotosBtn.style.display = 'block';
+            showReturnPhotosBtn.dataset.inspectionId = inspection.type === 'Возврат' ? inspection.id : (relatedInspection ? relatedInspection.id : '');
+          } else {
+            returnPhotosContainer.innerHTML = '<div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Нет фотографий</div>';
+            showReturnPhotosBtn.style.display = 'none';
+          }
+          
+          // Hide submit button for view mode
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.style.display = 'none';
+          }
         } else {
           title.textContent = 'Добавить осмотр';
           form.reset();
           document.getElementById('inspectionId').value = '';
+          document.getElementById('inspectionDate').readOnly = false;
+          document.getElementById('inspectionType').disabled = false;
+          document.getElementById('inspectionMileage').readOnly = false;
+          document.getElementById('inspectionMechanic').readOnly = false;
+          document.getElementById('inspectionDriver').readOnly = false;
+          document.getElementById('inspectionHasDamages').disabled = false;
+          document.getElementById('inspectionHasIncomplete').disabled = false;
+          document.getElementById('inspectionHasLostDocuments').disabled = false;
+          document.getElementById('inspectionComment').readOnly = false;
+          
           // Set default values
           const now = new Date();
           document.getElementById('inspectionDate').value = now.toISOString().slice(0, 16);
@@ -1604,10 +1811,147 @@
           document.getElementById('inspectionHasDamages').checked = false;
           document.getElementById('inspectionHasIncomplete').checked = false;
           document.getElementById('inspectionHasLostDocuments').checked = false;
+          
+          // Clear related fields
+          document.getElementById('inspectionMileageIssue').value = '';
+          document.getElementById('inspectionMileageIssueDisplay').textContent = '';
+          document.getElementById('inspectionMileageReturn').value = '';
+          document.getElementById('inspectionMileageReturnDisplay').textContent = '';
+          document.getElementById('inspectionPhotosIssueContainer').innerHTML = '';
+          document.getElementById('inspectionPhotosReturnContainer').innerHTML = '';
+          document.getElementById('showIssuePhotosBtn').style.display = 'none';
+          document.getElementById('showReturnPhotosBtn').style.display = 'none';
+          
+          // Show submit button for add mode
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.style.display = 'block';
+          }
         }
         
         modal.classList.add('active');
       }
+      
+      window.showInspectionPhotos = function(type) {
+        const btn = type === 'issue' ? document.getElementById('showIssuePhotosBtn') : document.getElementById('showReturnPhotosBtn');
+        const inspectionId = btn ? btn.dataset.inspectionId : null;
+        if (inspectionId) {
+          showPhotoGallery(parseInt(inspectionId), type);
+        }
+      };
+
+      window.showCompletenessModalFromInspection = function() {
+        // Get car ID from current car
+        const numericCarId = parseInt(carId);
+        let completeness = getCompletenessByCarId(numericCarId);
+        const completenessModalTableBody = document.getElementById('completenessModalTableBody');
+        
+        if (!completenessModalTableBody) {
+          alert('Ошибка: элемент таблицы не найден');
+          return;
+        }
+
+        // If no completeness data exists, create default data
+        if (completeness.length === 0) {
+          const defaultItems = [
+            'Шашка такси', 'Магнитола', 'Видеорегистратор', 'Зарядное устройство', 'Планшет для рекламы',
+            'Детское кресло', 'Бустер', 'Зонт', 'Аптечка', 'Огнетушитель', 'Знак аварийной остановки',
+            'Трос', 'Крюк', 'Ключ', 'Отвертка', 'Домкрат', 'Баллонный ключ', 'Запаска', 'ГБО',
+            'СТС', 'ОСАГО', 'Диагностическая карта', 'Лицензия', 'Грязный салон', 'Запах табака',
+            'Повреждение салонных ковриков', 'Повреждение обшивки дверей', 'Сломанные ручки', 'Требуется химчистка'
+          ];
+          completeness = defaultItems.map((item, index) => ({
+            carId: numericCarId,
+            item: item,
+            status: index < 15 // First 15 items are present by default
+          }));
+          if (!mockData.completeness) {
+            mockData.completeness = [];
+          }
+          mockData.completeness.push(...completeness);
+          completeness = getCompletenessByCarId(numericCarId);
+        }
+
+        completenessModalTableBody.innerHTML = completeness.map((comp) => `
+          <tr>
+            <td>${comp.item}</td>
+            <td>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                <input type="checkbox" 
+                       data-completeness-item="${comp.item}"
+                       data-car-id="${numericCarId}"
+                       ${comp.status ? 'checked' : ''} 
+                       style="width: 18px; height: 18px; cursor: pointer;"
+                       onchange="updateCompletenessStatusFromInspection(this)">
+                <span style="min-width: 100px;">${comp.status ? 'Есть' : 'Отсутствует'}</span>
+              </label>
+            </td>
+          </tr>
+        `).join('');
+
+        const modal = document.getElementById('completenessModal');
+        if (modal) {
+          modal.classList.add('active');
+        } else {
+          alert('Ошибка: модальное окно не найдено');
+        }
+      };
+
+      window.updateCompletenessStatusFromInspection = function(checkbox) {
+        const item = checkbox.dataset.completenessItem;
+        const carId = parseInt(checkbox.dataset.carId);
+        const span = checkbox.nextElementSibling;
+        
+        if (span) {
+          span.textContent = checkbox.checked ? 'Есть' : 'Отсутствует';
+        }
+        
+        // Update in mock data
+        const completenessItem = mockData.completeness.find(c => c.carId === carId && c.item === item);
+        if (completenessItem) {
+          completenessItem.status = checkbox.checked;
+        }
+        
+        // Update "Некомплект" checkbox in inspection modal
+        const incompleteCheckbox = document.getElementById('inspectionHasIncomplete');
+        if (incompleteCheckbox) {
+          // Check if any item is missing
+          const allCheckboxes = document.querySelectorAll('#completenessModalTableBody input[type="checkbox"]');
+          let hasMissing = false;
+          allCheckboxes.forEach(cb => {
+            if (!cb.checked) {
+              hasMissing = true;
+            }
+          });
+          incompleteCheckbox.checked = hasMissing;
+        }
+      };
+
+      window.closeCompletenessModal = function() {
+        const modal = document.getElementById('completenessModal');
+        if (modal) {
+          modal.classList.remove('active');
+        }
+      };
+
+      window.saveCompleteness = function() {
+        // Check if any item is missing
+        const checkboxes = document.querySelectorAll('#completenessModalTableBody input[type="checkbox"]');
+        let hasMissing = false;
+        checkboxes.forEach(cb => {
+          if (!cb.checked) {
+            hasMissing = true;
+          }
+        });
+        
+        // Update "Некомплект" checkbox in inspection modal if it's open
+        const incompleteCheckbox = document.getElementById('inspectionHasIncomplete');
+        if (incompleteCheckbox) {
+          incompleteCheckbox.checked = hasMissing;
+        }
+        
+        closeCompletenessModal();
+      };
 
       document.getElementById('inspectionForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1828,6 +2172,65 @@
         renderDocuments();
         document.getElementById('documentForm').reset();
         document.querySelector('#documentModal').classList.remove('active');
+      });
+
+      // Photo gallery functionality
+      window.showPhotoGallery = function(inspectionId, type) {
+        const inspection = mockData.inspections.find(ins => ins.id === parseInt(inspectionId));
+        if (!inspection) {
+          alert('Осмотр не найден');
+          return;
+        }
+
+        const photos = inspection.photos || [];
+        const galleryContainer = document.getElementById('photoGalleryContainer');
+        const galleryTitle = document.getElementById('photoGalleryTitle');
+        
+        galleryTitle.textContent = `Галерея фотографий - ${inspection.type} (${inspection.plate})`;
+
+        if (photos.length === 0) {
+          galleryContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Фотографии не найдены</div>';
+        } else {
+          galleryContainer.innerHTML = photos.map((photo, index) => `
+            <div style="position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 8px; cursor: pointer; border: 1px solid var(--g-color-line-generic);" onclick="openPhotoViewer(${inspectionId}, ${index})">
+              <img src="${photo.url || '../assets/img/placeholder.png'}" alt="Фото ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); padding: 8px; color: white; font-size: var(--g-font-size-sm);">
+                Фото ${index + 1}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('photoGalleryModal').classList.add('active');
+      };
+
+      window.closePhotoGallery = function() {
+        document.getElementById('photoGalleryModal').classList.remove('active');
+      };
+
+      window.openPhotoViewer = function(inspectionId, photoIndex) {
+        const inspection = mockData.inspections.find(ins => ins.id === parseInt(inspectionId));
+        if (!inspection || !inspection.photos) return;
+
+        const photo = inspection.photos[photoIndex];
+        if (!photo) return;
+
+        // Open in new window or show in larger modal
+        window.open(photo.url || '../assets/img/placeholder.png', '_blank');
+      };
+
+      // Close photo gallery on backdrop click
+      document.getElementById('photoGalleryModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('photoGalleryModal')) {
+          closePhotoGallery();
+        }
+      });
+
+      // Close completeness modal on backdrop click
+      document.getElementById('completenessModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('completenessModal')) {
+          closeCompletenessModal();
+        }
       });
     }
   </script>

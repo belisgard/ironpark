@@ -21,7 +21,7 @@
         <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
         <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
         <li class="sidebar__item"><a href="fines.html" class="sidebar__link active">Штрафы</a></li>
-        <li class="sidebar__item"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
         <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
         <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
       </ul>
@@ -29,6 +29,10 @@
 
     <main class="main-content">
       <a href="fines.html" class="back-link">← Назад к списку</a>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn--primary" id="generatePPBtn" onclick="generatePP()" style="display: none;">Сгенерировать ПП</button>
+      </div>
 
       <div class="card" id="fineInfo" style="margin-bottom: 32px;"></div>
 
@@ -73,6 +77,13 @@
     if (!fine) {
       document.body.innerHTML = '<div class="container"><h1>Штраф не найден</h1><a href="fines.html">Вернуться к списку</a></div>';
     } else {
+      // Show generate PP button only for "Новый" or "Начислен" status
+      const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
+      const generatePPBtn = document.getElementById('generatePPBtn');
+      if (generatePPBtn) {
+        generatePPBtn.style.display = canGeneratePP ? 'inline-block' : 'none';
+      }
+
       document.getElementById('fineInfo').innerHTML = `
         <div class="alert alert--warning alert--discount" style="display: ${fine.discountAvailable ? 'block' : 'none'};">
           Скидка доступна до ${formatDate(fine.discountDeadline)}
@@ -106,14 +117,6 @@
             <label class="form-label">Статус</label>
             <div><span class="badge ${getStatusBadgeClass(fine.status)} badge--status">${fine.status}</span></div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Изменить статус</label>
-            <select class="form-select" data-change-status data-fine-id="${fine.id}">
-              <option value="Новый" ${fine.status === 'Новый' ? 'selected' : ''}>Новый</option>
-              <option value="Начислен" ${fine.status === 'Начислен' ? 'selected' : ''}>Начислен</option>
-              <option value="Оплачен" ${fine.status === 'Оплачен' ? 'selected' : ''}>Оплачен</option>
-            </select>
-          </div>
         </div>
       `;
 
@@ -123,6 +126,13 @@
       }
 
       initUIStateToggles();
+
+      // Generate PP function
+      window.generatePP = function() {
+        if (!fine) return;
+        alert(`Генерация ПП для штрафа #${fine.id}\nНомер протокола: ПРОТ-${fine.id}\nДата: ${formatDate(fine.date)}\nАвто: ${fine.plate}\nВодитель: ${fine.driverName}\nСумма: ${formatCurrency(fine.amount)}`);
+        // Здесь можно добавить реальную логику генерации ПП
+      };
     }
   </script>
 </body>
