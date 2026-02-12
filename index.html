@@ -11,14 +11,32 @@
   <div class="container" style="max-width: 800px; margin: 100px auto; text-align: center;">
     <h1 style="font-size: 32px; margin-bottom: 48px;">B2P Платформа</h1>
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-top: 64px;">
-      <a href="partner/dashboard.html" class="card" style="text-decoration: none; display: block;">
-        <h2 style="margin-bottom: 16px;">Кабинет партнёра</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-top: 32px;">
+      <section class="card" style="text-align: left;">
+        <h2 style="margin-bottom: 16px;">Авторизация</h2>
         <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
-          Управление автопарком, водителями, штрафами и ремонтами
+          Вход в интерфейс партнёра по email.
         </p>
-        <span class="btn btn--primary">Войти</span>
-      </a>
+        <button id="open-auth-form-btn" class="btn btn--primary" type="button">Перейти</button>
+        <form id="manager-login-form" novalidate style="margin-top: 16px; display: none;">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label" for="manager-email">Email</label>
+            <input
+              id="manager-email"
+              name="email"
+              type="email"
+              class="form-input"
+              placeholder="manager@company.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+          <p id="manager-login-error" style="color: var(--g-color-base-danger); margin-bottom: 12px; display: none;">
+            Введите корректный email.
+          </p>
+          <button type="submit" class="btn btn--primary">Войти</button>
+        </form>
+      </section>
       
       <a href="mechanic/home.html" class="card" style="text-decoration: none; display: block;">
         <h2 style="margin-bottom: 16px;">Интерфейс механика</h2>
@@ -45,5 +63,36 @@
       </a>
     </div>
   </div>
+  <script>
+    (function () {
+      const openAuthFormButton = document.getElementById('open-auth-form-btn');
+      const form = document.getElementById('manager-login-form');
+      const emailInput = document.getElementById('manager-email');
+      const error = document.getElementById('manager-login-error');
+
+      if (!openAuthFormButton || !form || !emailInput || !error) return;
+
+      openAuthFormButton.addEventListener('click', function () {
+        form.style.display = 'block';
+        openAuthFormButton.style.display = 'none';
+        emailInput.focus();
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const email = emailInput.value.trim();
+        if (!email || !emailInput.checkValidity()) {
+          error.style.display = 'block';
+          emailInput.focus();
+          return;
+        }
+
+        error.style.display = 'none';
+        sessionStorage.setItem('managerEmail', email);
+        window.location.href = 'partner/contracts.html?email=' + encodeURIComponent(email);
+      });
+    })();
+  </script>
 </body>
 </html>

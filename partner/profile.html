@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль - Кабинет партнёра</title>
+  <link rel="stylesheet" href="../assets/css/gravity-theme.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header__logo" onclick="window.location.href='../index.html'">B2P Платформа</div>
+    <button class="btn btn--normal" onclick="window.location.href='../index.html'">Выйти</button>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item"><a href="contracts.html" class="sidebar__link">Договора</a></li>
+        <li class="sidebar__item"><a href="cars.html" class="sidebar__link">Авто</a></li>
+        <li class="sidebar__item"><a href="drivers.html" class="sidebar__link">Водители</a></li>
+        <li class="sidebar__item"><a href="fines.html" class="sidebar__link">Штрафы</a></li>
+        <li class="sidebar__item" style="display: none;"><a href="service-orders.html" class="sidebar__link">Ремонты</a></li>
+        <li class="sidebar__item"><a href="reports.html" class="sidebar__link">Отчёты</a></li>
+        <li class="sidebar__item"><a href="users.html" class="sidebar__link">Пользователи</a></li>
+        <li class="sidebar__item"><a href="profile.html" class="sidebar__link active">Профиль</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Профиль партнёра</h1>
+      </div>
+
+      <div id="profileSavedMessage" class="alert alert--success" style="display: none;">
+        Данные профиля сохранены.
+      </div>
+
+      <form id="partnerProfileForm" class="card" style="max-width: 960px;">
+        <h2 style="margin-bottom: 20px;">Организация</h2>
+        <div class="form-group">
+          <label class="form-label" for="organizationName">Наименование организации *</label>
+          <input id="organizationName" type="text" class="form-input" required placeholder="ООО Пример">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="organizationAddress">Адрес *</label>
+          <input id="organizationAddress" type="text" class="form-input" required placeholder="г. Москва, ул. Примерная, д. 1">
+        </div>
+
+        <h2 style="margin-top: 32px; margin-bottom: 20px;">Банковские реквизиты</h2>
+        <div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="inn">ИНН *</label>
+            <input id="inn" type="text" class="form-input" required placeholder="7700000000">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="kpp">КПП</label>
+            <input id="kpp" type="text" class="form-input" placeholder="770001001">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="ogrn">ОГРН</label>
+            <input id="ogrn" type="text" class="form-input" placeholder="1027700000000">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="bankName">Банк *</label>
+            <input id="bankName" type="text" class="form-input" required placeholder="ПАО Банк">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="bik">БИК *</label>
+            <input id="bik" type="text" class="form-input" required placeholder="044525225">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="checkingAccount">Расчётный счёт *</label>
+            <input id="checkingAccount" type="text" class="form-input" required placeholder="40702810000000000001">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="correspondentAccount">Корреспондентский счёт *</label>
+            <input id="correspondentAccount" type="text" class="form-input" required placeholder="30101810400000000225">
+          </div>
+        </div>
+
+        <h2 style="margin-top: 32px; margin-bottom: 20px;">Адреса колонн</h2>
+        <div id="columnAddressList" style="display: grid; gap: 12px; margin-bottom: 16px;"></div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button id="addColumnAddressButton" type="button" class="btn btn--normal">+ Добавить адрес</button>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--g-color-line-generic);">
+          <button type="submit" class="btn btn--primary">Сохранить профиль</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    (function () {
+      const PROFILE_STORAGE_KEY = 'partnerProfileData';
+      const form = document.getElementById('partnerProfileForm');
+      const addressList = document.getElementById('columnAddressList');
+      const addAddressButton = document.getElementById('addColumnAddressButton');
+      const savedMessage = document.getElementById('profileSavedMessage');
+
+      function createAddressRow(value) {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '12px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-input';
+        input.placeholder = 'Введите адрес колонны';
+        input.value = value || '';
+        input.style.flex = '1';
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn--danger';
+        removeButton.textContent = 'Удалить';
+        removeButton.addEventListener('click', function () {
+          row.remove();
+          if (addressList.children.length === 0) {
+            createAddressRow('');
+          }
+        });
+
+        row.appendChild(input);
+        row.appendChild(removeButton);
+        addressList.appendChild(row);
+      }
+
+      function loadProfile() {
+        const rawData = localStorage.getItem(PROFILE_STORAGE_KEY);
+        if (!rawData) {
+          createAddressRow('');
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(rawData);
+        } catch (error) {
+          createAddressRow('');
+          return;
+        }
+
+        document.getElementById('organizationName').value = data.organizationName || '';
+        document.getElementById('organizationAddress').value = data.organizationAddress || '';
+        document.getElementById('inn').value = data.inn || '';
+        document.getElementById('kpp').value = data.kpp || '';
+        document.getElementById('ogrn').value = data.ogrn || '';
+        document.getElementById('bankName').value = data.bankName || '';
+        document.getElementById('bik').value = data.bik || '';
+        document.getElementById('checkingAccount').value = data.checkingAccount || '';
+        document.getElementById('correspondentAccount').value = data.correspondentAccount || '';
+
+        const addresses = Array.isArray(data.columnAddresses) ? data.columnAddresses : [];
+        if (addresses.length === 0) {
+          createAddressRow('');
+          return;
+        }
+
+        addresses.forEach(function (address) {
+          createAddressRow(address);
+        });
+      }
+
+      addAddressButton.addEventListener('click', function () {
+        createAddressRow('');
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const columnAddresses = Array.from(addressList.querySelectorAll('input'))
+          .map(function (input) { return input.value.trim(); })
+          .filter(function (value) { return value.length > 0; });
+
+        const profileData = {
+          organizationName: document.getElementById('organizationName').value.trim(),
+          organizationAddress: document.getElementById('organizationAddress').value.trim(),
+          inn: document.getElementById('inn').value.trim(),
+          kpp: document.getElementById('kpp').value.trim(),
+          ogrn: document.getElementById('ogrn').value.trim(),
+          bankName: document.getElementById('bankName').value.trim(),
+          bik: document.getElementById('bik').value.trim(),
+          checkingAccount: document.getElementById('checkingAccount').value.trim(),
+          correspondentAccount: document.getElementById('correspondentAccount').value.trim(),
+          columnAddresses: columnAddresses
+        };
+
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+        savedMessage.style.display = 'block';
+        setTimeout(function () {
+          savedMessage.style.display = 'none';
+        }, 2500);
+      });
+
+      loadProfile();
+    })();
+  </script>
+</body>
+</html>
