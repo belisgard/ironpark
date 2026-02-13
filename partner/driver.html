@@ -84,10 +84,13 @@
                 <th>Статус действия</th>
                 <th>Выдача</th>
                 <th>Транспортное средство</th>
+                <th>Водитель</th>
                 <th>Начало действия</th>
                 <th>Окончание действия</th>
+                <th>График аренды</th>
+                <th>Количество дней в аренде</th>
                 <th>Стоимость аренды в сутки</th>
-                <th>Водитель</th>
+                <th>Итоговая стоимость аренды</th>
               </tr>
             </thead>
             <tbody id="rentContractsTableBody">
@@ -567,34 +570,95 @@
         : '<tr><td colspan="4" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
 
       // Render rent contracts
+      function normalizeContractStatus(status) {
+        const normalized = (status || '').toString().trim().toLowerCase();
+        if (normalized === 'подписанный скан загружен' || normalized === 'подписан') return 'Подписан';
+        if (normalized === 'требуется заполнение паспорта' || normalized === 'требуется подписание' || normalized === 'требует подписания') return 'Требует подписания';
+        return 'Новый';
+      }
+
+      function normalizeActionStatus(status) {
+        const normalized = (status || '').toString().trim().toLowerCase();
+        if (normalized === 'действующий') return 'Действующий';
+        if (normalized === 'истекший' || normalized === 'не действующий' || normalized === 'недействующий') return 'Не действующий';
+        if (normalized === 'закрытый' || normalized === 'закрыт') return 'Закрытый';
+        if (normalized === 'аннулирован' || normalized === 'аннулирова' || normalized === 'анулирова' || normalized === 'анулирован') return 'Аннулирован';
+        return normalized ? 'Не действующий' : 'Действующий';
+      }
+
+      function normalizeIssuanceStatus(status) {
+        const normalized = (status || '').toString().trim().toLowerCase();
+        if (normalized === 'авто выдано') return 'Авто выдано';
+        return 'Авто не выдано';
+      }
+
+      function normalizeRentSchedule(schedule) {
+        return schedule === '6/1' ? '6/1' : '5/2';
+      }
+
+      function getContractDays(contract) {
+        if (!contract.startDate || !contract.endDate) return 0;
+        const start = new Date(contract.startDate);
+        const end = new Date(contract.endDate);
+        const diffTime = Math.abs(end - start);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      }
+
+      function getContractTotalAmount(contract) {
+        const days = getContractDays(contract);
+        return contract.totalAmount || (Number(contract.dailyRent) || 0) * days;
+      }
+
+      function getContractStatusBadgeClass(status) {
+        if (status === 'Подписан') return 'badge--success';
+        if (status === 'Требует подписания') return 'badge--warning';
+        if (status === 'Новый') return 'badge--info';
+        return 'badge--neutral';
+      }
+
+      function getIssuanceStatusBadgeClass(status) {
+        if (status === 'Авто выдано') return 'badge--success';
+        return 'badge--neutral';
+      }
+
       const rentContracts = getRentContractsByDriverId(driverId);
       document.getElementById('rentContractsTableBody').innerHTML = rentContracts.length > 0 
-        ? rentContracts.map(contract => {
-            const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
-            const contractStatusClass = contract.contractStatus === 'подписанный скан загружен' ? 'badge--success' : 
-                                        contract.contractStatus === 'требуется подписание' || contract.contractStatus === 'требуется заполнение паспорта' ? 'badge--warning' : 
-                                        'badge--info';
-            const issuanceStatusClass = contract.issuanceStatus === 'авто выдано' ? 'badge--success' : 
-                                        contract.issuanceStatus === 'авто принято' ? 'badge--warning' : 
-                                        'badge--neutral';
-            const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
-            const issuanceStatus = contract.issuanceStatus || '-';
+        ? rentContracts.map(rawContract => {
+            const contract = { ...rawContract };
+            contract.contractStatus = normalizeContractStatus(contract.contractStatus);
+            contract.status = normalizeActionStatus(contract.status);
+            contract.issuanceStatus = normalizeIssuanceStatus(contract.issuanceStatus);
+            contract.rentSchedule = normalizeRentSchedule(contract.rentSchedule);
+
+            const statusClass = contract.status === 'Действующий'
+              ? 'badge--success'
+              : (contract.status === 'Аннулирован' ? 'badge--danger' : 'badge--neutral');
+            const contractStatusClass = getContractStatusBadgeClass(contract.contractStatus || 'Новый');
+            const issuanceStatusClass = getIssuanceStatusBadgeClass(contract.issuanceStatus || '');
+            const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`.trim();
+            const issuanceStatus = contract.issuanceStatus || 'Авто не выдано';
+            const days = getContractDays(contract);
+            const totalAmount = getContractTotalAmount(contract);
+
             return `
-              <tr>
+              <tr style="cursor: pointer;" onclick="window.location.href='contract.html?id=${contract.id}'">
                 <td>${formatDateTime(contract.date)}</td>
                 <td>${contract.number}</td>
-                <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'новый'}</span></td>
+                <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'Новый'}</span></td>
                 <td><span class="badge ${statusClass}">${contract.status}</span></td>
-                <td>${issuanceStatus !== '-' ? `<span class="badge ${issuanceStatusClass}">${issuanceStatus}</span>` : '-'}</td>
+                <td><span class="badge ${issuanceStatusClass}">${issuanceStatus}</span></td>
                 <td>${vehicleInfo}</td>
+                <td>${contract.driverName}</td>
                 <td>${formatDate(contract.startDate)}</td>
                 <td>${formatDate(contract.endDate)}</td>
+                <td>${contract.rentSchedule}</td>
+                <td>${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}</td>
                 <td>${formatCurrency(contract.dailyRent)}</td>
-                <td>${contract.driverName}</td>
+                <td>${formatCurrency(totalAmount)}</td>
               </tr>
             `;
           }).join('')
-        : '<tr><td colspan="10" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+        : '<tr><td colspan="13" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
 
       // Render change history
       const changeHistory = getChangeHistoryByDriverId(driverId);

@@ -524,22 +524,22 @@
 
             <div class="form-group">
               <label class="form-label">
-                Марка<span class="required">*</span>
+                Коробка передач
               </label>
               <div class="form-select-wrapper">
-                <select class="form-select" id="rentalBrandSelect">
-                  <option value="">Выберите марку</option>
+                <select class="form-select" id="transmissionSelect">
+                  <option value="">Любая коробка передач</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">
-                Модель<span class="required">*</span>
+                Марка
               </label>
               <div class="form-select-wrapper">
-                <select class="form-select" id="rentalModelSelect" disabled>
-                  <option value="">Выберите модель</option>
+                <select class="form-select" id="rentalBrandSelect">
+                  <option value="">Любая марка</option>
                 </select>
               </div>
             </div>
@@ -551,7 +551,7 @@
               <div class="multi-select-container">
                 <div class="multi-select" id="rentalCarMultiSelect">
                   <div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">
-                    Сначала выберите тариф, вид топлива, марку и модель
+                    Список автомобилей загружается...
                   </div>
                 </div>
               </div>
@@ -566,6 +566,11 @@
                 Пробег: <span id="selectedCarMileage"></span>
               </div>
               <div class="rental-price" id="selectedCarPrice"></div>
+              <div style="margin-top: 12px; font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); line-height: 1.5;">
+                Данный автомобиль находится по адресу: г. Москва, ул. Лесная, д. 15.
+                Бронирование автомобиля будет закреплено за вами в течение 24 часов.
+                В случае, если вы не придёте в течение 24-х часов, договор и бронь аннулируются.
+              </div>
             </div>
           </div>
         </div>
@@ -638,6 +643,8 @@
         document.getElementById('rentalCarFields').style.display = 'block';
         document.getElementById('formSubtitle').textContent = 'Выберите автомобиль из доступных для аренды';
         populateRentalBrandSelects();
+        populateTransmissionSelect();
+        updateRentalCarList();
       }
     }
 
@@ -660,12 +667,28 @@
       const brandSelect = document.getElementById('rentalBrandSelect');
       const uniqueBrands = [...new Set(mockData.cars.map(c => c.brand))].sort();
       
-      brandSelect.innerHTML = '<option value="">Выберите марку</option>';
+      brandSelect.innerHTML = '<option value="">Любая марка</option>';
       uniqueBrands.forEach(brand => {
         const option = document.createElement('option');
         option.value = brand;
         option.textContent = brand;
         brandSelect.appendChild(option);
+      });
+    }
+
+    // Populate transmission select for rental car
+    function populateTransmissionSelect() {
+      const transmissionSelect = document.getElementById('transmissionSelect');
+      const uniqueTransmissions = [...new Set(
+        mockData.cars.map(car => car.transmissionType || 'АКПП')
+      )].sort();
+
+      transmissionSelect.innerHTML = '<option value="">Любая коробка передач</option>';
+      uniqueTransmissions.forEach(transmission => {
+        const option = document.createElement('option');
+        option.value = transmission;
+        option.textContent = transmission;
+        transmissionSelect.appendChild(option);
       });
     }
 
@@ -694,30 +717,8 @@
       }
     });
 
-    // Update model select when brand changes (rental car)
-    document.getElementById('rentalBrandSelect')?.addEventListener('change', (e) => {
-      const selectedBrand = e.target.value;
-      const modelSelect = document.getElementById('rentalModelSelect');
-      modelSelect.innerHTML = '<option value="">Выберите модель</option>';
-      
-      if (selectedBrand) {
-        modelSelect.disabled = false;
-        const uniqueModels = [...new Set(
-          mockData.cars
-            .filter(c => c.brand === selectedBrand)
-            .map(c => c.model)
-        )].sort();
-        
-        uniqueModels.forEach(model => {
-          const option = document.createElement('option');
-          option.value = model;
-          option.textContent = model;
-          modelSelect.appendChild(option);
-        });
-      } else {
-        modelSelect.disabled = true;
-      }
-      
+    // Update rental car list when brand changes
+    document.getElementById('rentalBrandSelect')?.addEventListener('change', () => {
       updateRentalCarList();
     });
 
@@ -725,29 +726,26 @@
     function updateRentalCarList() {
       const tariff = document.getElementById('tariffSelect').value;
       const fuelType = document.getElementById('fuelTypeSelect').value;
+      const transmission = document.getElementById('transmissionSelect').value;
       const brand = document.getElementById('rentalBrandSelect').value;
-      const model = document.getElementById('rentalModelSelect').value;
       const multiSelect = document.getElementById('rentalCarMultiSelect');
-      
-      if (!tariff || !fuelType || !brand || !model) {
-        multiSelect.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">Сначала выберите тариф, вид топлива, марку и модель</div>';
-        selectedRentalCar = null;
-        document.getElementById('selectedCarInfo').style.display = 'none';
-        return;
-      }
 
       // Filter cars by criteria
       const filteredCars = mockData.cars.filter(car => {
-        return car.brand === brand && 
-               car.model === model && 
-               car.category === tariff &&
-               (car.fuelType || 'АИ-95') === fuelType;
+        return (!tariff || car.category === tariff) &&
+               (!fuelType || (car.fuelType || 'АИ-95') === fuelType) &&
+               (!transmission || (car.transmissionType || 'АКПП') === transmission) &&
+               (!brand || car.brand === brand);
       });
+
+      const selectedInfo = document.getElementById('selectedCarInfo');
+      if (selectedRentalCar && !filteredCars.some(car => car.id === selectedRentalCar.id)) {
+        selectedRentalCar = null;
+        selectedInfo.style.display = 'none';
+      }
 
       if (filteredCars.length === 0) {
         multiSelect.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--g-color-text-secondary);">Нет доступных автомобилей с выбранными параметрами</div>';
-        selectedRentalCar = null;
-        document.getElementById('selectedCarInfo').style.display = 'none';
         return;
       }
 
@@ -791,7 +789,7 @@
     // Add event listeners for rental car filters
     document.getElementById('tariffSelect')?.addEventListener('change', updateRentalCarList);
     document.getElementById('fuelTypeSelect')?.addEventListener('change', updateRentalCarList);
-    document.getElementById('rentalModelSelect')?.addEventListener('change', updateRentalCarList);
+    document.getElementById('transmissionSelect')?.addEventListener('change', updateRentalCarList);
 
     function handleSubmit(event) {
       event.preventDefault();

@@ -36,9 +36,12 @@ function formatNumber(num) {
 function getStatusBadgeClass(status) {
   const statusMap = {
     'Свободен': 'badge--success',
+    'Свободна': 'badge--success',
     'На линии': 'badge--info',
     'В ремонте': 'badge--warning',
     'Просрочка': 'badge--danger',
+    'Забронировано': 'badge--warning',
+    'Архив': 'badge--neutral',
     'Активен': 'badge--success',
     'Работает': 'badge--success',
     'Неактивен': 'badge--neutral',

@@ -65,7 +65,6 @@
             <th>Роль</th>
             <th>Статус</th>
             <th>Дата создания</th>
-            <th>Действия</th>
           </tr>
         </thead>
         <tbody id="usersTableBody">
@@ -93,13 +92,21 @@
           <input type="email" class="form-input" id="userEmail" required placeholder="email@example.com">
         </div>
         <div class="form-group">
-          <label class="form-label">Роль *</label>
-          <select class="form-select" id="userRole" required>
-            <option value="">Выберите роль</option>
-            <option value="Администратор">Администратор</option>
-            <option value="Менеджер">Менеджер</option>
-            <option value="Механик">Механик</option>
-          </select>
+          <label class="form-label">Роли *</label>
+          <div id="userRolesGroup" style="display: grid; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" name="userRoles" value="Администратор" style="width: auto;">
+              <span>Администратор</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" name="userRoles" value="Менеджер" style="width: auto;">
+              <span>Менеджер</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" name="userRoles" value="Механик" style="width: auto;">
+              <span>Механик</span>
+            </label>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Статус</label>
@@ -117,34 +124,114 @@
     </div>
   </div>
 
+  <!-- Edit User Modal -->
+  <div class="modal" id="editUserRolesModal">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title">Редактировать пользователя</h3>
+        <button class="modal__close" data-close-modal="#editUserRolesModal">×</button>
+      </div>
+      <div class="modal__body">
+        <form id="editUserRolesForm">
+          <input type="hidden" id="editRolesUserId">
+          <div class="form-group">
+            <label class="form-label">ФИО *</label>
+            <input type="text" class="form-input" id="editUserName" required placeholder="Введите ФИО">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="editUserEmail" required placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Роли *</label>
+            <div style="display: grid; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" name="editUserRoles" value="Администратор" style="width: auto;">
+                <span>Администратор</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" name="editUserRoles" value="Менеджер" style="width: auto;">
+                <span>Менеджер</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" name="editUserRoles" value="Механик" style="width: auto;">
+                <span>Механик</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Статус</label>
+            <select class="form-select" id="editUserStatus">
+              <option value="Активен">Активен</option>
+              <option value="Неактивен">Неактивен</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
+            <button type="submit" class="btn btn--primary" style="flex: 1;">Сохранить</button>
+            <button type="button" class="btn btn--normal" data-close-modal="#editUserRolesModal">Отмена</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    function getRoleBadgeClass(role) {
+      if (role === 'Администратор') return 'badge--info';
+      if (role === 'Менеджер') return 'badge--warning';
+      if (role === 'Механик') return 'badge--warning';
+      return 'badge--neutral';
+    }
+
+    function normalizeUserRoles(user) {
+      if (Array.isArray(user.roles) && user.roles.length > 0) {
+        return [...new Set(user.roles.filter(Boolean))];
+      }
+      if (typeof user.role === 'string' && user.role.trim()) {
+        return [user.role.trim()];
+      }
+      return [];
+    }
+
+    function setUserRoles(user, roles) {
+      const normalized = [...new Set((roles || []).filter(Boolean))];
+      user.roles = normalized;
+      user.role = normalized[0] || '';
+    }
+
+    function getCheckedValues(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((input) => input.value);
+    }
+
+    function renderRoleBadges(roles) {
+      if (!roles.length) {
+        return '<span class="badge badge--neutral">Без роли</span>';
+      }
+      return roles.map((role) => `<span class="badge ${getRoleBadgeClass(role)}">${role}</span>`).join('');
+    }
+
     function renderUsers() {
       const tbody = document.getElementById('usersTableBody');
       tbody.innerHTML = mockData.users.map(user => {
-        let roleBadgeClass = 'badge--neutral';
-        if (user.role === 'Администратор') {
-          roleBadgeClass = 'badge--info';
-        } else if (user.role === 'Менеджер') {
-          roleBadgeClass = 'badge--warning';
-        } else if (user.role === 'Механик') {
-          roleBadgeClass = 'badge--warning';
-        }
-        
+        const roles = normalizeUserRoles(user);
+        setUserRoles(user, roles);
+
         return `
-        <tr>
-          <td>${user.name}</td>
+        <tr data-user-id="${user.id}" data-roles="${roles.join('|')}">
+          <td>
+            <a href="#" onclick="openEditUserModal(${user.id}); return false;">${user.name}</a>
+          </td>
           <td>${user.email}</td>
-          <td><span class="badge ${roleBadgeClass}">${user.role}</span></td>
+          <td><div style="display: flex; flex-wrap: wrap; gap: 6px;">${renderRoleBadges(roles)}</div></td>
           <td><span class="badge ${user.status === 'Активен' ? 'badge--success' : 'badge--neutral'}">${user.status}</span></td>
           <td>${formatDate(user.createdAt)}</td>
-          <td>
-            <button class="btn btn--normal" style="padding: 6px 12px; font-size: var(--g-font-size-sm);" onclick="deleteUser(${user.id})">Удалить</button>
-          </td>
         </tr>
       `;
       }).join('');
+
+      applyFilters();
     }
 
     function applyFilters() {
@@ -156,7 +243,8 @@
         const cells = row.cells;
         if (!cells || cells.length === 0) return false;
 
-        if (role && cells[2].textContent.trim() !== role) return false;
+        const rowRoles = (row.dataset.roles || '').split('|').filter(Boolean);
+        if (role && !rowRoles.includes(role)) return false;
         if (status && cells[3].textContent.trim() !== status) return false;
         if (search && !cells[0].textContent.toLowerCase().includes(search) && !cells[1].textContent.toLowerCase().includes(search)) return false;
 
@@ -170,23 +258,34 @@
         id: newId,
         name: userData.name,
         email: userData.email,
-        role: userData.role,
+        role: '',
+        roles: [],
         status: userData.status || 'Активен',
         createdAt: new Date().toISOString().split('T')[0]
       };
+      setUserRoles(newUser, userData.roles);
       mockData.users.push(newUser);
       renderUsers();
     }
 
-    function deleteUser(userId) {
-      if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
-        const index = mockData.users.findIndex(u => u.id === userId);
-        if (index > -1) {
-          mockData.users.splice(index, 1);
-          renderUsers();
-        }
-      }
+    function openEditUserModal(userId) {
+      const user = mockData.users.find((item) => item.id === Number(userId));
+      if (!user) return;
+
+      const roles = normalizeUserRoles(user);
+      document.getElementById('editRolesUserId').value = String(user.id);
+      document.getElementById('editUserName').value = user.name || '';
+      document.getElementById('editUserEmail').value = user.email || '';
+      document.getElementById('editUserStatus').value = user.status || 'Активен';
+
+      document.querySelectorAll('input[name="editUserRoles"]').forEach((input) => {
+        input.checked = roles.includes(input.value);
+      });
+
+      document.getElementById('editUserRolesModal').classList.add('active');
     }
+
+    window.openEditUserModal = openEditUserModal;
 
     // Event listeners
     document.getElementById('roleFilter').addEventListener('change', applyFilters);
@@ -196,10 +295,16 @@
     // Form submission
     document.getElementById('addUserForm').addEventListener('submit', (e) => {
       e.preventDefault();
+      const selectedRoles = getCheckedValues('userRoles');
+      if (selectedRoles.length === 0) {
+        alert('Выберите хотя бы одну роль');
+        return;
+      }
+
       const formData = {
         name: document.getElementById('userName').value,
         email: document.getElementById('userEmail').value,
-        role: document.getElementById('userRole').value,
+        roles: selectedRoles,
         status: document.getElementById('userStatus').value
       };
       
@@ -208,8 +313,29 @@
       document.getElementById('addUserForm').reset();
     });
 
+    document.getElementById('editUserRolesForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const userId = Number(document.getElementById('editRolesUserId').value);
+      const user = mockData.users.find((item) => item.id === userId);
+      if (!user) return;
+
+      const selectedRoles = getCheckedValues('editUserRoles');
+      if (selectedRoles.length === 0) {
+        alert('Выберите хотя бы одну роль');
+        return;
+      }
+
+      user.name = document.getElementById('editUserName').value.trim();
+      user.email = document.getElementById('editUserEmail').value.trim();
+      user.status = document.getElementById('editUserStatus').value;
+      setUserRoles(user, selectedRoles);
+      renderUsers();
+      document.getElementById('editUserRolesModal').classList.remove('active');
+    });
+
     // Initialize modal
     initModal('#addUserModal', '[data-open-modal="#addUserModal"]', '[data-close-modal="#addUserModal"]');
+    initModal('#editUserRolesModal', null, '[data-close-modal="#editUserRolesModal"]');
 
     // Initial render
     renderUsers();

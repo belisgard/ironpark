@@ -30,7 +30,6 @@
     <main class="main-content">
       <div class="page-header">
         <h1>Договора аренды</h1>
-        <button class="btn btn--primary" data-open-modal="#addContractModal">+ Добавить договор</button>
       </div>
 
       <div class="filters">
@@ -38,35 +37,32 @@
           <label class="form-label">Статус действия:</label>
           <select class="form-select" id="statusFilter" style="width: 200px;">
             <option value="">Все</option>
-            <option value="действующий">Действующий</option>
-            <option value="истекший">Истекший</option>
+            <option value="Не действующий">Не действующий</option>
+            <option value="Действующий">Действующий</option>
+            <option value="Закрытый">Закрытый</option>
+            <option value="Аннулирован">Аннулирован</option>
           </select>
         </div>
         <div class="filter-group">
           <label class="form-label">Статус договора:</label>
           <select class="form-select" id="contractStatusFilter" style="width: 250px;">
             <option value="">Все</option>
-            <option value="новый">Новый</option>
-            <option value="требуется заполнение паспорта">Требуется заполнение паспорта</option>
-            <option value="требуется подписание">Требуется подписание</option>
-            <option value="подписанный скан загружен">Подписанный скан загружен</option>
+            <option value="Новый">Новый</option>
+            <option value="Требует подписания">Требует подписания</option>
+            <option value="Подписан">Подписан</option>
           </select>
         </div>
         <div class="filter-group">
-          <label class="form-label">Водитель:</label>
-          <select class="form-select" id="driverFilter" style="width: 200px;">
+          <label class="form-label">Статус выдачи:</label>
+          <select class="form-select" id="issuanceStatusFilter" style="width: 220px;">
             <option value="">Все</option>
+            <option value="Авто не выдано">Авто не выдано</option>
+            <option value="Авто выдано">Авто выдано</option>
           </select>
         </div>
         <div class="filter-group">
-          <label class="form-label">ТС:</label>
-          <select class="form-select" id="vehicleFilter" style="width: 200px;">
-            <option value="">Все</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="form-label">Поиск:</label>
-          <input type="text" class="form-input" id="searchInput" placeholder="Номер договора" style="width: 200px;">
+          <label class="form-label">Поиск по ФИО:</label>
+          <input type="text" class="form-input" id="searchInput" placeholder="Введите ФИО водителя" style="width: 240px;">
         </div>
         <div class="filter-group">
           <label class="form-label">Период:</label>
@@ -88,11 +84,12 @@
             <th>Выдача</th>
             <th>Транспортное средство</th>
             <th>Водитель</th>
-            <th>Начало действия</th>
-            <th>Окончание действия</th>
-            <th>Количество дней в аренду</th>
-            <th>Стоимость аренды в сутки</th>
-            <th>Итоговая стоимость аренды</th>
+            <th data-sort-key="startDate" style="cursor: pointer; user-select: none;">Начало действия <span data-sort-indicator="startDate"></span></th>
+            <th data-sort-key="endDate" style="cursor: pointer; user-select: none;">Окончание действия <span data-sort-indicator="endDate"></span></th>
+            <th>График аренды</th>
+            <th data-sort-key="days" style="cursor: pointer; user-select: none;">Количество дней в аренде <span data-sort-indicator="days"></span></th>
+            <th data-sort-key="dailyRent" style="cursor: pointer; user-select: none;">Стоимость аренды в сутки <span data-sort-indicator="dailyRent"></span></th>
+            <th data-sort-key="totalAmount" style="cursor: pointer; user-select: none;">Итоговая стоимость аренды <span data-sort-indicator="totalAmount"></span></th>
           </tr>
         </thead>
         <tbody id="contractsTableBody">
@@ -139,6 +136,13 @@
           <label class="form-label">Стоимость аренды в сутки *</label>
           <input type="number" class="form-input" id="contractDailyRent" required min="0" step="0.01">
         </div>
+        <div class="form-group">
+          <label class="form-label">График аренды *</label>
+          <select class="form-input" id="contractSchedule" required>
+            <option value="5/2">5/2</option>
+            <option value="6/1">6/1</option>
+          </select>
+        </div>
         <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
           <button type="submit" class="btn btn--primary" style="flex: 1;">Добавить</button>
           <button type="button" class="btn btn--normal" data-close-modal="#addContractModal">Отмена</button>
@@ -166,17 +170,101 @@
       return dailyRent * days;
     }
 
+    const sortState = {
+      key: null,
+      direction: 'asc'
+    };
+
+    function normalizeContractStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'подписанный скан загружен' || normalized === 'подписан') return 'Подписан';
+      if (normalized === 'требуется подписание' || normalized === 'требует подписания') return 'Требует подписания';
+      return 'Новый';
+    }
+
+    function normalizeActionStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'действующий') return 'Действующий';
+      if (normalized === 'истекший' || normalized === 'не действующий' || normalized === 'недействующий') return 'Не действующий';
+      if (normalized === 'закрытый' || normalized === 'закрыт') return 'Закрытый';
+      if (normalized === 'аннулирован' || normalized === 'аннулирова' || normalized === 'анулирова' || normalized === 'анулирован') return 'Аннулирован';
+      return normalized ? 'Не действующий' : 'Действующий';
+    }
+
+    function normalizeIssuanceStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'авто выдано') return 'Авто выдано';
+      return 'Авто не выдано';
+    }
+
+    function normalizeRentSchedule(schedule) {
+      return schedule === '6/1' ? '6/1' : '5/2';
+    }
+
+    function normalizeContract(contract) {
+      contract.contractStatus = normalizeContractStatus(contract.contractStatus);
+      contract.status = normalizeActionStatus(contract.status);
+      contract.issuanceStatus = normalizeIssuanceStatus(contract.issuanceStatus);
+      contract.rentSchedule = normalizeRentSchedule(contract.rentSchedule);
+      return contract;
+    }
+
+    function getContractDays(contract) {
+      return calculateDays(contract.startDate, contract.endDate);
+    }
+
+    function getContractTotalAmount(contract) {
+      const days = getContractDays(contract);
+      return contract.totalAmount || calculateTotalAmount(contract.dailyRent, days);
+    }
+
+    function getSortValue(contract, sortKey) {
+      if (sortKey === 'startDate') return contract.startDate ? new Date(contract.startDate).getTime() : -Infinity;
+      if (sortKey === 'endDate') return contract.endDate ? new Date(contract.endDate).getTime() : -Infinity;
+      if (sortKey === 'days') return getContractDays(contract);
+      if (sortKey === 'dailyRent') return Number(contract.dailyRent) || 0;
+      if (sortKey === 'totalAmount') return Number(getContractTotalAmount(contract)) || 0;
+      return 0;
+    }
+
+    function updateSortIndicators() {
+      document.querySelectorAll('#contractsTable [data-sort-indicator]').forEach((indicator) => {
+        const key = indicator.dataset.sortIndicator;
+        if (sortState.key !== key) {
+          indicator.textContent = '';
+          return;
+        }
+        indicator.textContent = sortState.direction === 'asc' ? '↑' : '↓';
+      });
+    }
+
+    function initSorting() {
+      const sortableHeaders = document.querySelectorAll('#contractsTable th[data-sort-key]');
+      sortableHeaders.forEach((header) => {
+        header.addEventListener('click', () => {
+          const key = header.dataset.sortKey;
+          if (!key) return;
+          if (sortState.key === key) {
+            sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            sortState.key = key;
+            sortState.direction = 'asc';
+          }
+          renderContracts();
+        });
+      });
+    }
+
     function renderContracts() {
       const tbody = document.getElementById('contractsTableBody');
       if (!tbody) return;
 
-      let contracts = getAllRentContracts();
+      let contracts = getAllRentContracts().map(normalizeContract);
 
       // Apply filters
       const statusFilter = document.getElementById('statusFilter')?.value;
       const contractStatusFilter = document.getElementById('contractStatusFilter')?.value;
-      const driverFilter = document.getElementById('driverFilter')?.value;
-      const vehicleFilter = document.getElementById('vehicleFilter')?.value;
+      const issuanceStatusFilter = document.getElementById('issuanceStatusFilter')?.value;
       const searchInput = document.getElementById('searchInput')?.value.toLowerCase();
       const dateFrom = document.getElementById('dateFrom')?.value;
       const dateTo = document.getElementById('dateTo')?.value;
@@ -187,15 +275,11 @@
       if (contractStatusFilter) {
         contracts = contracts.filter(c => c.contractStatus === contractStatusFilter);
       }
-      if (driverFilter) {
-        const driverId = parseInt(driverFilter);
-        contracts = contracts.filter(c => c.driverId === driverId);
-      }
-      if (vehicleFilter) {
-        contracts = contracts.filter(c => c.vehiclePlate === vehicleFilter);
+      if (issuanceStatusFilter) {
+        contracts = contracts.filter(c => c.issuanceStatus === issuanceStatusFilter);
       }
       if (searchInput) {
-        contracts = contracts.filter(c => c.number.toLowerCase().includes(searchInput));
+        contracts = contracts.filter(c => c.driverName.toLowerCase().includes(searchInput));
       }
       if (dateFrom || dateTo) {
         contracts = contracts.filter(c => {
@@ -206,79 +290,69 @@
         });
       }
 
+      if (sortState.key) {
+        const direction = sortState.direction === 'asc' ? 1 : -1;
+        contracts.sort((a, b) => {
+          const valueA = getSortValue(a, sortState.key);
+          const valueB = getSortValue(b, sortState.key);
+          if (valueA === valueB) return 0;
+          return valueA > valueB ? direction : -direction;
+        });
+      }
+
       if (contracts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Договора не найдены</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 40px; color: var(--g-color-text-secondary);">Договора не найдены</td></tr>';
+        updateSortIndicators();
         return;
       }
 
       function getContractStatusBadgeClass(status) {
-        if (status === 'подписанный скан загружен') return 'badge--success';
-        if (status === 'требуется подписание' || status === 'требуется заполнение паспорта') return 'badge--warning';
-        if (status === 'новый') return 'badge--info';
+        if (status === 'Подписан') return 'badge--success';
+        if (status === 'Требует подписания') return 'badge--warning';
+        if (status === 'Новый') return 'badge--info';
         return 'badge--neutral';
       }
 
       function getIssuanceStatusBadgeClass(status) {
-        if (status === 'авто выдано') return 'badge--success';
-        if (status === 'авто принято') return 'badge--warning';
+        if (status === 'Авто выдано') return 'badge--success';
         return 'badge--neutral';
       }
 
         tbody.innerHTML = contracts.map(contract => {
-          const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
-          const contractStatusClass = getContractStatusBadgeClass(contract.contractStatus || 'новый');
+          const statusClass = contract.status === 'Действующий'
+            ? 'badge--success'
+            : (contract.status === 'Аннулирован' ? 'badge--danger' : 'badge--neutral');
+          const contractStatusClass = getContractStatusBadgeClass(contract.contractStatus || 'Новый');
           const issuanceStatusClass = getIssuanceStatusBadgeClass(contract.issuanceStatus || '');
-          const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`;
-          const issuanceStatus = contract.issuanceStatus || '-';
+          const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`.trim();
+          const issuanceStatus = contract.issuanceStatus || 'Авто не выдано';
           
           // Calculate days and total amount
-          const days = calculateDays(contract.startDate, contract.endDate);
-          const totalAmount = contract.totalAmount || calculateTotalAmount(contract.dailyRent, days);
+          const days = getContractDays(contract);
+          const totalAmount = getContractTotalAmount(contract);
           
           return `
             <tr style="cursor: pointer;" onclick="window.location.href='contract.html?id=${contract.id}'">
               <td>${formatDateTime(contract.date)}</td>
               <td>${contract.number}</td>
-              <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'новый'}</span></td>
+              <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'Новый'}</span></td>
               <td><span class="badge ${statusClass}">${contract.status}</span></td>
-              <td>${issuanceStatus !== '-' ? `<span class="badge ${issuanceStatusClass}">${issuanceStatus}</span>` : '-'}</td>
+              <td><span class="badge ${issuanceStatusClass}">${issuanceStatus}</span></td>
               <td>${vehicleInfo}</td>
               <td>${contract.driverName}</td>
               <td>${formatDate(contract.startDate)}</td>
               <td>${formatDate(contract.endDate)}</td>
+              <td>${contract.rentSchedule}</td>
               <td>${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}</td>
               <td>${formatCurrency(contract.dailyRent)}</td>
               <td>${formatCurrency(totalAmount)}</td>
             </tr>
           `;
         }).join('');
+      updateSortIndicators();
     }
 
     function populateFilters() {
-      // Populate driver filter
-      const driverFilter = document.getElementById('driverFilter');
-      if (driverFilter) {
-        const uniqueDrivers = [...new Set(mockData.rentContracts.map(c => ({ id: c.driverId, name: c.driverName })).map(c => c.id))];
-        mockData.drivers.forEach(driver => {
-          const option = document.createElement('option');
-          option.value = driver.id;
-          option.textContent = driver.name;
-          driverFilter.appendChild(option);
-        });
-      }
-
-      // Populate vehicle filter
-      const vehicleFilter = document.getElementById('vehicleFilter');
-      if (vehicleFilter) {
-        const uniqueVehicles = [...new Set(mockData.rentContracts.map(c => c.vehiclePlate))];
-        uniqueVehicles.forEach(plate => {
-          const option = document.createElement('option');
-          option.value = plate;
-          option.textContent = plate;
-          vehicleFilter.appendChild(option);
-        });
-      }
-
       // Populate contract driver select in modal
       const contractDriver = document.getElementById('contractDriver');
       if (contractDriver) {
@@ -312,8 +386,7 @@
     // Add event listeners
     document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
     document.getElementById('contractStatusFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('driverFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('vehicleFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('issuanceStatusFilter')?.addEventListener('change', applyFilters);
     document.getElementById('searchInput')?.addEventListener('input', applyFilters);
     document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
     document.getElementById('dateTo')?.addEventListener('change', applyFilters);
@@ -329,7 +402,8 @@
           vehiclePlate: document.getElementById('contractVehicle').value.trim(),
           startDate: document.getElementById('contractStartDate').value,
           endDate: document.getElementById('contractEndDate').value || null,
-          dailyRent: parseFloat(document.getElementById('contractDailyRent').value)
+          dailyRent: parseFloat(document.getElementById('contractDailyRent').value),
+          rentSchedule: document.getElementById('contractSchedule').value
         };
 
         // Get driver and vehicle info
@@ -352,14 +426,15 @@
           driverId: formData.driverId,
           date: new Date().toISOString(),
           number: formData.number,
-          status: formData.endDate && new Date(formData.endDate) < new Date() ? 'истекший' : 'действующий',
-          contractStatus: 'новый',
+          status: formData.endDate && new Date(formData.endDate) < new Date() ? 'Не действующий' : 'Действующий',
+          contractStatus: 'Новый',
           scanUploaded: false,
-          issuanceStatus: null,
+          issuanceStatus: 'Авто не выдано',
           vehicleName: `${car.brand} ${car.model}`,
           vehiclePlate: formData.vehiclePlate,
           startDate: formData.startDate,
           endDate: formData.endDate,
+          rentSchedule: normalizeRentSchedule(formData.rentSchedule),
           dailyRent: formData.dailyRent,
           totalAmount: totalAmount,
           driverName: driver.name
@@ -373,6 +448,7 @@
     }
 
     populateFilters();
+    initSorting();
     renderContracts();
   </script>
 </body>

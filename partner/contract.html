@@ -72,19 +72,19 @@
       <div id="contractStatusList" style="margin-bottom: 24px;"></div>
 
       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
-        <button class="btn btn--normal" onclick="openPassportModal()">Загрузить паспорт</button>
         <button class="btn btn--normal" id="printContractBtn">Распечатать</button>
         <label for="uploadScanInput" class="btn btn--normal" style="cursor: pointer; margin: 0;">
-          Загрузить скан договора
+          Загрузить подписанный договор
           <input type="file" id="uploadScanInput" accept="image/*,.pdf" style="display: none;">
         </label>
+        <a id="downloadContractBtn" class="btn btn--normal" href="#" download style="display: none; text-decoration: none;">Скачать файл договора</a>
         <button class="btn btn--action" data-open-modal="#editContractModal">Редактировать</button>
       </div>
 
       <div class="card" id="contractInfo" style="margin-bottom: 32px;"></div>
 
       <div class="card" id="contractScan" style="margin-bottom: 32px; display: none;">
-        <h3>Скан договора</h3>
+        <h3>Подписанный договор</h3>
         <div id="scanPreview" style="margin-bottom: var(--g-spacing-lg);">
           <img id="scanImage" src="" alt="Скан договора" style="max-width: 100%; max-height: 500px; border: 1px solid var(--g-color-line-generic); border-radius: var(--g-border-radius-md); display: none;">
           <iframe id="scanPdf" src="" style="width: 100%; height: 600px; border: 1px solid var(--g-color-line-generic); border-radius: var(--g-border-radius-md); display: none;"></iframe>
@@ -98,75 +98,6 @@
         <button class="btn btn--normal" id="removeScanBtn" style="display: none;">Удалить скан</button>
       </div>
     </main>
-  </div>
-
-  <!-- Passport Modal -->
-  <div class="modal" id="passportModal">
-    <div class="modal__content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
-      <div class="modal__header">
-        <h3 class="modal__title">Загрузить паспорт</h3>
-        <button class="modal__close" onclick="closePassportModal()">×</button>
-      </div>
-      <div class="modal__body" style="padding: var(--g-spacing-xl);">
-        <form id="passportForm">
-          <div style="margin-bottom: 32px;">
-            <h4>Паспорт</h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-              <div class="form-group">
-                <label class="form-label">Серия/номер (без пробелов)</label>
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" class="form-input" id="passportSeries" placeholder="Серия" style="flex: 1;">
-                  <input type="text" class="form-input" id="passportNumber" placeholder="Номер" style="flex: 1;">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Гражданство</label>
-                <input type="text" class="form-input" id="passportCitizenship" placeholder="Российская Федерация">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Кем выдан</label>
-                <input type="text" class="form-input" id="passportIssuedBy" placeholder="ОУФМС России">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Пол</label>
-                <select class="form-select" id="passportGender">
-                  <option value="Мужской">Мужской</option>
-                  <option value="Женский">Женский</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Дата выдачи</label>
-                <input type="date" class="form-input" id="passportIssueDate">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Срок действия</label>
-                <input type="date" class="form-input" id="passportValidUntil">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Код подразделения</label>
-                <input type="text" class="form-input" id="passportDepartmentCode" placeholder="220-001">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Адрес регистрации</label>
-                <input type="text" class="form-input" id="passportRegistrationAddress" placeholder="Адрес регистрации">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Дата рождения</label>
-                <input type="date" class="form-input" id="passportBirthDate">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Место рождения</label>
-                <input type="text" class="form-input" id="passportBirthPlace" placeholder="Место рождения">
-              </div>
-            </div>
-          </div>
-          <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 12px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <button type="button" class="btn btn--normal" onclick="closePassportModal()">Отмена</button>
-            <button type="submit" class="btn btn--action">Сохранить</button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 
   <!-- Edit Contract Modal -->
@@ -198,6 +129,52 @@
               <div class="form-group">
                 <label class="form-label">Статус</label>
                 <input type="text" class="form-input" id="editDriverStatus" readonly style="background: var(--g-color-base-generic);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Серия/номер (без пробелов)</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" class="form-input" id="editPassportSeries" placeholder="Серия" style="flex: 1;">
+                  <input type="text" class="form-input" id="editPassportNumber" placeholder="Номер" style="flex: 1;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Гражданство</label>
+                <input type="text" class="form-input" id="editPassportCitizenship" placeholder="Российская Федерация">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Кем выдан</label>
+                <input type="text" class="form-input" id="editPassportIssuedBy" placeholder="ОУФМС России">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Пол</label>
+                <select class="form-select" id="editPassportGender">
+                  <option value="Мужской">Мужской</option>
+                  <option value="Женский">Женский</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата выдачи</label>
+                <input type="date" class="form-input" id="editPassportIssueDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Срок действия</label>
+                <input type="date" class="form-input" id="editPassportValidUntil">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Код подразделения</label>
+                <input type="text" class="form-input" id="editPassportDepartmentCode" placeholder="220-001">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Адрес регистрации</label>
+                <input type="text" class="form-input" id="editPassportRegistrationAddress" placeholder="Адрес регистрации">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Дата рождения</label>
+                <input type="date" class="form-input" id="editPassportBirthDate">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Место рождения</label>
+                <input type="text" class="form-input" id="editPassportBirthPlace" placeholder="Место рождения">
               </div>
             </div>
           </div>
@@ -259,23 +236,40 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Статус действия</label>
-                <input type="text" class="form-input" id="editContractStatus" readonly style="background: var(--g-color-base-generic);">
+                <select class="form-select" id="editContractActionStatus" name="status">
+                  <option value="Не действующий">Не действующий</option>
+                  <option value="Действующий">Действующий</option>
+                  <option value="Закрытый">Закрытый</option>
+                  <option value="Анулирова">Анулирова</option>
+                </select>
               </div>
               <div class="form-group">
                 <label class="form-label">Статус договора *</label>
                 <select class="form-select" id="editContractStatusField" name="contractStatus" required>
-                  <option value="новый">Новый</option>
-                  <option value="требуется заполнение паспорта">Требуется заполнение паспорта</option>
-                  <option value="требуется подписание">Требуется подписание</option>
-                  <option value="подписанный скан загружен">Подписанный скан загружен</option>
+                  <option value="Новый">Новый</option>
+                  <option value="Требует подписания">Требует подписания</option>
+                  <option value="Подписан">Подписан</option>
                 </select>
               </div>
               <div class="form-group">
                 <label class="form-label">Выдача *</label>
                 <select class="form-select" id="editContractIssuanceStatus" name="issuanceStatus">
-                  <option value="">Не указано</option>
-                  <option value="авто выдано">Авто выдано</option>
-                  <option value="авто принято">Авто принято</option>
+                  <option value="Авто не выдано">Авто не выдано</option>
+                  <option value="Авто выдано">Авто выдано</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">График аренды</label>
+                <select class="form-select" id="editContractSchedule" name="rentSchedule">
+                  <option value="6/1">6/1</option>
+                  <option value="5/2">5/2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Тип договора</label>
+                <select class="form-select" id="editContractType" name="contractType">
+                  <option value="Аренда">Аренда</option>
+                  <option value="Выкуп">Выкуп</option>
                 </select>
               </div>
             </div>
@@ -296,19 +290,70 @@
     const contractId = getUrlParameter('id');
     const contract = getRentContractById(contractId);
 
+    function normalizeContractStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'подписанный скан загружен' || normalized === 'подписан') return 'Подписан';
+      if (normalized === 'требуется заполнение паспорта' || normalized === 'требуется подписание' || normalized === 'требует подписания') return 'Требует подписания';
+      return 'Новый';
+    }
+
+    function normalizeActionStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'действующий') return 'Действующий';
+      if (normalized === 'закрытый' || normalized === 'закрыт') return 'Закрытый';
+      if (normalized === 'анулирова' || normalized === 'аннулирова' || normalized === 'анулирован' || normalized === 'аннулирован') return 'Анулирова';
+      if (normalized === 'истекший' || normalized === 'не действующий' || normalized === 'недействующий') return 'Не действующий';
+      return normalized ? 'Не действующий' : 'Действующий';
+    }
+
+    function normalizeIssuanceStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      if (normalized === 'авто выдано') return 'Авто выдано';
+      return 'Авто не выдано';
+    }
+
+    function normalizeRentSchedule(schedule) {
+      return schedule === '6/1' ? '6/1' : '5/2';
+    }
+
+    function normalizeContractType(contractType) {
+      const normalized = (contractType || '').toString().trim().toLowerCase();
+      return normalized === 'выкуп' ? 'Выкуп' : 'Аренда';
+    }
+
+    function getActionStatusBadgeClass(status) {
+      if (status === 'Действующий') return 'badge--success';
+      if (status === 'Анулирова') return 'badge--danger';
+      if (status === 'Закрытый') return 'badge--warning';
+      return 'badge--neutral';
+    }
+
+    function getContractStatusBadgeClass(status) {
+      if (status === 'Подписан') return 'badge--success';
+      if (status === 'Требует подписания') return 'badge--warning';
+      return 'badge--info';
+    }
+
+    function getIssuanceStatusBadgeClass(status) {
+      if (status === 'Авто выдано') return 'badge--success';
+      return 'badge--neutral';
+    }
+
     if (!contract) {
       document.body.innerHTML = '<div class="container"><h1>Договор не найден</h1><a href="contracts.html">Вернуться к списку</a></div>';
     } else {
+      contract.contractStatus = normalizeContractStatus(contract.contractStatus);
+      contract.status = normalizeActionStatus(contract.status);
+      contract.issuanceStatus = normalizeIssuanceStatus(contract.issuanceStatus);
+      contract.rentSchedule = normalizeRentSchedule(contract.rentSchedule);
+      contract.contractType = normalizeContractType(contract.contractType);
+
       const driver = getDriverById(contract.driverId);
       const car = mockData.cars.find(c => c.plate === contract.vehiclePlate);
 
       // Render header
-      const statusClass = contract.status === 'действующий' ? 'badge--success' : 'badge--neutral';
       document.getElementById('contractHeader').innerHTML = `
         <h1>Договор ${contract.number}</h1>
-        <div style="margin-top: 12px;">
-          <span class="badge ${statusClass}">${contract.status}</span>
-        </div>
       `;
 
       // Render contract status list
@@ -316,23 +361,18 @@
       if (contractStatusList) {
         contractStatusList.innerHTML = `
           <div class="card">
-            <label class="form-label" style="margin-bottom: 12px;">Статус договора</label>
-            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'новый' || !contract.contractStatus ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
-                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'новый' || !contract.contractStatus ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
-                <span class="badge badge--info">новый</span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label">Статус договора</label>
+                <div style="min-height: 24px;"><span class="badge ${getContractStatusBadgeClass(contract.contractStatus)}">${contract.contractStatus}</span></div>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'требуется заполнение паспорта' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
-                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'требуется заполнение паспорта' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
-                <span class="badge badge--warning">требуется заполнение паспорта</span>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label">Статус действия</label>
+                <div style="min-height: 24px;"><span class="badge ${getActionStatusBadgeClass(contract.status)}">${contract.status}</span></div>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'требуется подписание' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
-                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'требуется подписание' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
-                <span class="badge badge--warning">требуется подписание</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; ${contract.contractStatus === 'подписанный скан загружен' ? 'background: var(--g-color-base-selection); font-weight: 600;' : 'background: var(--g-color-base-generic);'}">
-                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${contract.contractStatus === 'подписанный скан загружен' ? 'var(--g-color-accent);' : 'var(--g-color-line-generic);'};"></span>
-                <span class="badge badge--success">подписанный скан загружен</span>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label">Статус выдачи</label>
+                <div style="min-height: 24px;"><span class="badge ${getIssuanceStatusBadgeClass(contract.issuanceStatus)}">${contract.issuanceStatus}</span></div>
               </div>
             </div>
           </div>
@@ -357,6 +397,21 @@
       // Calculate days and total amount
       const days = calculateDays(contract.startDate, contract.endDate);
       const totalAmount = contract.totalAmount || calculateTotalAmount(contract.dailyRent, days);
+      const driverLinkMarkup = contract.driverId
+        ? `<a href="driver.html?id=${contract.driverId}" style="color: var(--g-color-text-link); text-decoration: none;">${contract.driverName || '-'}</a>`
+        : (contract.driverName || '-');
+      const vehicleLinkMarkup = car?.id
+        ? `<a href="car.html?id=${car.id}" style="color: var(--g-color-text-link); text-decoration: none;">${contract.vehicleName || '-'}</a>`
+        : (contract.vehicleName || '-');
+      const vehiclePlateLinkMarkup = car?.id
+        ? `<a href="car.html?id=${car.id}" style="color: var(--g-color-text-link); text-decoration: none;">${contract.vehiclePlate || '-'}</a>`
+        : (contract.vehiclePlate || '-');
+
+      function getSignedContractLinkMarkup() {
+        if (!contract.scan) return '-';
+        const fileName = contract.scanFileName || `${contract.number}-signed-contract`;
+        return `<a href="${contract.scan}" target="_blank" download="${fileName}" style="color: var(--g-color-text-link); text-decoration: none;">Скачать подписанный договор</a>`;
+      }
 
       // Render contract info
       document.getElementById('contractInfo').innerHTML = `
@@ -368,16 +423,6 @@
           <div class="form-group">
             <label class="form-label">Дата</label>
             <div style="min-height: 24px;">${formatDateTime(contract.date)}</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Статус действия</label>
-            <div style="min-height: 24px;"><span class="badge ${statusClass}">${contract.status}</span></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Выдача</label>
-            <div style="min-height: 24px;">
-              ${contract.issuanceStatus ? `<span class="badge ${contract.issuanceStatus === 'авто выдано' ? 'badge--success' : 'badge--warning'}">${contract.issuanceStatus}</span>` : '-'}
-            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Начало действия</label>
@@ -400,8 +445,20 @@
             <div style="min-height: 24px; font-weight: 600; color: var(--g-color-text-primary);">${formatCurrency(totalAmount)}</div>
           </div>
           <div class="form-group">
+            <label class="form-label">График аренды</label>
+            <div style="min-height: 24px;">${contract.rentSchedule}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип договора</label>
+            <div style="min-height: 24px;">${contract.contractType}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Подписанный договор</label>
+            <div id="signedContractLinkValue" style="min-height: 24px;">${getSignedContractLinkMarkup()}</div>
+          </div>
+          <div class="form-group">
             <label class="form-label">Водитель</label>
-            <div style="min-height: 24px;">${contract.driverName || '-'}</div>
+            <div style="min-height: 24px;">${driverLinkMarkup}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Телефон водителя</label>
@@ -409,15 +466,11 @@
           </div>
           <div class="form-group">
             <label class="form-label">Транспортное средство</label>
-            <div style="min-height: 24px;">${contract.vehicleName || '-'}</div>
+            <div style="min-height: 24px;">${vehicleLinkMarkup}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Госномер</label>
-            <div style="min-height: 24px;">${contract.vehiclePlate || '-'}</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Марка/Модель</label>
-            <div style="min-height: 24px;">${car ? `${car.brand} ${car.model}` : '-'}</div>
+            <div style="min-height: 24px;">${vehiclePlateLinkMarkup}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Год выпуска</label>
@@ -427,14 +480,15 @@
             <label class="form-label">Пробег</label>
             <div style="min-height: 24px;">${car?.mileage ? formatNumber(car.mileage).replace(/,/g, ' ') : '-'}</div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Статус ТС</label>
-            <div style="min-height: 24px;">
-              ${car?.status ? `<span class="badge ${getStatusBadgeClass(car.status)}">${car.status}</span>` : '-'}
-            </div>
-          </div>
         </div>
       `;
+
+      function updateSignedContractLink() {
+        const signedContractLinkValue = document.getElementById('signedContractLinkValue');
+        if (signedContractLinkValue) {
+          signedContractLinkValue.innerHTML = getSignedContractLinkMarkup();
+        }
+      }
 
       // Initialize modal
       initModal('#editContractModal', '[data-open-modal="#editContractModal"]', '[data-close-modal="#editContractModal"]');
@@ -475,9 +529,11 @@
       document.getElementById('editContractStartDate').value = formatDateForInput(contract.startDate);
       document.getElementById('editContractEndDate').value = formatDateForInput(contract.endDate);
       document.getElementById('editContractDailyRent').value = contract.dailyRent;
-      document.getElementById('editContractStatus').value = contract.status;
-      document.getElementById('editContractStatusField').value = contract.contractStatus || 'новый';
-      document.getElementById('editContractIssuanceStatus').value = contract.issuanceStatus || '';
+      document.getElementById('editContractActionStatus').value = contract.status;
+      document.getElementById('editContractStatusField').value = contract.contractStatus;
+      document.getElementById('editContractIssuanceStatus').value = contract.issuanceStatus;
+      document.getElementById('editContractSchedule').value = contract.rentSchedule;
+      document.getElementById('editContractType').value = contract.contractType;
 
       // Update driver info when driver changes
       function updateDriverInfo() {
@@ -487,10 +543,32 @@
           document.getElementById('editDriverName').value = selectedDriver.name;
           document.getElementById('editDriverPhone').value = selectedDriver.phone || '-';
           document.getElementById('editDriverStatus').value = selectedDriver.status || '-';
+          document.getElementById('editPassportSeries').value = selectedDriver.passportSeries || '';
+          document.getElementById('editPassportNumber').value = selectedDriver.passportNumber || '';
+          document.getElementById('editPassportCitizenship').value = selectedDriver.citizenship || '';
+          document.getElementById('editPassportIssuedBy').value = selectedDriver.passportIssuedBy || '';
+          document.getElementById('editPassportGender').value = selectedDriver.gender || 'Мужской';
+          document.getElementById('editPassportIssueDate').value = selectedDriver.passportIssueDate || '';
+          document.getElementById('editPassportValidUntil').value = selectedDriver.passportValidUntil || '';
+          document.getElementById('editPassportDepartmentCode').value = selectedDriver.passportDepartmentCode || '';
+          document.getElementById('editPassportRegistrationAddress').value = selectedDriver.registrationAddress || '';
+          document.getElementById('editPassportBirthDate').value = selectedDriver.birthDate || '';
+          document.getElementById('editPassportBirthPlace').value = selectedDriver.birthPlace || '';
         } else {
           document.getElementById('editDriverName').value = '';
           document.getElementById('editDriverPhone').value = '';
           document.getElementById('editDriverStatus').value = '';
+          document.getElementById('editPassportSeries').value = '';
+          document.getElementById('editPassportNumber').value = '';
+          document.getElementById('editPassportCitizenship').value = '';
+          document.getElementById('editPassportIssuedBy').value = '';
+          document.getElementById('editPassportGender').value = 'Мужской';
+          document.getElementById('editPassportIssueDate').value = '';
+          document.getElementById('editPassportValidUntil').value = '';
+          document.getElementById('editPassportDepartmentCode').value = '';
+          document.getElementById('editPassportRegistrationAddress').value = '';
+          document.getElementById('editPassportBirthDate').value = '';
+          document.getElementById('editPassportBirthPlace').value = '';
         }
       }
 
@@ -540,6 +618,7 @@
       const scanPdf = document.getElementById('scanPdf');
       const scanInfo = document.getElementById('scanInfo');
       const scanDownloadLink = document.getElementById('scanDownloadLink');
+      const downloadContractBtn = document.getElementById('downloadContractBtn');
       const removeScanBtn = document.getElementById('removeScanBtn');
 
       function displayScan(scanUrl, isPdf = false) {
@@ -561,8 +640,15 @@
             scanImage.style.display = 'block';
           }
 
+          if (downloadContractBtn) {
+            downloadContractBtn.href = scanUrl;
+            downloadContractBtn.download = contract.scanFileName || `${contract.number}-signed-contract`;
+            downloadContractBtn.style.display = 'inline-flex';
+          }
+
           contractScanCard.style.display = 'block';
           removeScanBtn.style.display = 'inline-block';
+          updateSignedContractLink();
         } else {
           contractScanCard.style.display = 'none';
           removeScanBtn.style.display = 'none';
@@ -571,6 +657,11 @@
           scanImage.style.display = 'none';
           scanPdf.style.display = 'none';
           scanInfo.style.display = 'none';
+          if (downloadContractBtn) {
+            downloadContractBtn.href = '#';
+            downloadContractBtn.style.display = 'none';
+          }
+          updateSignedContractLink();
         }
       }
 
@@ -613,7 +704,7 @@
             // Display scan
             displayScan(fileUrl, isPdf);
             
-            alert('Скан договора успешно загружен');
+            alert('Подписанный договор успешно загружен');
           };
           
           reader.onerror = () => {
@@ -627,11 +718,13 @@
       // Handle scan removal
       if (removeScanBtn) {
         removeScanBtn.addEventListener('click', () => {
-          if (confirm('Вы уверены, что хотите удалить скан договора?')) {
+          if (confirm('Вы уверены, что хотите удалить подписанный договор?')) {
             contract.scan = null;
+            contract.scanType = null;
+            contract.scanFileName = null;
             displayScan(null);
             uploadScanInput.value = '';
-            alert('Скан договора удален');
+            alert('Подписанный договор удален');
           }
         });
       }
@@ -647,8 +740,11 @@
           const updatedStartDate = document.getElementById('editContractStartDate').value;
           const updatedEndDate = document.getElementById('editContractEndDate').value;
           const updatedDailyRent = parseFloat(document.getElementById('editContractDailyRent').value);
+          const updatedActionStatus = document.getElementById('editContractActionStatus').value;
           const updatedContractStatus = document.getElementById('editContractStatusField').value;
-          const updatedIssuanceStatus = document.getElementById('editContractIssuanceStatus').value || null;
+          const updatedIssuanceStatus = document.getElementById('editContractIssuanceStatus').value;
+          const updatedRentSchedule = document.getElementById('editContractSchedule').value;
+          const updatedContractType = document.getElementById('editContractType').value;
 
           const updatedDriver = getDriverById(updatedDriverId);
           const updatedCar = mockData.cars.find(c => c.plate === updatedVehiclePlate);
@@ -671,89 +767,31 @@
           contract.endDate = updatedEndDate || null;
           contract.dailyRent = updatedDailyRent;
           contract.totalAmount = updatedTotalAmount;
-          contract.contractStatus = updatedContractStatus;
-          contract.issuanceStatus = updatedIssuanceStatus;
-          contract.status = updatedEndDate && new Date(updatedEndDate) < new Date() ? 'истекший' : 'действующий';
+          contract.status = normalizeActionStatus(updatedActionStatus);
+          contract.contractStatus = normalizeContractStatus(updatedContractStatus);
+          contract.issuanceStatus = normalizeIssuanceStatus(updatedIssuanceStatus);
+          contract.rentSchedule = normalizeRentSchedule(updatedRentSchedule);
+          contract.contractType = normalizeContractType(updatedContractType);
+          updatedDriver.passportSeries = document.getElementById('editPassportSeries').value;
+          updatedDriver.passportNumber = document.getElementById('editPassportNumber').value;
+          updatedDriver.citizenship = document.getElementById('editPassportCitizenship').value;
+          updatedDriver.passportIssuedBy = document.getElementById('editPassportIssuedBy').value;
+          updatedDriver.gender = document.getElementById('editPassportGender').value;
+          updatedDriver.passportIssueDate = document.getElementById('editPassportIssueDate').value;
+          updatedDriver.passportValidUntil = document.getElementById('editPassportValidUntil').value;
+          updatedDriver.passportDepartmentCode = document.getElementById('editPassportDepartmentCode').value;
+          updatedDriver.registrationAddress = document.getElementById('editPassportRegistrationAddress').value;
+          updatedDriver.birthDate = document.getElementById('editPassportBirthDate').value;
+          updatedDriver.birthPlace = document.getElementById('editPassportBirthPlace').value;
+
+          if (updatedDriver.passportSeries && updatedDriver.passportNumber && contract.contractStatus === 'Новый') {
+            contract.contractStatus = 'Требует подписания';
+          }
 
           // Reload the page to show updated data
           location.reload();
         });
       }
-
-      // Passport modal functionality
-      window.openPassportModal = function() {
-        const driver = getDriverById(contract.driverId);
-        if (!driver) {
-          alert('Водитель не найден');
-          return;
-        }
-
-        // Populate form with existing driver passport data if available
-        document.getElementById('passportSeries').value = driver.passportSeries || '';
-        document.getElementById('passportNumber').value = driver.passportNumber || '';
-        document.getElementById('passportCitizenship').value = driver.citizenship || '';
-        document.getElementById('passportIssuedBy').value = driver.passportIssuedBy || '';
-        document.getElementById('passportGender').value = driver.gender || 'Мужской';
-        document.getElementById('passportIssueDate').value = driver.passportIssueDate || '';
-        document.getElementById('passportValidUntil').value = driver.passportValidUntil || '';
-        document.getElementById('passportDepartmentCode').value = driver.passportDepartmentCode || '';
-        document.getElementById('passportRegistrationAddress').value = driver.registrationAddress || '';
-        document.getElementById('passportBirthDate').value = driver.birthDate || '';
-        document.getElementById('passportBirthPlace').value = driver.birthPlace || '';
-
-        document.getElementById('passportModal').classList.add('active');
-      };
-
-      window.closePassportModal = function() {
-        document.getElementById('passportModal').classList.remove('active');
-      };
-
-      // Passport form submission
-      const passportForm = document.getElementById('passportForm');
-      if (passportForm) {
-        passportForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-
-          const driver = getDriverById(contract.driverId);
-          if (!driver) {
-            alert('Водитель не найден');
-            return;
-          }
-
-          // Update driver passport data
-          driver.passportSeries = document.getElementById('passportSeries').value;
-          driver.passportNumber = document.getElementById('passportNumber').value;
-          driver.citizenship = document.getElementById('passportCitizenship').value;
-          driver.passportIssuedBy = document.getElementById('passportIssuedBy').value;
-          driver.gender = document.getElementById('passportGender').value;
-          driver.passportIssueDate = document.getElementById('passportIssueDate').value;
-          driver.passportValidUntil = document.getElementById('passportValidUntil').value;
-          driver.passportDepartmentCode = document.getElementById('passportDepartmentCode').value;
-          driver.registrationAddress = document.getElementById('passportRegistrationAddress').value;
-          driver.birthDate = document.getElementById('passportBirthDate').value;
-          driver.birthPlace = document.getElementById('passportBirthPlace').value;
-
-          // Update contract status if needed
-          if (driver.passportSeries && driver.passportNumber) {
-            if (contract.contractStatus === 'требуется заполнение паспорта') {
-              contract.contractStatus = 'требуется подписание';
-            }
-          }
-
-          alert('Данные паспорта успешно сохранены');
-          closePassportModal();
-          
-          // Reload the page to show updated data
-          location.reload();
-        });
-      }
-
-      // Close passport modal on backdrop click
-      document.getElementById('passportModal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('passportModal')) {
-          closePassportModal();
-        }
-      });
     }
   </script>
 </body>

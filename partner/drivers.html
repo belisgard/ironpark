@@ -38,7 +38,7 @@
           <label class="form-label">Статус:</label>
           <select class="form-select" id="statusFilter" style="width: 200px;">
             <option value="">Все</option>
-            <option value="Активен">Активен</option>
+            <option value="Работает">Работает</option>
             <option value="Неактивен">Неактивен</option>
           </select>
         </div>
@@ -52,11 +52,11 @@
         <thead>
           <tr>
             <th>ФИО</th>
-            <th>Статус</th>
+            <th>Действующий договор</th>
             <th>Текущее ТС</th>
             <th>Задолженность</th>
-            <th>Баланс</th>
-            <th>Ставка аренды</th>
+            <th>Количество дней оплаченной аренды</th>
+            <th>Сумма оплаченной аренды</th>
           </tr>
         </thead>
         <tbody id="driversTableBody"></tbody>
@@ -67,16 +67,57 @@
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    function findCarByPlate(plate) {
+      if (!plate) return null;
+      const normalizedPlate = plate.toString().trim().toLowerCase();
+      return mockData.cars.find((car) => (car.plate || '').toString().trim().toLowerCase() === normalizedPlate) || null;
+    }
+
+    function isActiveContract(contract) {
+      const normalizedStatus = (contract?.status || '').toString().trim().toLowerCase();
+      return normalizedStatus === 'действующий';
+    }
+
+    function getDriverActiveContract(driverId) {
+      return getRentContractsByDriverId(driverId).find(isActiveContract) || null;
+    }
+
+    function getPaidRentStats(driverId) {
+      const rentExpenses = getFinanceTransactionsByDriverId(driverId).filter((transaction) => {
+        const section = (transaction.section || '').toString().trim().toLowerCase();
+        const description = (transaction.description || '').toString().trim().toLowerCase();
+        return section === 'аренда' && Number(transaction.expense) > 0 && description.includes('аренда');
+      });
+
+      const paidDays = rentExpenses.length;
+      const paidAmount = rentExpenses.reduce((total, transaction) => total + (Number(transaction.expense) || 0), 0);
+
+      return { paidDays, paidAmount };
+    }
+
     function renderDrivers() {
       const tbody = document.getElementById('driversTableBody');
       tbody.innerHTML = mockData.drivers.map(driver => `
-        <tr onclick="window.location.href='driver.html?id=${driver.id}'">
+        <tr data-driver-status="${driver.status}" data-has-debt="${driver.debtAmount > 0 ? '1' : '0'}" onclick="window.location.href='driver.html?id=${driver.id}'">
           <td>${driver.name}</td>
-          <td><span class="badge ${getStatusBadgeClass(driver.status)}">${driver.status}</span></td>
-          <td>${driver.currentCarPlate || '-'}</td>
+          <td>${
+            (() => {
+              const activeContract = getDriverActiveContract(driver.id);
+              if (!activeContract) return '-';
+              return `<a href="contract.html?id=${activeContract.id}" onclick="event.stopPropagation();">${activeContract.number}</a>`;
+            })()
+          }</td>
+          <td>${
+            (() => {
+              if (!driver.currentCarPlate) return '-';
+              const currentCar = findCarByPlate(driver.currentCarPlate);
+              if (!currentCar) return driver.currentCarPlate;
+              return `<a href="car.html?id=${currentCar.id}" onclick="event.stopPropagation();">${driver.currentCarPlate}</a>`;
+            })()
+          }</td>
           <td>${driver.debtAmount > 0 ? '<span style="color: var(--g-color-base-danger);">' + formatCurrency(driver.debtAmount) + '</span>' : '-'}</td>
-          <td>${formatCurrency(driver.balanceAmount)}</td>
-          <td>${formatCurrency(driver.rentRate)}</td>
+          <td>${getPaidRentStats(driver.id).paidDays}</td>
+          <td>${formatCurrency(getPaidRentStats(driver.id).paidAmount)}</td>
         </tr>
       `).join('');
     }
@@ -87,10 +128,13 @@
       const search = document.getElementById('searchInput').value.toLowerCase();
 
       filterTable('#driversTable', (row) => {
-        const cells = row.cells;
-        if (hasDebt && cells[3].textContent === '-') return false;
-        if (status && cells[1].textContent.trim() !== status) return false;
-        if (search && !cells[0].textContent.toLowerCase().includes(search)) return false;
+        const rowStatus = (row.dataset.driverStatus || '').trim();
+        const rowHasDebt = row.dataset.hasDebt === '1';
+        const name = row.cells[0]?.textContent.toLowerCase() || '';
+
+        if (hasDebt && !rowHasDebt) return false;
+        if (status && rowStatus !== status) return false;
+        if (search && !name.includes(search)) return false;
         return true;
       });
     }

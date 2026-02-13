@@ -92,6 +92,25 @@
     </main>
   </div>
 
+  <div class="modal" id="workScheduleModal">
+    <div class="modal__content" style="max-width: 820px;">
+      <div class="modal__header">
+        <h3 class="modal__title" id="workScheduleModalTitle">График работы колонны</h3>
+        <button class="modal__close" data-close-modal="#workScheduleModal">×</button>
+      </div>
+      <div class="modal__body">
+        <form id="workScheduleForm">
+          <input type="hidden" id="scheduleRowId">
+          <div id="workScheduleRows" style="display: grid; gap: 10px;"></div>
+          <div style="display: flex; gap: 12px; margin-top: var(--g-spacing-xl); padding-top: var(--g-spacing-lg); border-top: 1px solid var(--g-color-line-generic);">
+            <button type="submit" class="btn btn--primary">Сохранить график</button>
+            <button type="button" class="btn btn--normal" data-close-modal="#workScheduleModal">Отмена</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/js/app.js"></script>
   <script>
     (function () {
@@ -99,19 +118,198 @@
       const form = document.getElementById('partnerProfileForm');
       const addressList = document.getElementById('columnAddressList');
       const addAddressButton = document.getElementById('addColumnAddressButton');
+      const workScheduleForm = document.getElementById('workScheduleForm');
+      const workScheduleRows = document.getElementById('workScheduleRows');
+      const workScheduleModal = document.getElementById('workScheduleModal');
+      const workScheduleModalTitle = document.getElementById('workScheduleModalTitle');
       const savedMessage = document.getElementById('profileSavedMessage');
+      const daysOfWeek = [
+        { key: 'monday', label: 'Понедельник' },
+        { key: 'tuesday', label: 'Вторник' },
+        { key: 'wednesday', label: 'Среда' },
+        { key: 'thursday', label: 'Четверг' },
+        { key: 'friday', label: 'Пятница' },
+        { key: 'saturday', label: 'Суббота' },
+        { key: 'sunday', label: 'Воскресенье' }
+      ];
 
-      function createAddressRow(value) {
+      function createDefaultWorkSchedule() {
+        const schedule = {};
+        daysOfWeek.forEach(function (day) {
+          schedule[day.key] = { working: true, from: '09:00', to: '18:00', allDay: false };
+        });
+        return schedule;
+      }
+
+      function normalizeWorkSchedule(raw) {
+        const schedule = createDefaultWorkSchedule();
+        if (!raw || typeof raw !== 'object') {
+          return schedule;
+        }
+        daysOfWeek.forEach(function (day) {
+          const dayData = raw[day.key];
+          if (!dayData || typeof dayData !== 'object') {
+            return;
+          }
+          schedule[day.key] = {
+            working: dayData.working !== false,
+            from: typeof dayData.from === 'string' ? dayData.from : '09:00',
+            to: typeof dayData.to === 'string' ? dayData.to : '18:00',
+            allDay: Boolean(dayData.allDay)
+          };
+        });
+        return schedule;
+      }
+
+      let activeScheduleRow = null;
+      let activeWorkSchedule = createDefaultWorkSchedule();
+
+      function getScheduleSummaryText(schedule) {
+        const normalized = normalizeWorkSchedule(schedule);
+        let notWorkingCount = 0;
+        let allDayCount = 0;
+        let timedCount = 0;
+
+        daysOfWeek.forEach(function (day) {
+          const dayData = normalized[day.key];
+          if (!dayData.working) {
+            notWorkingCount += 1;
+            return;
+          }
+          if (dayData.allDay) {
+            allDayCount += 1;
+            return;
+          }
+          timedCount += 1;
+        });
+
+        return 'Рабочих дней: ' + (allDayCount + timedCount) + ', выходных: ' + notWorkingCount + ', круглосуточно: ' + allDayCount + '.';
+      }
+
+      function renderWorkScheduleRows() {
+        workScheduleRows.innerHTML = '';
+        daysOfWeek.forEach(function (day) {
+          const dayData = activeWorkSchedule[day.key] || { working: true, from: '09:00', to: '18:00', allDay: false };
+          const row = document.createElement('div');
+          row.dataset.dayKey = day.key;
+          row.style.display = 'grid';
+          row.style.gridTemplateColumns = 'minmax(220px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1fr)';
+          row.style.gap = '12px';
+          row.style.alignItems = 'center';
+
+          const dayWorkingWrap = document.createElement('div');
+          dayWorkingWrap.style.display = 'flex';
+          dayWorkingWrap.style.alignItems = 'center';
+          dayWorkingWrap.style.gap = '10px';
+          const dayLabel = document.createElement('span');
+          dayLabel.textContent = day.label;
+          const workingLabel = document.createElement('label');
+          workingLabel.style.display = 'flex';
+          workingLabel.style.alignItems = 'center';
+          workingLabel.style.gap = '6px';
+          workingLabel.style.cursor = 'pointer';
+          const workingInput = document.createElement('input');
+          workingInput.type = 'checkbox';
+          workingInput.style.width = 'auto';
+          workingInput.dataset.field = 'working';
+          workingInput.checked = dayData.working !== false;
+          const workingText = document.createElement('span');
+          workingText.textContent = 'Работает';
+          workingLabel.appendChild(workingInput);
+          workingLabel.appendChild(workingText);
+          dayWorkingWrap.appendChild(dayLabel);
+          dayWorkingWrap.appendChild(workingLabel);
+
+          const fromInput = document.createElement('input');
+          fromInput.type = 'time';
+          fromInput.className = 'form-input';
+          fromInput.value = dayData.from || '09:00';
+          fromInput.dataset.field = 'from';
+
+          const toInput = document.createElement('input');
+          toInput.type = 'time';
+          toInput.className = 'form-input';
+          toInput.value = dayData.to || '18:00';
+          toInput.dataset.field = 'to';
+
+          const allDayLabel = document.createElement('label');
+          allDayLabel.style.display = 'flex';
+          allDayLabel.style.alignItems = 'center';
+          allDayLabel.style.gap = '8px';
+          allDayLabel.style.cursor = 'pointer';
+          const allDayInput = document.createElement('input');
+          allDayInput.type = 'checkbox';
+          allDayInput.style.width = 'auto';
+          allDayInput.dataset.field = 'allDay';
+          allDayInput.checked = Boolean(dayData.allDay);
+          const allDayText = document.createElement('span');
+          allDayText.textContent = 'Круглосуточно';
+
+          function applyAllDayState() {
+            if (!workingInput.checked) {
+              allDayInput.disabled = true;
+              fromInput.disabled = true;
+              toInput.disabled = true;
+              return;
+            }
+            allDayInput.disabled = false;
+            const disabledByAllDay = allDayInput.checked;
+            fromInput.disabled = disabledByAllDay;
+            toInput.disabled = disabledByAllDay;
+          }
+
+          workingInput.addEventListener('change', applyAllDayState);
+          allDayInput.addEventListener('change', applyAllDayState);
+          applyAllDayState();
+
+          allDayLabel.appendChild(allDayInput);
+          allDayLabel.appendChild(allDayText);
+
+          row.appendChild(dayWorkingWrap);
+          row.appendChild(fromInput);
+          row.appendChild(toInput);
+          row.appendChild(allDayLabel);
+          workScheduleRows.appendChild(row);
+        });
+      }
+
+      function openWorkScheduleForRow(row) {
+        const addressInput = row.querySelector('[data-address-input]');
+        const rawAddress = addressInput ? addressInput.value.trim() : '';
+        const addressLabel = rawAddress || 'Новый адрес колонны';
+
+        activeScheduleRow = row;
+        activeWorkSchedule = normalizeWorkSchedule(row._workSchedule);
+        document.getElementById('scheduleRowId').value = row.dataset.rowId || '';
+        workScheduleModalTitle.textContent = 'График работы: ' + addressLabel;
+        renderWorkScheduleRows();
+        workScheduleModal.classList.add('active');
+      }
+
+      function createAddressRow(value, schedule) {
         const row = document.createElement('div');
-        row.style.display = 'flex';
+        row.dataset.columnRow = '1';
+        row.dataset.rowId = String(Date.now() + Math.floor(Math.random() * 10000));
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr auto auto';
         row.style.gap = '12px';
+        row.style.alignItems = 'center';
+        row._workSchedule = normalizeWorkSchedule(schedule);
 
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-input';
+        input.dataset.addressInput = '1';
         input.placeholder = 'Введите адрес колонны';
         input.value = value || '';
-        input.style.flex = '1';
+
+        const scheduleButton = document.createElement('button');
+        scheduleButton.type = 'button';
+        scheduleButton.className = 'btn btn--normal';
+        scheduleButton.textContent = 'Указать график';
+        scheduleButton.addEventListener('click', function () {
+          openWorkScheduleForRow(row);
+        });
 
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
@@ -120,19 +318,32 @@
         removeButton.addEventListener('click', function () {
           row.remove();
           if (addressList.children.length === 0) {
-            createAddressRow('');
+            createAddressRow('', createDefaultWorkSchedule());
           }
         });
 
+        const summary = document.createElement('div');
+        summary.style.gridColumn = '1 / -1';
+        summary.style.color = 'var(--g-color-text-secondary)';
+        summary.style.fontSize = 'var(--g-font-size-sm)';
+        summary.dataset.scheduleSummary = '1';
+        summary.textContent = getScheduleSummaryText(row._workSchedule);
+
+        row._updateSummary = function () {
+          summary.textContent = getScheduleSummaryText(row._workSchedule);
+        };
+
         row.appendChild(input);
+        row.appendChild(scheduleButton);
         row.appendChild(removeButton);
+        row.appendChild(summary);
         addressList.appendChild(row);
       }
 
       function loadProfile() {
         const rawData = localStorage.getItem(PROFILE_STORAGE_KEY);
         if (!rawData) {
-          createAddressRow('');
+          createAddressRow('', createDefaultWorkSchedule());
           return;
         }
 
@@ -140,7 +351,7 @@
         try {
           data = JSON.parse(rawData);
         } catch (error) {
-          createAddressRow('');
+          createAddressRow('', createDefaultWorkSchedule());
           return;
         }
 
@@ -155,18 +366,66 @@
         document.getElementById('correspondentAccount').value = data.correspondentAccount || '';
 
         const addresses = Array.isArray(data.columnAddresses) ? data.columnAddresses : [];
+        const legacySchedule = normalizeWorkSchedule(data.columnWorkSchedule);
         if (addresses.length === 0) {
-          createAddressRow('');
+          createAddressRow('', legacySchedule);
           return;
         }
 
-        addresses.forEach(function (address) {
-          createAddressRow(address);
+        addresses.forEach(function (addressItem) {
+          if (typeof addressItem === 'string') {
+            createAddressRow(addressItem, legacySchedule);
+            return;
+          }
+          if (addressItem && typeof addressItem === 'object') {
+            createAddressRow(addressItem.address || '', addressItem.workSchedule || legacySchedule);
+          }
         });
       }
 
       addAddressButton.addEventListener('click', function () {
-        createAddressRow('');
+        createAddressRow('', createDefaultWorkSchedule());
+      });
+
+      workScheduleForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const nextSchedule = {};
+        const rows = workScheduleRows.querySelectorAll('[data-day-key]');
+
+        for (let i = 0; i < rows.length; i += 1) {
+          const row = rows[i];
+          const dayKey = row.dataset.dayKey;
+          const workingInput = row.querySelector('input[data-field="working"]');
+          const fromInput = row.querySelector('input[data-field="from"]');
+          const toInput = row.querySelector('input[data-field="to"]');
+          const allDayInput = row.querySelector('input[data-field="allDay"]');
+
+          if (!dayKey || !workingInput || !fromInput || !toInput || !allDayInput) {
+            continue;
+          }
+
+          const isWorking = workingInput.checked;
+          const isAllDay = allDayInput.checked;
+          if (isWorking && !isAllDay && (!fromInput.value || !toInput.value)) {
+            alert('Для каждого дня укажите время работы или отметьте "Круглосуточно".');
+            return;
+          }
+
+          nextSchedule[dayKey] = {
+            working: isWorking,
+            from: isWorking && !isAllDay ? fromInput.value : '',
+            to: isWorking && !isAllDay ? toInput.value : '',
+            allDay: isWorking ? isAllDay : false
+          };
+        }
+
+        if (activeScheduleRow) {
+          activeScheduleRow._workSchedule = normalizeWorkSchedule(nextSchedule);
+          if (typeof activeScheduleRow._updateSummary === 'function') {
+            activeScheduleRow._updateSummary();
+          }
+        }
+        workScheduleModal.classList.remove('active');
       });
 
       form.addEventListener('submit', function (event) {
@@ -176,9 +435,17 @@
           return;
         }
 
-        const columnAddresses = Array.from(addressList.querySelectorAll('input'))
-          .map(function (input) { return input.value.trim(); })
-          .filter(function (value) { return value.length > 0; });
+        const columnAddressRows = Array.from(addressList.querySelectorAll('[data-column-row="1"]'));
+        const columnAddresses = columnAddressRows
+          .map(function (row) {
+            const input = row.querySelector('[data-address-input]');
+            const addressValue = input ? input.value.trim() : '';
+            return {
+              address: addressValue,
+              workSchedule: normalizeWorkSchedule(row._workSchedule)
+            };
+          })
+          .filter(function (item) { return item.address.length > 0; });
 
         const profileData = {
           organizationName: document.getElementById('organizationName').value.trim(),
@@ -200,6 +467,7 @@
         }, 2500);
       });
 
+      initModal('#workScheduleModal', '[data-open-modal="#workScheduleModal"]', '[data-close-modal="#workScheduleModal"]');
       loadProfile();
     })();
   </script>
