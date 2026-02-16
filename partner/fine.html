@@ -36,26 +36,6 @@
 
       <div class="card" id="fineInfo" style="margin-bottom: 32px;"></div>
 
-      <div class="card">
-        <h3>История платежей</h3>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Сумма</th>
-              <th>Способ оплаты</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="paid-date" style="display: none;">-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <div class="card" style="margin-top: var(--g-spacing-xl);">
         <h3>Фото/вложения</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
@@ -69,68 +49,103 @@
 
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
-  <script src="../assets/js/ui-state.js"></script>
   <script>
+    function normalizeFineStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      return normalized === 'оплачен' ? 'Оплачен' : 'Новый';
+    }
+
+    function getFineWriteOffStatus(fine) {
+      return normalizeFineStatus(fine.status) === 'Оплачен' ? 'Сумма списана' : 'Сумма не списана';
+    }
+
+    function getFineWriteOffDateTime(fine) {
+      if (fine.writeOffDateTime) return formatDateTime(fine.writeOffDateTime);
+      if (fine.paidDate) return formatDateTime(`${fine.paidDate}T00:00:00`);
+      return '-';
+    }
+
+    function getFineResolutionNumber(fine) {
+      const providedNumber = (fine.resolutionNumber || '').toString().replace(/\D/g, '');
+      if (providedNumber) return providedNumber;
+      const datePart = (fine.date || '').toString().replace(/\D/g, '');
+      return `${datePart}${String(fine.id).padStart(3, '0')}`;
+    }
+
+    function getCarLinkByPlate(plate) {
+      const normalizedPlate = (plate || '').toString().trim().toLowerCase();
+      const car = mockData.cars.find((item) => (item.plate || '').toString().trim().toLowerCase() === normalizedPlate);
+      if (!car) return plate || '-';
+      return `<a href="car.html?id=${car.id}" style="color: var(--g-color-text-link); text-decoration: none;">${plate}</a>`;
+    }
+
+    function getDriverLinkByName(name) {
+      const normalizedName = (name || '').toString().trim().toLowerCase();
+      const driver = mockData.drivers.find((item) => (item.name || '').toString().trim().toLowerCase() === normalizedName);
+      if (!driver) return name || '-';
+      return `<a href="driver.html?id=${driver.id}" style="color: var(--g-color-text-link); text-decoration: none;">${name}</a>`;
+    }
+
     const fineId = getUrlParameter('id');
     const fine = getFineById(fineId);
 
     if (!fine) {
       document.body.innerHTML = '<div class="container"><h1>Штраф не найден</h1><a href="fines.html">Вернуться к списку</a></div>';
     } else {
-      // Show generate PP button only for "Новый" or "Начислен" status
-      const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
+      const fineStatus = normalizeFineStatus(fine.status);
+      const writeOffStatus = getFineWriteOffStatus(fine);
+      const writeOffDateTime = getFineWriteOffDateTime(fine);
+      const resolutionNumber = getFineResolutionNumber(fine);
+      const writeOffStatusClass = writeOffStatus === 'Сумма списана' ? 'badge--success' : 'badge--neutral';
+
+      // Show generate PP button only for "Новый" status in current status model
+      const canGeneratePP = fineStatus === 'Новый';
       const generatePPBtn = document.getElementById('generatePPBtn');
       if (generatePPBtn) {
         generatePPBtn.style.display = canGeneratePP ? 'inline-block' : 'none';
       }
 
       document.getElementById('fineInfo').innerHTML = `
-        <div class="alert alert--warning alert--discount" style="display: ${fine.discountAvailable ? 'block' : 'none'};">
-          Скидка доступна до ${formatDate(fine.discountDeadline)}
-        </div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px;">
           <div class="form-group">
-            <label class="form-label">Номер протокола</label>
-            <div>ПРОТ-${fine.id}</div>
+            <label class="form-label">Дата штрафа</label>
+            <div>${formatDate(fine.date)}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Номер постановления</label>
+            <div>${resolutionNumber}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Авто</label>
-            <div>${fine.plate}</div>
+            <div>${getCarLinkByPlate(fine.plate)}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Водитель</label>
-            <div>${fine.driverName}</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Дата/время</label>
-            <div>${formatDate(fine.date)}</div>
+            <div>${getDriverLinkByName(fine.driverName)}</div>
           </div>
           <div class="form-group">
             <label class="form-label">Сумма</label>
             <div>${formatCurrency(fine.amount)}</div>
           </div>
           <div class="form-group">
-            <label class="form-label">Скидка</label>
-            <div>${fine.discountAvailable ? 'Доступна' : 'Недоступна'}</div>
+            <label class="form-label">Статус штрафа</label>
+            <div><span class="badge ${getStatusBadgeClass(fineStatus)} badge--status">${fineStatus}</span></div>
           </div>
           <div class="form-group">
-            <label class="form-label">Статус</label>
-            <div><span class="badge ${getStatusBadgeClass(fine.status)} badge--status">${fine.status}</span></div>
+            <label class="form-label">Статус списания</label>
+            <div><span class="badge ${writeOffStatusClass} badge--status">${writeOffStatus}</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Дата и время списания</label>
+            <div>${writeOffDateTime}</div>
           </div>
         </div>
       `;
 
-      if (fine.paidDate) {
-        document.querySelector('.paid-date').textContent = formatDate(fine.paidDate);
-        document.querySelector('.paid-date').style.display = 'table-cell';
-      }
-
-      initUIStateToggles();
-
       // Generate PP function
       window.generatePP = function() {
         if (!fine) return;
-        alert(`Генерация ПП для штрафа #${fine.id}\nНомер протокола: ПРОТ-${fine.id}\nДата: ${formatDate(fine.date)}\nАвто: ${fine.plate}\nВодитель: ${fine.driverName}\nСумма: ${formatCurrency(fine.amount)}`);
+        alert(`Генерация ПП для штрафа #${fine.id}\nНомер постановления: ${resolutionNumber}\nДата: ${formatDate(fine.date)}\nАвто: ${fine.plate}\nВодитель: ${fine.driverName}\nСумма: ${formatCurrency(fine.amount)}`);
         // Здесь можно добавить реальную логику генерации ПП
       };
     }

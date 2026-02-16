@@ -20,6 +20,26 @@
 
     <h1 style="margin-bottom: 32px;">Приёмка авто</h1>
 
+    <!-- Progress Steps -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 32px; position: relative;">
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--info" id="step1" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">1</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Авто/аренда</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step2" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">2</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Чек-лист</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step3" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">3</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Фото</div>
+      </div>
+      <div style="flex: 1; text-align: center;">
+        <div class="badge badge--neutral" id="step4" style="width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">4</div>
+        <div style="font-size: var(--g-font-size-sm); margin-top: 8px;">Завершение</div>
+      </div>
+    </div>
+
     <!-- Step 1 -->
     <div class="card" id="step1Content">
       <h3 style="margin-bottom: 16px;">Шаг 1: Авто/аренда</h3>
@@ -55,21 +75,7 @@
 
     <!-- Step 2 -->
     <div class="card" id="step2Content" style="display: none;">
-      <h3 style="margin-bottom: 16px;">Шаг 2: Фотофиксация возврата</h3>
-      <div class="form-group">
-        <label class="form-label">Загрузить фото (минимум 3)</label>
-        <input type="file" class="form-input" id="photoInput" multiple accept="image/*" onchange="handlePhotoUpload(event)">
-      </div>
-      <div id="photoPreview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;"></div>
-      <div style="display: flex; gap: 12px; margin-top: 16px;">
-        <button class="btn btn--normal" onclick="goToStep(1)" style="flex: 1;">Назад</button>
-        <button class="btn btn--action" onclick="goToStep(3)" id="step2Next" style="flex: 1;" disabled>Далее</button>
-      </div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="card" id="step3Content" style="display: none;">
-      <h3 style="margin-bottom: 16px;">Шаг 3: Чек-лист</h3>
+      <h3 style="margin-bottom: 16px;">Шаг 2: Чек-лист</h3>
       <div class="form-group">
         <label class="form-label">Пробег при выдаче</label>
         <div style="font-weight: 500; margin-top: 4px; color: var(--g-color-text-primary);" id="issueMileageDisplay">-</div>
@@ -114,8 +120,30 @@
         </button>
       </div>
       <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button class="btn btn--normal" onclick="goToStep(1)" style="flex: 1;">Назад</button>
+        <button class="btn btn--action" onclick="goToStep(3)" style="flex: 1;">Далее</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card" id="step3Content" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Шаг 3: Фотофиксация возврата</h3>
+      <div class="form-group">
+        <label class="form-label">Фото (минимум 3)</label>
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn btn--action" onclick="openCamera()" style="flex: 1;">Сделать фото</button>
+          <button type="button" class="btn btn--normal" onclick="openGallery()" style="flex: 1;">Из галереи</button>
+        </div>
+        <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" onchange="handleCameraPhoto(event)" style="display: none;">
+        <input type="file" id="photoInput" multiple accept="image/*" onchange="handlePhotoUpload(event)" style="display: none;">
+        <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary); margin-top: 8px;">
+          На мобильном устройстве кнопка "Сделать фото" открывает камеру.
+        </div>
+      </div>
+      <div id="photoPreview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;"></div>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
         <button class="btn btn--normal" onclick="goToStep(2)" style="flex: 1;">Назад</button>
-        <button class="btn btn--action" onclick="goToStep(4)" style="flex: 1;">Далее</button>
+        <button class="btn btn--action" onclick="goToStep(4)" id="step3Next" style="flex: 1;" disabled>Далее</button>
       </div>
     </div>
 
@@ -125,17 +153,21 @@
       <p style="margin-bottom: 24px; color: var(--g-color-text-secondary);">
         Проверьте все данные перед завершением приёмки
       </p>
-      <button class="btn btn--action" id="completeBtn" onclick="completeReturn()" style="width: 100%;">Завершить приёмку</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn--action" id="completeFreeBtn" onclick="completeReturn('Свободно')" style="flex: 1;">Свободно</button>
+        <button class="btn btn--danger" id="completeRepairBtn" onclick="completeReturn('В ремонт')" style="flex: 1;">В ремонт</button>
+      </div>
       <button class="btn btn--normal" onclick="goToStep(3)" style="width: 100%; margin-top: 12px;">Назад</button>
     </div>
 
     <!-- Success Screen -->
     <div class="card" id="successScreen" style="display: none; text-align: center;">
       <h2 style="margin-bottom: 16px; color: var(--g-color-base-success);">Приёмка завершена</h2>
+      <p id="returnStatusText" style="margin-bottom: 12px; color: var(--g-color-text-primary); font-weight: 500;"></p>
       <p style="margin-bottom: 24px; color: var(--g-color-text-secondary);">
         Автомобиль успешно принят
       </p>
-      <a href="inspections.html" class="btn btn--action" style="width: 100%; text-align: center; display: block;">История осмотров</a>
+      <a href="home.html?tab=issue" class="btn btn--action" style="width: 100%; text-align: center; display: block;">Назад к задачам</a>
     </div>
   </main>
 
@@ -441,25 +473,54 @@
 
     function goToStep(step) {
       document.getElementById(`step${currentStep}Content`).style.display = 'none';
+      document.getElementById(`step${currentStep}`).className = 'badge badge--neutral';
       currentStep = step;
       document.getElementById(`step${currentStep}Content`).style.display = 'block';
+      document.getElementById(`step${currentStep}`).className = 'badge badge--info';
     }
 
-    function handlePhotoUpload(event) {
-      const files = Array.from(event.target.files);
-      photos = files;
+    function openCamera() {
+      document.getElementById('cameraPhotoInput').click();
+    }
+
+    function openGallery() {
+      document.getElementById('photoInput').click();
+    }
+
+    function handleCameraPhoto(event) {
+      const files = Array.from(event.target.files || []);
+      addPhotos(files);
+      event.target.value = '';
+    }
+
+    function addPhotos(newFiles) {
+      if (!newFiles.length) return;
+      photos = photos.concat(newFiles);
+      renderPhotoPreview();
+      document.getElementById('step3Next').disabled = photos.length < 3;
+    }
+
+    function renderPhotoPreview() {
       const preview = document.getElementById('photoPreview');
-      preview.innerHTML = files.map((file, index) => `
+      preview.innerHTML = photos.map((file) => `
         <div style="position: relative;">
           <img src="${URL.createObjectURL(file)}" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--g-border-radius-md);">
         </div>
       `).join('');
-      document.getElementById('step2Next').disabled = files.length < 3;
     }
 
-    function completeReturn() {
-      document.getElementById('step4Content').style.display = 'none';
-      document.getElementById('successScreen').style.display = 'block';
+    function handlePhotoUpload(event) {
+      const files = Array.from(event.target.files || []);
+      addPhotos(files);
+      event.target.value = '';
+    }
+
+    function completeReturn(status) {
+      const returnStatusText = document.getElementById('returnStatusText');
+      if (returnStatusText) {
+        returnStatusText.textContent = status ? `Статус авто: ${status}` : '';
+      }
+      window.location.href = 'home.html?tab=issue';
     }
 
     // Close modal on backdrop click

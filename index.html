@@ -3,94 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B2P Платформа - Выбор роли</title>
+  <title>B2P Платформа - Авторизация</title>
   <link rel="stylesheet" href="assets/css/gravity-theme.css">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <div class="container" style="max-width: 800px; margin: 100px auto; text-align: center;">
-    <h1 style="font-size: 32px; margin-bottom: 48px;">B2P Платформа</h1>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-top: 32px;">
-      <section class="card" style="text-align: left;">
-        <h2 style="margin-bottom: 16px;">Авторизация</h2>
-        <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
-          Вход в интерфейс партнёра по email.
-        </p>
-        <button id="open-auth-form-btn" class="btn btn--primary" type="button">Перейти</button>
-        <form id="manager-login-form" novalidate style="margin-top: 16px; display: none;">
-          <div class="form-group" style="margin-bottom: 16px;">
-            <label class="form-label" for="manager-email">Email</label>
-            <input
-              id="manager-email"
-              name="email"
-              type="email"
-              class="form-input"
-              placeholder="manager@company.com"
-              autocomplete="email"
-              required
-            >
-          </div>
-          <p id="manager-login-error" style="color: var(--g-color-base-danger); margin-bottom: 12px; display: none;">
-            Введите корректный email.
-          </p>
-          <button type="submit" class="btn btn--primary">Войти</button>
-        </form>
-      </section>
-      
-      <a href="mechanic/home.html" class="card" style="text-decoration: none; display: block;">
-        <h2 style="margin-bottom: 16px;">Интерфейс механика</h2>
-        <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
-          Выдача и приёмка автомобилей, осмотры
-        </p>
-        <span class="btn btn--primary">Войти</span>
-      </a>
+  <div class="container" style="max-width: 520px; margin: 100px auto; text-align: center;">
+    <h1 style="font-size: 32px; margin-bottom: 24px;">B2P Платформа</h1>
+    <section class="card" style="text-align: left;">
+      <h2 style="margin-bottom: 16px;">Авторизация</h2>
+      <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
+        Сначала введите e-mail, затем код подтверждения.
+      </p>
+      <form id="manager-login-form" novalidate>
+        <div class="form-group" style="margin-bottom: 16px;" id="emailStep">
+          <label class="form-label" for="manager-email">Email</label>
+          <input
+            id="manager-email"
+            name="email"
+            type="email"
+            class="form-input"
+            placeholder="manager@company.com"
+            autocomplete="email"
+          >
+          <button type="button" class="btn btn--primary" id="sendCodeBtn" style="width: 100%; margin-top: 12px;">Получить код</button>
+        </div>
 
-      <a href="car-selection/index.html" class="card" style="text-decoration: none; display: block;">
-        <h2 style="margin-bottom: 16px;">Шаг выбора авто</h2>
-        <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
-          Выбор транспортного средства для аренды
-        </p>
-        <span class="btn btn--primary">Войти</span>
-      </a>
-
-      <a href="car-selection/index.html" class="card" style="text-decoration: none; display: block;">
-        <h2 style="margin-bottom: 16px;">Смена авто</h2>
-        <p style="color: var(--g-color-text-secondary); margin-bottom: 24px;">
-          Смена транспортного средства
-        </p>
-        <span class="btn btn--primary">Войти</span>
-      </a>
-    </div>
+        <div class="form-group" style="margin-bottom: 16px; display: none;" id="codeStep">
+          <label class="form-label" for="manager-code">Код</label>
+          <input
+            id="manager-code"
+            name="code"
+            type="text"
+            class="form-input"
+            placeholder="Введите код"
+            autocomplete="one-time-code"
+          >
+          <button type="submit" class="btn btn--primary" style="width: 100%; margin-top: 12px;">Войти</button>
+        </div>
+      </form>
+    </section>
   </div>
   <script>
     (function () {
-      const openAuthFormButton = document.getElementById('open-auth-form-btn');
       const form = document.getElementById('manager-login-form');
+      const emailStep = document.getElementById('emailStep');
+      const codeStep = document.getElementById('codeStep');
       const emailInput = document.getElementById('manager-email');
-      const error = document.getElementById('manager-login-error');
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      const codeInput = document.getElementById('manager-code');
 
-      if (!openAuthFormButton || !form || !emailInput || !error) return;
+      if (!form || !emailStep || !codeStep || !emailInput || !sendCodeBtn || !codeInput) return;
 
-      openAuthFormButton.addEventListener('click', function () {
-        form.style.display = 'block';
-        openAuthFormButton.style.display = 'none';
-        emailInput.focus();
+      sendCodeBtn.addEventListener('click', function () {
+        emailStep.style.display = 'none';
+        codeStep.style.display = 'block';
+        codeInput.focus();
       });
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
 
         const email = emailInput.value.trim();
-        if (!email || !emailInput.checkValidity()) {
-          error.style.display = 'block';
-          emailInput.focus();
-          return;
-        }
 
-        error.style.display = 'none';
         sessionStorage.setItem('managerEmail', email);
-        window.location.href = 'partner/contracts.html?email=' + encodeURIComponent(email);
+        window.location.href = 'interface-selection.html?email=' + encodeURIComponent(email);
       });
     })();
   </script>

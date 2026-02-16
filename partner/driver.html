@@ -38,9 +38,8 @@
 
       <div class="tabs" id="driverTabs">
         <button class="tab active" data-tab="main">Основное</button>
-        <button class="tab" data-tab="vehicle-history">История ТС</button>
         <button class="tab" data-tab="rent-contracts">Договора аренды</button>
-        <button class="tab" data-tab="finance">Финансы</button>
+        <button class="tab" data-tab="finance">Транзакции</button>
         <button class="tab" data-tab="fines">Штрафы</button>
         <button class="tab" data-tab="change-history">История изменений</button>
       </div>
@@ -48,28 +47,6 @@
       <div class="tab-content active" data-tab="main">
           <h2>Основная информация</h2>
         <div class="card" id="driverMainInfo" style="margin-bottom: var(--g-spacing-xl);"></div>
-        <div style="margin-top: var(--g-spacing-lg);">
-          <button class="btn btn--normal" data-toggle="debt" data-driver-id="">Симулировать: есть задолженность</button>
-        </div>
-      </div>
-
-      <div class="tab-content" data-tab="vehicle-history">
-        <div class="card">
-          <h2>История транспортных средств</h2>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Наименование транспортного средства</th>
-                <th>Госномер</th>
-                <th>Дата выдачи</th>
-                <th>Период окончания</th>
-              </tr>
-            </thead>
-            <tbody id="vehicleHistoryTableBody">
-              <!-- Will be populated by JS -->
-            </tbody>
-          </table>
-        </div>
       </div>
 
       <div class="tab-content" data-tab="rent-contracts">
@@ -108,21 +85,16 @@
               <div style="margin-bottom: 24px; padding: 16px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md);">
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
                   <div>
-                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Разделы баланса:</label>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Типы транзакций:</label>
                     <div style="margin-top: 4px;">
-                      <label style="display: inline-flex; align-items: center; gap: 4px; margin-right: 12px;">
-                        <input type="checkbox" checked> Аренда
-                      </label>
-                      <label style="display: inline-flex; align-items: center; gap: 4px; margin-right: 12px;">
-                        <input type="checkbox" checked> Прочее
-                      </label>
-                      <label style="display: inline-flex; align-items: center; gap: 4px;">
-                        <input type="checkbox" checked> Штрафы
-                      </label>
+                      <select class="form-select" id="financeTypeFilter" style="width: 180px;">
+                        <option value="аренда">Аренда</option>
+                        <option value="штраф">Штраф</option>
+                      </select>
                     </div>
                   </div>
                   <div>
-                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Период:</label>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Период транзакций:</label>
                     <div style="display: flex; gap: 8px; margin-top: 4px; align-items: center;">
                       <input type="date" class="form-input" id="financeDateFrom" style="width: 150px;">
                       <span style="color: var(--g-color-text-secondary);">—</span>
@@ -135,13 +107,10 @@
                 <thead>
                   <tr>
                     <th>Дата</th>
-                    <th>Раздел</th>
+                    <th>Типы транзакций</th>
                     <th>Время</th>
-                    <th>Приход</th>
-                    <th>Расход</th>
-                    <th>Остаток</th>
-                    <th>Способ оплаты</th>
-                    <th>Описание</th>
+                    <th>Сумма транзакции</th>
+                    <th>Основание транзакции</th>
                   </tr>
                 </thead>
                 <tbody id="financeTableBody">
@@ -153,13 +122,46 @@
 
       <div class="tab-content" data-tab="fines">
         <div class="card">
+              <div style="margin-bottom: 24px; padding: 16px; background: var(--g-color-base-generic); border-radius: var(--g-border-radius-md);">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                  <div>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Статус штрафа:</label>
+                    <div style="margin-top: 4px;">
+                      <select class="form-select" id="fineStatusFilter" style="width: 200px;">
+                        <option value="">Все</option>
+                        <option value="Новый">Новый</option>
+                        <option value="Оплачен">Оплачен</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Статус списания:</label>
+                    <div style="margin-top: 4px;">
+                      <select class="form-select" id="fineWriteOffStatusFilter" style="width: 220px;">
+                        <option value="">Все</option>
+                        <option value="Сумма списана">Сумма списана</option>
+                        <option value="Сумма не списана">Сумма не списана</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; color: var(--g-color-text-secondary);">Номер постановления:</label>
+                    <div style="margin-top: 4px;">
+                      <input type="text" class="form-input" id="fineResolutionSearch" placeholder="Поиск по номеру" style="width: 220px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
               <table class="table">
                 <thead>
                   <tr>
                     <th>Дата</th>
+                    <th>Номер постановления</th>
                     <th>Авто</th>
                     <th>Сумма</th>
-                    <th>Статус</th>
+                    <th>Статус штрафа</th>
+                    <th>Статус списания</th>
+                    <th>Дата и время списания</th>
                     <th>Действие</th>
                   </tr>
                 </thead>
@@ -214,25 +216,7 @@
       <div class="modal__body" style="padding: var(--g-spacing-xl);">
         <form id="editDriverForm">
           <div style="margin-bottom: 32px;">
-            <h4>Основное</h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-              <div class="form-group">
-                <label class="form-label">ФИО</label>
-                <input type="text" class="form-input" id="editFullName" name="fullName" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Статус</label>
-                <select class="form-input" id="editStatus" name="status" required>
-                  <option value="Работает">Работает</option>
-                  <option value="Активен">Активен</option>
-                  <option value="Неактивен">Неактивен</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4>Паспорт/СНИЛС</h4>
+            <h4>Паспортные данные</h4>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
               <div class="form-group">
                 <label class="form-label">Серия/номер (без пробелов)</label>
@@ -278,58 +262,6 @@
                 <label class="form-label">Место рождения</label>
                 <input type="text" class="form-input" id="editBirthPlace" name="birthPlace">
               </div>
-              <div class="form-group">
-                <label class="form-label">СНИЛС</label>
-                <input type="text" class="form-input" id="editSnils" name="snils">
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4>Водительские права</h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-              <div class="form-group">
-                <label class="form-label">Серия/номер (без пробелов)</label>
-                <input type="text" class="form-input" id="editLicenseSeries" placeholder="Серия" style="width: 48%; display: inline-block;">
-                <input type="text" class="form-input" id="editLicenseNumber" placeholder="Номер" style="width: 48%; display: inline-block; margin-left: 4%;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Дата начала водительского стажа</label>
-                <input type="date" class="form-input" id="editLicenseExperienceStartDate" name="licenseExperienceStartDate">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Дата выдачи</label>
-                <input type="date" class="form-input" id="editLicenseIssueDate" name="licenseIssueDate">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Страна выдачи</label>
-                <input type="text" class="form-input" id="editLicenseCountry" name="licenseCountry">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Срок действия</label>
-                <input type="date" class="form-input" id="editLicenseValidUntil" name="licenseValidUntil">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Недействительны</label>
-                <label style="display: flex; align-items: center; gap: 8px;">
-                  <input type="checkbox" class="form-checkbox" id="editLicenseInvalid" name="licenseInvalid">
-                  <span>Недействительны</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 32px; padding-top: 24px; border-top: 1px solid var(--g-color-line-generic);">
-            <h4>Условия работы</h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-              <div class="form-group">
-                <label class="form-label">Условие работы</label>
-                <input type="text" class="form-input" id="editWorkCondition" name="workCondition">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Дата начала списания</label>
-                <input type="date" class="form-input" id="editWriteOffStartDate" name="writeOffStartDate">
-              </div>
             </div>
           </div>
 
@@ -344,7 +276,6 @@
 
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
-  <script src="../assets/js/ui-state.js"></script>
   <script>
     const driverId = getUrlParameter('id');
     const driver = getDriverById(driverId);
@@ -453,16 +384,6 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3>СНИЛС</h3>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-            <div class="form-group">
-              <label class="form-label">СНИЛС</label>
-              <div style="min-height: 24px;">${driver.snils || '-'}</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 32px;">
           <h3>Водительские права</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
@@ -493,10 +414,10 @@
         </div>
 
         <div style="margin-bottom: 32px;">
-          <h3>Условия работы</h3>
+          <h3>Условия аренды</h3>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
             <div class="form-group">
-              <label class="form-label">Условие работы</label>
+              <label class="form-label">Условие аренды</label>
               <div style="min-height: 24px;">${driver.workCondition || '-'}</div>
             </div>
             <div class="form-group">
@@ -507,67 +428,83 @@
         </div>
       `;
 
-      // Add vehicle section as table
-      if (driver.vehiclePlate || driver.currentCarPlate) {
-        const vehiclePlate = driver.vehiclePlate || driver.currentCarPlate;
-        const vehicleBrand = driver.vehicleBrand || '-';
-        const vehicleModel = driver.vehicleModel || '-';
-        const vehicleName = vehicleBrand !== '-' && vehicleModel !== '-' ? `${vehicleBrand} ${vehicleModel}` : '-';
-        const vehicleStatus = driver.vehicleStatus || '-';
-
-        mainInfoHTML += `
-          <div style="margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--g-color-line-generic);">
-            <h3>Текущее транспортное средство</h3>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Наименование транспортного средства</th>
-                  <th>Госномер</th>
-                  <th>Статус</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${vehicleName}</td>
-                  <td>${vehiclePlate}</td>
-                  <td>${vehicleStatus !== '-' ? `<span class="badge ${getStatusBadgeClass(vehicleStatus)}">${vehicleStatus}</span>` : '-'}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
-
       document.getElementById('driverMainInfo').innerHTML = mainInfoHTML;
 
       const driverFines = mockData.fines.filter(f => f.driverName === driver.name);
-      document.getElementById('driverFinesTableBody').innerHTML = driverFines.map(fine => {
-        const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
-        return `
-        <tr>
-          <td>${formatDate(fine.date)}</td>
-          <td>${fine.plate}</td>
-          <td>${formatCurrency(fine.amount)}</td>
-          <td><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
-          <td>
-            ${canGeneratePP ? `<button class="btn btn--normal" onclick="generatePPForDriver(${fine.id})" style="white-space: nowrap;">Сгенерировать ПП</button>` : '-'}
-          </td>
-        </tr>
-      `;
-      }).join('');
+      function normalizeFineStatus(status) {
+        const normalized = (status || '').toString().trim().toLowerCase();
+        return normalized === 'оплачен' ? 'Оплачен' : 'Новый';
+      }
 
-      // Render vehicle history
-      const vehicleHistory = getVehicleHistoryByDriverId(driverId);
-      document.getElementById('vehicleHistoryTableBody').innerHTML = vehicleHistory.length > 0 
-        ? vehicleHistory.map(history => `
-          <tr>
-            <td>${history.vehicleName}</td>
-            <td>${history.plate}</td>
-            <td>${formatDateTime(history.issueDate)}</td>
-            <td>${history.endDate ? formatDateTime(history.endDate) : '-'}</td>
-          </tr>
-        `).join('')
-        : '<tr><td colspan="4" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+      function getFineWriteOffStatus(fine) {
+        return normalizeFineStatus(fine.status) === 'Оплачен' ? 'Сумма списана' : 'Сумма не списана';
+      }
+
+      function getFineWriteOffDateTime(fine) {
+        if (fine.writeOffDateTime) return formatDateTime(fine.writeOffDateTime);
+        if (fine.paidDate) return formatDateTime(`${fine.paidDate}T00:00:00`);
+        return '-';
+      }
+
+      function getFineResolutionNumber(fine) {
+        const providedNumber = (fine.resolutionNumber || '').toString().replace(/\D/g, '');
+        if (providedNumber) return providedNumber;
+        const datePart = (fine.date || '').toString().replace(/\D/g, '');
+        return `${datePart}${String(fine.id).padStart(3, '0')}`;
+      }
+
+      function getCarLinkByPlate(plate) {
+        const normalizedPlate = (plate || '').toString().trim().toLowerCase();
+        const car = mockData.cars.find((item) => (item.plate || '').toString().trim().toLowerCase() === normalizedPlate);
+        if (!car) return plate || '-';
+        return `<a href="car.html?id=${car.id}" onclick="event.stopPropagation();">${plate}</a>`;
+      }
+
+      function renderDriverFinesTable() {
+        const fineStatusFilter = document.getElementById('fineStatusFilter')?.value || '';
+        const fineWriteOffStatusFilter = document.getElementById('fineWriteOffStatusFilter')?.value || '';
+        const fineResolutionSearch = (document.getElementById('fineResolutionSearch')?.value || '').replace(/\D/g, '');
+        const finesTableBody = document.getElementById('driverFinesTableBody');
+        if (!finesTableBody) return;
+
+        const filteredFines = driverFines.filter((fine) => {
+          const fineStatus = normalizeFineStatus(fine.status);
+          const writeOffStatus = getFineWriteOffStatus(fine);
+          const resolutionNumber = getFineResolutionNumber(fine);
+
+          if (fineStatusFilter && fineStatus !== fineStatusFilter) return false;
+          if (fineWriteOffStatusFilter && writeOffStatus !== fineWriteOffStatusFilter) return false;
+          if (fineResolutionSearch && !resolutionNumber.includes(fineResolutionSearch)) return false;
+          return true;
+        });
+
+        finesTableBody.innerHTML = filteredFines.length > 0
+          ? filteredFines.map((fine) => {
+              const fineStatus = normalizeFineStatus(fine.status);
+              const writeOffStatus = getFineWriteOffStatus(fine);
+              const resolutionNumber = getFineResolutionNumber(fine);
+              const writeOffStatusClass = writeOffStatus === 'Сумма списана' ? 'badge--success' : 'badge--neutral';
+              const canGeneratePP = fineStatus === 'Новый';
+
+              return `
+                <tr>
+                  <td>${formatDate(fine.date)}</td>
+                  <td>${resolutionNumber}</td>
+                  <td>${getCarLinkByPlate(fine.plate)}</td>
+                  <td>${formatCurrency(fine.amount)}</td>
+                  <td><span class="badge ${getStatusBadgeClass(fineStatus)}">${fineStatus}</span></td>
+                  <td><span class="badge ${writeOffStatusClass}">${writeOffStatus}</span></td>
+                  <td>${getFineWriteOffDateTime(fine)}</td>
+                  <td>
+                    ${canGeneratePP ? `<button class="btn btn--normal" onclick="generatePPForDriver(${fine.id})" style="white-space: nowrap;">Сгенерировать ПП</button>` : '-'}
+                  </td>
+                </tr>
+              `;
+            }).join('')
+          : '<tr><td colspan="8" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+      }
+
+      renderDriverFinesTable();
 
       // Render rent contracts
       function normalizeContractStatus(status) {
@@ -636,6 +573,11 @@
             const contractStatusClass = getContractStatusBadgeClass(contract.contractStatus || 'Новый');
             const issuanceStatusClass = getIssuanceStatusBadgeClass(contract.issuanceStatus || '');
             const vehicleInfo = `${contract.vehicleName} ${contract.vehiclePlate}`.trim();
+            const normalizedPlate = (contract.vehiclePlate || '').toString().trim().toLowerCase();
+            const car = mockData.cars.find((item) => (item.plate || '').toString().trim().toLowerCase() === normalizedPlate);
+            const vehicleLink = car
+              ? `<a href="car.html?id=${car.id}" onclick="event.stopPropagation();">${vehicleInfo}</a>`
+              : vehicleInfo;
             const issuanceStatus = contract.issuanceStatus || 'Авто не выдано';
             const days = getContractDays(contract);
             const totalAmount = getContractTotalAmount(contract);
@@ -647,7 +589,7 @@
                 <td><span class="badge ${contractStatusClass}">${contract.contractStatus || 'Новый'}</span></td>
                 <td><span class="badge ${statusClass}">${contract.status}</span></td>
                 <td><span class="badge ${issuanceStatusClass}">${issuanceStatus}</span></td>
-                <td>${vehicleInfo}</td>
+                <td>${vehicleLink}</td>
                 <td>${contract.driverName}</td>
                 <td>${formatDate(contract.startDate)}</td>
                 <td>${formatDate(contract.endDate)}</td>
@@ -677,6 +619,34 @@
       // Render finance transactions
       const financeTransactions = getFinanceTransactionsByDriverId(driverId);
 
+      function getTransactionType(transaction) {
+        const section = (transaction.section || '').toString().trim().toLowerCase();
+        return section.includes('штраф') ? 'штраф' : 'аренда';
+      }
+
+      function getTransactionAmount(transaction) {
+        const income = Number(transaction.income) || 0;
+        const expense = Number(transaction.expense) || 0;
+        if (income > 0) return income;
+        if (expense > 0) return expense;
+        return 0;
+      }
+
+      function getTransactionBasisMarkup(transaction, type) {
+        if (type === 'штраф') {
+          const fineByAmount = driverFines.find((fine) => Number(fine.amount) === getTransactionAmount(transaction));
+          const fine = fineByAmount || driverFines[0] || null;
+          if (!fine) return '-';
+          return `<a href="fine.html?id=${fine.id}" onclick="event.stopPropagation();">Штраф #${fine.id}</a>`;
+        }
+
+        const contracts = getRentContractsByDriverId(driverId);
+        const contractByAmount = contracts.find((contract) => Number(contract.dailyRent) === getTransactionAmount(transaction));
+        const contract = contractByAmount || contracts[0] || null;
+        if (!contract) return '-';
+        return `<a href="contract.html?id=${contract.id}" onclick="event.stopPropagation();">${contract.number}</a>`;
+      }
+
       // Function to render finance table
       function renderFinanceTable() {
         const financeTableBody = document.getElementById('financeTableBody');
@@ -684,8 +654,11 @@
 
         const dateFrom = document.getElementById('financeDateFrom')?.value;
         const dateTo = document.getElementById('financeDateTo')?.value;
+        const typeFilter = document.getElementById('financeTypeFilter')?.value || 'аренда';
 
         let filteredTransactions = financeTransactions;
+
+        filteredTransactions = filteredTransactions.filter((transaction) => getTransactionType(transaction) === typeFilter);
 
         if (dateFrom || dateTo) {
           filteredTransactions = financeTransactions.filter(t => {
@@ -694,20 +667,26 @@
             if (dateTo && transactionDate > new Date(dateTo)) return false;
             return true;
           });
+          filteredTransactions = filteredTransactions.filter((transaction) => getTransactionType(transaction) === typeFilter);
         }
 
-        financeTableBody.innerHTML = filteredTransactions.map(t => `
-          <tr>
-            <td>${formatDate(t.date)}</td>
-            <td>${t.section}</td>
-            <td>${t.time}</td>
-            <td>${t.income > 0 ? formatCurrency(t.income) : '-'}</td>
-            <td>${t.expense > 0 ? formatCurrency(t.expense) : '-'}</td>
-            <td>${formatCurrency(t.balance)}</td>
-            <td>${t.paymentMethod}</td>
-            <td>${t.description}</td>
-          </tr>
-        `).join('');
+        financeTableBody.innerHTML = filteredTransactions.length > 0
+          ? filteredTransactions.map((transaction) => {
+              const type = getTransactionType(transaction);
+              const amount = getTransactionAmount(transaction);
+              const basis = getTransactionBasisMarkup(transaction, type);
+
+              return `
+                <tr>
+                  <td>${formatDate(transaction.date)}</td>
+                  <td>${type}</td>
+                  <td>${transaction.time}</td>
+                  <td>${formatNumber(amount)}</td>
+                  <td>${basis}</td>
+                </tr>
+              `;
+            }).join('')
+          : '<tr><td colspan="5" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
       }
 
       // Initial render
@@ -716,19 +695,32 @@
       // Add event listeners for date filters
       const financeDateFrom = document.getElementById('financeDateFrom');
       const financeDateTo = document.getElementById('financeDateTo');
+      const financeTypeFilter = document.getElementById('financeTypeFilter');
+      const fineStatusFilter = document.getElementById('fineStatusFilter');
+      const fineWriteOffStatusFilter = document.getElementById('fineWriteOffStatusFilter');
+      const fineResolutionSearch = document.getElementById('fineResolutionSearch');
       if (financeDateFrom) {
         financeDateFrom.addEventListener('change', renderFinanceTable);
       }
       if (financeDateTo) {
         financeDateTo.addEventListener('change', renderFinanceTable);
       }
-
-      document.querySelector('[data-toggle="debt"]').dataset.driverId = driverId;
+      if (financeTypeFilter) {
+        financeTypeFilter.addEventListener('change', renderFinanceTable);
+      }
+      if (fineStatusFilter) {
+        fineStatusFilter.addEventListener('change', renderDriverFinesTable);
+      }
+      if (fineWriteOffStatusFilter) {
+        fineWriteOffStatusFilter.addEventListener('change', renderDriverFinesTable);
+      }
+      if (fineResolutionSearch) {
+        fineResolutionSearch.addEventListener('input', renderDriverFinesTable);
+      }
 
       initTabs('#driverTabs');
       initModal('#fileModal', '[data-open-modal="#fileModal"]', '[data-close-modal="#fileModal"]');
       initModal('#editDriverModal', '[data-open-modal="#editDriverModal"]', '[data-close-modal="#editDriverModal"]');
-      initUIStateToggles();
 
       // Initialize edit form
       const editForm = document.getElementById('editDriverForm');
@@ -740,11 +732,7 @@
           return date.toISOString().split('T')[0];
         };
 
-        // Populate form with current values
-        document.getElementById('editFullName').value = driver.name || '';
-        document.getElementById('editStatus').value = driver.status || 'Работает';
-        
-        // Passport fields
+        // Populate passport fields
         document.getElementById('editPassportSeries').value = driver.passportSeries || '';
         document.getElementById('editPassportNumber').value = driver.passportNumber || '';
         document.getElementById('editCitizenship').value = driver.citizenship || '';
@@ -756,33 +744,11 @@
         document.getElementById('editRegistrationAddress').value = driver.registrationAddress || '';
         document.getElementById('editBirthDate').value = formatDateForInput(driver.birthDate);
         document.getElementById('editBirthPlace').value = driver.birthPlace || '';
-        document.getElementById('editSnils').value = driver.snils || '';
-        
-        // License fields
-        document.getElementById('editLicenseSeries').value = driver.licenseSeries || '';
-        document.getElementById('editLicenseNumber').value = driver.licenseNumber || '';
-        document.getElementById('editLicenseExperienceStartDate').value = formatDateForInput(driver.licenseExperienceStartDate);
-        document.getElementById('editLicenseIssueDate').value = formatDateForInput(driver.licenseIssueDate);
-        document.getElementById('editLicenseCountry').value = driver.licenseCountry || '';
-        document.getElementById('editLicenseValidUntil').value = formatDateForInput(driver.licenseValidUntil);
-        document.getElementById('editLicenseInvalid').checked = driver.licenseInvalid || false;
-        
-        // Work conditions
-        document.getElementById('editWorkCondition').value = driver.workCondition || '';
-        document.getElementById('editWriteOffStartDate').value = formatDateForInput(driver.writeOffStartDate);
 
         editForm.addEventListener('submit', (e) => {
           e.preventDefault();
-          
-          // Get updated values
-          const updatedName = document.getElementById('editFullName').value;
-          const updatedStatus = document.getElementById('editStatus').value;
-          
-          // Update driver data
-          driver.name = updatedName;
-          driver.status = updatedStatus;
-          
-          // Passport data
+
+          // Update passport data
           driver.passportSeries = document.getElementById('editPassportSeries').value;
           driver.passportNumber = document.getElementById('editPassportNumber').value;
           driver.citizenship = document.getElementById('editCitizenship').value;
@@ -794,20 +760,6 @@
           driver.registrationAddress = document.getElementById('editRegistrationAddress').value;
           driver.birthDate = document.getElementById('editBirthDate').value;
           driver.birthPlace = document.getElementById('editBirthPlace').value;
-          driver.snils = document.getElementById('editSnils').value;
-          
-          // License data
-          driver.licenseSeries = document.getElementById('editLicenseSeries').value;
-          driver.licenseNumber = document.getElementById('editLicenseNumber').value;
-          driver.licenseExperienceStartDate = document.getElementById('editLicenseExperienceStartDate').value;
-          driver.licenseIssueDate = document.getElementById('editLicenseIssueDate').value;
-          driver.licenseCountry = document.getElementById('editLicenseCountry').value;
-          driver.licenseValidUntil = document.getElementById('editLicenseValidUntil').value;
-          driver.licenseInvalid = document.getElementById('editLicenseInvalid').checked;
-          
-          // Work conditions
-          driver.workCondition = document.getElementById('editWorkCondition').value;
-          driver.writeOffStartDate = document.getElementById('editWriteOffStartDate').value;
 
           // Reload the page to show updated data
           location.reload();

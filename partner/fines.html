@@ -35,16 +35,28 @@
 
       <div class="filters">
         <div class="filter-group">
-          <label class="form-label">Статус:</label>
+          <label class="form-label">Статус штрафа:</label>
           <select class="form-select" id="statusFilter" style="width: 200px;">
             <option value="">Все</option>
             <option value="Новый">Новый</option>
-            <option value="Начислен">Начислен</option>
             <option value="Оплачен">Оплачен</option>
           </select>
         </div>
         <div class="filter-group">
-          <label><input type="checkbox" class="form-checkbox" id="discountFilter"> Скидка доступна</label>
+          <label class="form-label">Статус списания:</label>
+          <select class="form-select" id="writeOffStatusFilter" style="width: 220px;">
+            <option value="">Все</option>
+            <option value="Сумма списана">Сумма списана</option>
+            <option value="Сумма не списана">Сумма не списана</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Номер постановления:</label>
+          <input type="text" class="form-input" id="resolutionSearch" placeholder="Поиск по номеру" style="width: 220px;">
+        </div>
+        <div class="filter-group">
+          <label class="form-label">Водитель:</label>
+          <input type="text" class="form-input" id="driverSearch" placeholder="Поиск по ФИО" style="width: 220px;">
         </div>
         <div class="filter-group">
           <label class="form-label">Период:</label>
@@ -60,12 +72,13 @@
         <thead>
           <tr>
             <th>Дата</th>
+            <th>Номер постановления</th>
             <th>Авто</th>
             <th>Водитель</th>
             <th>Сумма</th>
-            <th>Статус</th>
-            <th>Дедлайн скидки</th>
-            <th>Дата оплаты</th>
+            <th>Статус штрафа</th>
+            <th>Статус списания</th>
+            <th>Дата и время списания</th>
             <th>Действие</th>
           </tr>
         </thead>
@@ -77,60 +90,99 @@
   <script src="../assets/js/mock-data.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    function normalizeFineStatus(status) {
+      const normalized = (status || '').toString().trim().toLowerCase();
+      return normalized === 'оплачен' ? 'Оплачен' : 'Новый';
+    }
+
+    function getFineWriteOffStatus(fine) {
+      return normalizeFineStatus(fine.status) === 'Оплачен' ? 'Сумма списана' : 'Сумма не списана';
+    }
+
+    function getFineWriteOffDateTime(fine) {
+      if (fine.writeOffDateTime) return formatDateTime(fine.writeOffDateTime);
+      if (fine.paidDate) return formatDateTime(`${fine.paidDate}T00:00:00`);
+      return '-';
+    }
+
+    function getFineResolutionNumber(fine) {
+      const providedNumber = (fine.resolutionNumber || '').toString().replace(/\D/g, '');
+      if (providedNumber) return providedNumber;
+      const datePart = (fine.date || '').toString().replace(/\D/g, '');
+      return `${datePart}${String(fine.id).padStart(3, '0')}`;
+    }
+
+    function getCarLinkByPlate(plate) {
+      const normalizedPlate = (plate || '').toString().trim().toLowerCase();
+      const car = mockData.cars.find((item) => (item.plate || '').toString().trim().toLowerCase() === normalizedPlate);
+      if (!car) return plate || '-';
+      return `<a href="car.html?id=${car.id}" onclick="event.stopPropagation();">${plate}</a>`;
+    }
+
     function renderFines() {
+      const statusFilter = document.getElementById('statusFilter')?.value || '';
+      const writeOffStatusFilter = document.getElementById('writeOffStatusFilter')?.value || '';
+      const resolutionSearch = (document.getElementById('resolutionSearch')?.value || '').replace(/\D/g, '');
+      const driverSearch = (document.getElementById('driverSearch')?.value || '').trim().toLowerCase();
+      const dateFrom = document.getElementById('dateFrom')?.value || '';
+      const dateTo = document.getElementById('dateTo')?.value || '';
       const tbody = document.getElementById('finesTableBody');
-      tbody.innerHTML = mockData.fines.map(fine => {
-        const canGeneratePP = fine.status === 'Новый' || fine.status === 'Начислен';
+
+      const filteredFines = mockData.fines.filter((fine) => {
+        const fineStatus = normalizeFineStatus(fine.status);
+        const writeOffStatus = getFineWriteOffStatus(fine);
+        const resolutionNumber = getFineResolutionNumber(fine);
+
+        if (statusFilter && fineStatus !== statusFilter) return false;
+        if (writeOffStatusFilter && writeOffStatus !== writeOffStatusFilter) return false;
+        if (resolutionSearch && !resolutionNumber.includes(resolutionSearch)) return false;
+        if (driverSearch && !(fine.driverName || '').toLowerCase().includes(driverSearch)) return false;
+
+        if (dateFrom || dateTo) {
+          const rowDateObj = new Date(fine.date);
+          if (dateFrom && rowDateObj < new Date(dateFrom)) return false;
+          if (dateTo) {
+            const dateToObj = new Date(dateTo);
+            dateToObj.setHours(23, 59, 59, 999);
+            if (rowDateObj > dateToObj) return false;
+          }
+        }
+
+        return true;
+      });
+
+      tbody.innerHTML = filteredFines.length > 0
+        ? filteredFines.map(fine => {
+        const fineStatus = normalizeFineStatus(fine.status);
+        const writeOffStatus = getFineWriteOffStatus(fine);
+        const writeOffStatusClass = writeOffStatus === 'Сумма списана' ? 'badge--success' : 'badge--neutral';
+        const resolutionNumber = getFineResolutionNumber(fine);
+        const canGeneratePP = fineStatus === 'Новый';
         return `
-        <tr data-fine-id="${fine.id}" data-fine-date="${fine.date}" class="${fine.discountAvailable ? 'has-discount' : ''}">
+        <tr data-fine-id="${fine.id}" data-fine-date="${fine.date}" onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">
           <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${formatDate(fine.date)}</td>
-          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.plate}</td>
+          <td>${resolutionNumber}</td>
+          <td>${getCarLinkByPlate(fine.plate)}</td>
           <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.driverName}</td>
           <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${formatCurrency(fine.amount)}</td>
-          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;"><span class="badge ${getStatusBadgeClass(fine.status)}">${fine.status}</span></td>
-          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.discountDeadline ? formatDate(fine.discountDeadline) : '-'}</td>
-          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;">${fine.paidDate ? formatDate(fine.paidDate) : '-'}</td>
+          <td onclick="window.location.href='fine.html?id=${fine.id}'" style="cursor: pointer;"><span class="badge ${getStatusBadgeClass(fineStatus)}">${fineStatus}</span></td>
+          <td><span class="badge ${writeOffStatusClass}">${writeOffStatus}</span></td>
+          <td>${getFineWriteOffDateTime(fine)}</td>
           <td style="cursor: default;" onclick="event.stopPropagation();">
             ${canGeneratePP ? `<button class="btn btn--normal" onclick="generatePP(${fine.id})" style="white-space: nowrap;">Сгенерировать ПП</button>` : '-'}
           </td>
         </tr>
       `;
-      }).join('');
+      }).join('')
+        : '<tr><td colspan="9" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
     }
 
-    function applyFilters() {
-      const status = document.getElementById('statusFilter').value;
-      const discount = document.getElementById('discountFilter').checked;
-      const dateFrom = document.getElementById('dateFrom').value;
-      const dateTo = document.getElementById('dateTo').value;
-
-      filterTable('#finesTable', (row) => {
-        const cells = row.cells;
-        if (status && cells[4].textContent.trim() !== status) return false;
-        if (discount && !row.classList.contains('has-discount')) return false;
-        
-        // Date filter
-        if (dateFrom || dateTo) {
-          const rowDate = row.getAttribute('data-fine-date');
-          if (rowDate) {
-            const rowDateObj = new Date(rowDate);
-            if (dateFrom && rowDateObj < new Date(dateFrom)) return false;
-            if (dateTo) {
-              const dateToObj = new Date(dateTo);
-              dateToObj.setHours(23, 59, 59, 999); // Include the entire end date
-              if (rowDateObj > dateToObj) return false;
-            }
-          }
-        }
-        
-        return true;
-      });
-    }
-
-    document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('discountFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
-    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
+    document.getElementById('statusFilter')?.addEventListener('change', renderFines);
+    document.getElementById('writeOffStatusFilter')?.addEventListener('change', renderFines);
+    document.getElementById('resolutionSearch')?.addEventListener('input', renderFines);
+    document.getElementById('driverSearch')?.addEventListener('input', renderFines);
+    document.getElementById('dateFrom')?.addEventListener('change', renderFines);
+    document.getElementById('dateTo')?.addEventListener('change', renderFines);
 
     // Generate PP function
     window.generatePP = function(fineId) {

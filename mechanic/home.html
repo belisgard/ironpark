@@ -32,20 +32,27 @@
       >
     </div>
 
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label class="form-label">Поиск водителя по ФИО</label>
+      <input 
+        type="text" 
+        class="form-input" 
+        id="driverSearchInput" 
+        placeholder="Введите ФИО водителя"
+        oninput="filterTasks()"
+      >
+    </div>
+
     <div class="tab-content active" data-tab="issue" id="issueTasks">
       <div style="display: flex; flex-direction: column; gap: 16px;" id="issueTasksList">
-        <div class="card" data-plate="А123БВ777">
+        <div class="card" data-plate="А123БВ777" data-driver="Иванов Иван Иванович">
           <div style="margin-bottom: 12px;"><strong>Авто:</strong> А123БВ777</div>
-          <div style="margin-bottom: 12px;"><strong>Водитель:</strong> Иванов Иван Иванович</div>
-          <div style="margin-bottom: 12px;"><strong>Место:</strong> Парковка 1</div>
-          <div style="margin-bottom: 16px;"><strong>Время:</strong> 10:00</div>
+          <div style="margin-bottom: 16px;"><strong>Водитель:</strong> Иванов Иван Иванович</div>
           <a href="issue.html?id=1" class="btn btn--action" style="width: 100%; text-align: center; display: block;">Открыть</a>
         </div>
-        <div class="card" data-plate="Е345КЛ777">
+        <div class="card" data-plate="Е345КЛ777" data-driver="Козлов Константин Константинович">
           <div style="margin-bottom: 12px;"><strong>Авто:</strong> Е345КЛ777</div>
-          <div style="margin-bottom: 12px;"><strong>Водитель:</strong> Козлов Константин Константинович</div>
-          <div style="margin-bottom: 12px;"><strong>Место:</strong> Парковка 2</div>
-          <div style="margin-bottom: 16px;"><strong>Время:</strong> 11:00</div>
+          <div style="margin-bottom: 16px;"><strong>Водитель:</strong> Козлов Константин Константинович</div>
           <a href="issue.html?id=2" class="btn btn--action" style="width: 100%; text-align: center; display: block;">Открыть</a>
         </div>
       </div>
@@ -53,11 +60,11 @@
 
     <div class="tab-content" data-tab="return" id="returnTasks">
       <div style="display: flex; flex-direction: column; gap: 16px;" id="returnTasksList">
-        <div class="card" data-plate="З901ОП777">
+        <div class="card" data-plate="З901ОП777" data-driver="Новиков Николай Николаевич">
           <div style="margin-bottom: 12px;"><strong>Авто:</strong> З901ОП777</div>
           <div style="margin-bottom: 12px;"><strong>Водитель:</strong> Новиков Николай Николаевич</div>
-          <div style="margin-bottom: 12px;"><strong>Место:</strong> Парковка 1</div>
-          <div style="margin-bottom: 16px;"><strong>Время:</strong> 14:00</div>
+          <div style="margin-bottom: 12px;"><span class="badge badge--danger">Есть задолженности</span></div>
+          <div style="margin-bottom: 16px;"><strong>Сумма задолженности:</strong> 12 500 ₽</div>
           <a href="return.html?id=1" class="btn btn--action" style="width: 100%; text-align: center; display: block;">Открыть</a>
         </div>
       </div>
@@ -67,9 +74,26 @@
   <script src="../assets/js/app.js"></script>
   <script>
     initTabs('.tabs');
+
+    function applyInitialTabFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabFromUrl = urlParams.get('tab');
+      if (!tabFromUrl) {
+        filterTasks();
+        return;
+      }
+
+      const targetTab = document.querySelector(`.tab[data-tab="${tabFromUrl}"]`);
+      if (targetTab && !targetTab.classList.contains('active')) {
+        targetTab.click();
+      } else {
+        filterTasks();
+      }
+    }
     
     function filterTasks() {
-      const searchTerm = document.getElementById('carSearchInput').value.toLowerCase().trim();
+      const carSearchTerm = document.getElementById('carSearchInput').value.toLowerCase().trim();
+      const driverSearchTerm = document.getElementById('driverSearchInput').value.toLowerCase().trim();
       const activeTab = document.querySelector('.tab.active').dataset.tab;
       const taskList = activeTab === 'issue' ? document.getElementById('issueTasksList') : document.getElementById('returnTasksList');
       
@@ -78,7 +102,11 @@
       const cards = taskList.querySelectorAll('.card');
       cards.forEach(card => {
         const plate = card.dataset.plate.toLowerCase();
-        if (!searchTerm || plate.includes(searchTerm)) {
+        const driver = (card.dataset.driver || '').toLowerCase();
+        const matchesCar = !carSearchTerm || plate.includes(carSearchTerm);
+        const matchesDriver = !driverSearchTerm || driver.includes(driverSearchTerm);
+
+        if (matchesCar && matchesDriver) {
           card.style.display = 'block';
         } else {
           card.style.display = 'none';
@@ -92,6 +120,8 @@
         setTimeout(filterTasks, 100);
       });
     });
+
+    applyInitialTabFromUrl();
   </script>
 </body>
 </html>
