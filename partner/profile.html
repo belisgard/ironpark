@@ -43,8 +43,11 @@
           <input id="organizationName" type="text" class="form-input" required placeholder="ООО Пример">
         </div>
         <div class="form-group">
-          <label class="form-label" for="organizationAddress">Адрес *</label>
-          <input id="organizationAddress" type="text" class="form-input" required placeholder="г. Москва, ул. Примерная, д. 1">
+          <label class="form-label" for="organizationCity">Адрес *</label>
+          <div style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <select id="organizationCity" class="form-select" aria-label="Город организации" required></select>
+            <input id="organizationAddressLine" type="text" class="form-input" required placeholder="Улица, дом, офис">
+          </div>
         </div>
 
         <h2 style="margin-top: 32px; margin-bottom: 20px;">Банковские реквизиты</h2>
@@ -123,6 +126,23 @@
       const workScheduleModal = document.getElementById('workScheduleModal');
       const workScheduleModalTitle = document.getElementById('workScheduleModalTitle');
       const savedMessage = document.getElementById('profileSavedMessage');
+      const organizationCitySelect = document.getElementById('organizationCity');
+      const organizationAddressLineInput = document.getElementById('organizationAddressLine');
+      const cityOptions = [
+        'Москва',
+        'Санкт-Петербург',
+        'Казань',
+        'Екатеринбург',
+        'Новосибирск',
+        'Нижний Новгород',
+        'Краснодар',
+        'Ростов-на-Дону',
+        'Самара',
+        'Уфа',
+        'Челябинск',
+        'Пермь',
+        'Воронеж'
+      ];
       const daysOfWeek = [
         { key: 'monday', label: 'Понедельник' },
         { key: 'tuesday', label: 'Вторник' },
@@ -159,6 +179,108 @@
           };
         });
         return schedule;
+      }
+
+      function renderCityOptions(select, selectedCity) {
+        if (!select) {
+          return;
+        }
+
+        select.innerHTML = '';
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Выберите город';
+        select.appendChild(placeholderOption);
+
+        cityOptions.forEach(function (city) {
+          const option = document.createElement('option');
+          option.value = city;
+          option.textContent = city;
+          select.appendChild(option);
+        });
+
+        if (selectedCity && cityOptions.indexOf(selectedCity) === -1) {
+          const customOption = document.createElement('option');
+          customOption.value = selectedCity;
+          customOption.textContent = selectedCity;
+          select.appendChild(customOption);
+        }
+
+        select.value = selectedCity || '';
+      }
+
+      function formatAddress(city, addressLine) {
+        const normalizedCity = typeof city === 'string' ? city.trim() : '';
+        const normalizedAddressLine = typeof addressLine === 'string' ? addressLine.trim() : '';
+
+        if (normalizedCity && normalizedAddressLine) {
+          return 'г. ' + normalizedCity + ', ' + normalizedAddressLine;
+        }
+        if (normalizedCity) {
+          return 'г. ' + normalizedCity;
+        }
+        return normalizedAddressLine;
+      }
+
+      function parseAddress(rawAddress) {
+        const normalizedAddress = typeof rawAddress === 'string' ? rawAddress.trim() : '';
+        if (!normalizedAddress) {
+          return { city: '', addressLine: '' };
+        }
+
+        const explicitCityMatch = normalizedAddress.match(/^г\.\s*([^,]+)(?:,\s*(.*))?$/i);
+        if (explicitCityMatch) {
+          return {
+            city: explicitCityMatch[1].trim(),
+            addressLine: (explicitCityMatch[2] || '').trim()
+          };
+        }
+
+        const sortedCityOptions = cityOptions.slice().sort(function (left, right) {
+          return right.length - left.length;
+        });
+
+        for (let i = 0; i < sortedCityOptions.length; i += 1) {
+          const city = sortedCityOptions[i];
+          if (normalizedAddress === city) {
+            return { city: city, addressLine: '' };
+          }
+          if (normalizedAddress.indexOf(city + ', ') === 0) {
+            return {
+              city: city,
+              addressLine: normalizedAddress.slice(city.length + 2).trim()
+            };
+          }
+        }
+
+        return { city: '', addressLine: normalizedAddress };
+      }
+
+      function normalizeAddressValue(rawAddress) {
+        if (rawAddress && typeof rawAddress === 'object') {
+          const parsedAddress = parseAddress(rawAddress.address || '');
+          return {
+            city: typeof rawAddress.city === 'string' ? rawAddress.city.trim() : parsedAddress.city,
+            addressLine: typeof rawAddress.addressLine === 'string' ? rawAddress.addressLine.trim() : parsedAddress.addressLine
+          };
+        }
+
+        return parseAddress(rawAddress);
+      }
+
+      function getAddressPartsFromRow(row) {
+        const citySelect = row.querySelector('[data-city-select]');
+        const addressLineInput = row.querySelector('[data-address-line-input]');
+
+        return {
+          city: citySelect ? citySelect.value.trim() : '',
+          addressLine: addressLineInput ? addressLineInput.value.trim() : ''
+        };
+      }
+
+      function getFormattedAddressFromRow(row) {
+        const addressParts = getAddressPartsFromRow(row);
+        return formatAddress(addressParts.city, addressParts.addressLine);
       }
 
       let activeScheduleRow = null;
@@ -274,8 +396,7 @@
       }
 
       function openWorkScheduleForRow(row) {
-        const addressInput = row.querySelector('[data-address-input]');
-        const rawAddress = addressInput ? addressInput.value.trim() : '';
+        const rawAddress = getFormattedAddressFromRow(row);
         const addressLabel = rawAddress || 'Новый адрес колонны';
 
         activeScheduleRow = row;
@@ -287,21 +408,35 @@
       }
 
       function createAddressRow(value, schedule) {
+        const addressValue = normalizeAddressValue(value);
         const row = document.createElement('div');
         row.dataset.columnRow = '1';
         row.dataset.rowId = String(Date.now() + Math.floor(Math.random() * 10000));
         row.style.display = 'grid';
-        row.style.gridTemplateColumns = '1fr auto auto';
+        row.style.gridTemplateColumns = 'minmax(0, 1fr) auto auto';
         row.style.gap = '12px';
-        row.style.alignItems = 'center';
+        row.style.alignItems = 'start';
         row._workSchedule = normalizeWorkSchedule(schedule);
+
+        const addressFields = document.createElement('div');
+        addressFields.style.display = 'grid';
+        addressFields.style.gap = '12px';
+        addressFields.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
+
+        const citySelect = document.createElement('select');
+        citySelect.className = 'form-select';
+        citySelect.dataset.citySelect = '1';
+        citySelect.setAttribute('aria-label', 'Город колонны');
+        renderCityOptions(citySelect, addressValue.city);
 
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-input';
-        input.dataset.addressInput = '1';
-        input.placeholder = 'Введите адрес колонны';
-        input.value = value || '';
+        input.dataset.addressLineInput = '1';
+        input.placeholder = 'Улица, дом, строение';
+        input.value = addressValue.addressLine;
+        addressFields.appendChild(citySelect);
+        addressFields.appendChild(input);
 
         const scheduleButton = document.createElement('button');
         scheduleButton.type = 'button';
@@ -333,7 +468,7 @@
           summary.textContent = getScheduleSummaryText(row._workSchedule);
         };
 
-        row.appendChild(input);
+        row.appendChild(addressFields);
         row.appendChild(scheduleButton);
         row.appendChild(removeButton);
         row.appendChild(summary);
@@ -355,8 +490,15 @@
           return;
         }
 
+        const organizationAddress = normalizeAddressValue({
+          city: data.organizationCity,
+          addressLine: data.organizationAddressLine,
+          address: data.organizationAddress || ''
+        });
+
         document.getElementById('organizationName').value = data.organizationName || '';
-        document.getElementById('organizationAddress').value = data.organizationAddress || '';
+        renderCityOptions(organizationCitySelect, organizationAddress.city);
+        organizationAddressLineInput.value = organizationAddress.addressLine;
         document.getElementById('inn').value = data.inn || '';
         document.getElementById('kpp').value = data.kpp || '';
         document.getElementById('ogrn').value = data.ogrn || '';
@@ -378,7 +520,7 @@
             return;
           }
           if (addressItem && typeof addressItem === 'object') {
-            createAddressRow(addressItem.address || '', addressItem.workSchedule || legacySchedule);
+            createAddressRow(addressItem, addressItem.workSchedule || legacySchedule);
           }
         });
       }
@@ -436,20 +578,37 @@
         }
 
         const columnAddressRows = Array.from(addressList.querySelectorAll('[data-column-row="1"]'));
+        const incompleteColumnAddress = columnAddressRows.find(function (row) {
+          const addressParts = getAddressPartsFromRow(row);
+          return Boolean(addressParts.city) !== Boolean(addressParts.addressLine);
+        });
+
+        if (incompleteColumnAddress) {
+          alert('Для каждого адреса колонны выберите город и укажите улицу с домом.');
+          return;
+        }
+
         const columnAddresses = columnAddressRows
           .map(function (row) {
-            const input = row.querySelector('[data-address-input]');
-            const addressValue = input ? input.value.trim() : '';
+            const addressParts = getAddressPartsFromRow(row);
+            const addressValue = formatAddress(addressParts.city, addressParts.addressLine);
             return {
+              city: addressParts.city,
+              addressLine: addressParts.addressLine,
               address: addressValue,
               workSchedule: normalizeWorkSchedule(row._workSchedule)
             };
           })
           .filter(function (item) { return item.address.length > 0; });
 
+        const organizationCity = organizationCitySelect.value.trim();
+        const organizationAddressLine = organizationAddressLineInput.value.trim();
+
         const profileData = {
           organizationName: document.getElementById('organizationName').value.trim(),
-          organizationAddress: document.getElementById('organizationAddress').value.trim(),
+          organizationCity: organizationCity,
+          organizationAddressLine: organizationAddressLine,
+          organizationAddress: formatAddress(organizationCity, organizationAddressLine),
           inn: document.getElementById('inn').value.trim(),
           kpp: document.getElementById('kpp').value.trim(),
           ogrn: document.getElementById('ogrn').value.trim(),
@@ -468,6 +627,7 @@
       });
 
       initModal('#workScheduleModal', '[data-open-modal="#workScheduleModal"]', '[data-close-modal="#workScheduleModal"]');
+      renderCityOptions(organizationCitySelect, '');
       loadProfile();
     })();
   </script>
