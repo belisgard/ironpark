@@ -158,6 +158,24 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Цвет</label>
+          <select class="form-select" id="carColor">
+            <option value="">Выберите цвет</option>
+            <option value="Белый">Белый</option>
+            <option value="Чёрный">Чёрный</option>
+            <option value="Серебристый">Серебристый</option>
+            <option value="Серый">Серый</option>
+            <option value="Синий">Синий</option>
+            <option value="Красный">Красный</option>
+            <option value="Зелёный">Зелёный</option>
+            <option value="Коричневый">Коричневый</option>
+            <option value="Бежевый">Бежевый</option>
+            <option value="Жёлтый">Жёлтый</option>
+            <option value="Оранжевый">Оранжевый</option>
+            <option value="Фиолетовый">Фиолетовый</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Адрес колонны</label>
           <select class="form-select" id="carColumnAddress">
             <option value="">Выберите колонну</option>
@@ -426,6 +444,7 @@
         currentDriver: null,
         mileage: parseInt(carData.mileage) || 0,
         category: carData.category || 'Эконом',
+        bodyColor: carData.color || null,
         hasFines: false,
         insuranceExpiringDays: 365,
         hasDebt: false,
@@ -450,6 +469,7 @@
         sts: document.getElementById('carSts').value.trim(),
         mileage: document.getElementById('carMileage').value,
         category: document.getElementById('carCategory').value,
+        color: document.getElementById('carColor').value,
         columnAddress: document.getElementById('carColumnAddress').value
       };
       
