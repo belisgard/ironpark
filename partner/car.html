@@ -434,10 +434,6 @@
               <option value="Электричество">Электричество</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Экологический класс</label>
-            <input type="text" class="form-input" id="editCarEcologicalClass">
-          </div>
         </div>
 
         <h4>Свидетельство о регистрации</h4>
@@ -1047,10 +1043,6 @@
               <label class="form-label">Вид топлива</label>
               <div>${car.fuelType || '-'}</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Экологический класс</label>
-              <div>${car.ecologicalClass || '-'}</div>
-            </div>
           </div>
 
           <h3>Свидетельство о регистрации</h3>
@@ -1520,7 +1512,6 @@
         document.getElementById('editCarEngineDisplacement').value = car.engineDisplacement || '';
         document.getElementById('editCarEnginePower').value = car.enginePower || '';
         document.getElementById('editCarFuelType').value = car.fuelType || '';
-        document.getElementById('editCarEcologicalClass').value = car.ecologicalClass || '';
         document.getElementById('editCarStsSeries').value = car.stsSeries || '';
         document.getElementById('editCarStsNumber').value = car.stsNumber || '';
         document.getElementById('editCarStsIssueDate').value = car.stsIssueDate || '';
@@ -1559,7 +1550,6 @@
         car.engineDisplacement = parseFloat(document.getElementById('editCarEngineDisplacement').value) || null;
         car.enginePower = parseFloat(document.getElementById('editCarEnginePower').value) || null;
         car.fuelType = document.getElementById('editCarFuelType').value || null;
-        car.ecologicalClass = document.getElementById('editCarEcologicalClass').value || null;
         car.stsSeries = document.getElementById('editCarStsSeries').value || null;
         car.stsNumber = document.getElementById('editCarStsNumber').value || null;
         car.stsIssueDate = document.getElementById('editCarStsIssueDate').value || null;
