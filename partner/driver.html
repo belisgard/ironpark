@@ -110,6 +110,7 @@
                     <th>Типы транзакций</th>
                     <th>Время</th>
                     <th>Сумма транзакции</th>
+                    <th>Статус</th>
                     <th>Основание транзакции</th>
                   </tr>
                 </thead>
@@ -632,6 +633,10 @@
         return 0;
       }
 
+      function getTransactionStatus(transaction) {
+        return transaction.status || 'Новая';
+      }
+
       function getTransactionBasisMarkup(transaction, type) {
         if (type === 'штраф') {
           const fineByAmount = driverFines.find((fine) => Number(fine.amount) === getTransactionAmount(transaction));
@@ -674,6 +679,7 @@
           ? filteredTransactions.map((transaction) => {
               const type = getTransactionType(transaction);
               const amount = getTransactionAmount(transaction);
+              const status = getTransactionStatus(transaction);
               const basis = getTransactionBasisMarkup(transaction, type);
 
               return `
@@ -682,11 +688,12 @@
                   <td>${type}</td>
                   <td>${transaction.time}</td>
                   <td>${formatNumber(amount)}</td>
+                  <td><span class="badge ${getStatusBadgeClass(status)}">${status}</span></td>
                   <td>${basis}</td>
                 </tr>
               `;
             }).join('')
-          : '<tr><td colspan="5" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
+          : '<tr><td colspan="6" style="text-align: center; color: var(--g-color-text-secondary);">Нет данных</td></tr>';
       }
 
       // Initial render

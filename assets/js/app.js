@@ -46,8 +46,12 @@ function getStatusBadgeClass(status) {
     'Работает': 'badge--success',
     'Неактивен': 'badge--neutral',
     'Новый': 'badge--neutral',
+    'Новая': 'badge--neutral',
     'Начислен': 'badge--warning',
     'Оплачен': 'badge--success',
+    'Списанная': 'badge--success',
+    'Ошибка списания': 'badge--danger',
+    'В обработке': 'badge--info',
     'В работе': 'badge--info',
     'Завершён': 'badge--success',
     'Ожидает оплаты': 'badge--warning'
