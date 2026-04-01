@@ -643,11 +643,11 @@ const mockData = {
 
   financeTransactions: [
     // Финансовые транзакции для водителя id=1 (Иванов Сергей Петрович)
-    { id: 1, driverId: 1, date: '2025-12-26', section: 'Аренда', status: 'Новая', time: '0:10:03', income: 3200, expense: 0, balance: 1950, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
+    { id: 1, driverId: 1, date: '2025-12-26', section: 'Аренда', status: 'В обработке', time: '0:10:03', income: 3200, expense: 0, balance: 1950, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
     { id: 2, driverId: 1, date: '2025-12-25', section: 'Аренда', status: 'Списанная', time: '18:00:01', income: 0, expense: 2550, balance: -1250, paymentMethod: 'Внутренний', description: 'аренда автомобиля, ТС К477МВ122' },
     { id: 3, driverId: 1, date: '2025-12-25', section: 'Аренда', status: 'В обработке', time: '9:58:46', income: 3200, expense: 0, balance: 1300, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
     { id: 4, driverId: 1, date: '2025-12-24', section: 'Аренда', status: 'Списанная', time: '18:00:01', income: 0, expense: 2550, balance: -1900, paymentMethod: 'Внутренний', description: 'аренда автомобиля, ТС К477МВ122' },
-    { id: 5, driverId: 1, date: '2025-12-24', section: 'Аренда', status: 'Новая', time: '9:58:46', income: 3200, expense: 0, balance: 650, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
+    { id: 5, driverId: 1, date: '2025-12-24', section: 'Аренда', status: 'В обработке', time: '9:58:46', income: 3200, expense: 0, balance: 650, paymentMethod: 'Безналичные', description: 'Пополнение баланса через мобильное приложение' },
     { id: 6, driverId: 1, date: '2025-12-23', section: 'Штраф', status: 'Ошибка списания', time: '12:40:15', income: 0, expense: 5000, balance: -4350, paymentMethod: 'Внутренний', description: 'Оплата штрафа #1' },
     { id: 7, driverId: 1, date: '2025-12-22', section: 'Штраф', status: 'Списанная', time: '11:22:09', income: 0, expense: 3000, balance: -7350, paymentMethod: 'Внутренний', description: 'Оплата штрафа #2' },
     { id: 8, driverId: 1, date: '2025-12-21', section: 'Штраф', status: 'В обработке', time: '10:05:44', income: 0, expense: 2000, balance: -9350, paymentMethod: 'Внутренний', description: 'Оплата штрафа #3' }
