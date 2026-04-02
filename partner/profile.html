@@ -49,6 +49,13 @@
             <input id="organizationAddressLine" type="text" class="form-input" required placeholder="Улица, дом, офис">
           </div>
         </div>
+        <div class="form-group">
+          <label class="form-label" for="profileTimeZone">Часовой пояс *</label>
+          <select id="profileTimeZone" class="form-select" required></select>
+          <div style="margin-top: 8px; color: var(--g-color-text-secondary); font-size: var(--g-font-size-sm);">
+            Используется для отображения времени в графиках и данных кабинета.
+          </div>
+        </div>
 
         <h2 style="margin-top: 32px; margin-bottom: 20px;">Банковские реквизиты</h2>
         <div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
@@ -128,6 +135,7 @@
       const savedMessage = document.getElementById('profileSavedMessage');
       const organizationCitySelect = document.getElementById('organizationCity');
       const organizationAddressLineInput = document.getElementById('organizationAddressLine');
+      const profileTimeZoneSelect = document.getElementById('profileTimeZone');
       const cityOptions = [
         'Москва',
         'Санкт-Петербург',
@@ -142,6 +150,19 @@
         'Челябинск',
         'Пермь',
         'Воронеж'
+      ];
+      const timeZoneOptions = [
+        { value: 'Europe/Kaliningrad', label: 'UTC+02:00 Калининград' },
+        { value: 'Europe/Moscow', label: 'UTC+03:00 Москва' },
+        { value: 'Europe/Samara', label: 'UTC+04:00 Самара' },
+        { value: 'Asia/Yekaterinburg', label: 'UTC+05:00 Екатеринбург' },
+        { value: 'Asia/Omsk', label: 'UTC+06:00 Омск' },
+        { value: 'Asia/Krasnoyarsk', label: 'UTC+07:00 Красноярск' },
+        { value: 'Asia/Irkutsk', label: 'UTC+08:00 Иркутск' },
+        { value: 'Asia/Yakutsk', label: 'UTC+09:00 Якутск' },
+        { value: 'Asia/Vladivostok', label: 'UTC+10:00 Владивосток' },
+        { value: 'Asia/Magadan', label: 'UTC+11:00 Магадан' },
+        { value: 'Asia/Kamchatka', label: 'UTC+12:00 Камчатка' }
       ];
       const daysOfWeek = [
         { key: 'monday', label: 'Понедельник' },
@@ -181,6 +202,13 @@
         return schedule;
       }
 
+      function getDefaultTimeZone() {
+        const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return typeof browserTimeZone === 'string' && browserTimeZone.trim()
+          ? browserTimeZone
+          : 'Europe/Moscow';
+      }
+
       function renderCityOptions(select, selectedCity) {
         if (!select) {
           return;
@@ -207,6 +235,29 @@
         }
 
         select.value = selectedCity || '';
+      }
+
+      function renderTimeZoneOptions(selectedTimeZone) {
+        if (!profileTimeZoneSelect) {
+          return;
+        }
+
+        profileTimeZoneSelect.innerHTML = '';
+        timeZoneOptions.forEach(function (timeZone) {
+          const option = document.createElement('option');
+          option.value = timeZone.value;
+          option.textContent = timeZone.label;
+          profileTimeZoneSelect.appendChild(option);
+        });
+
+        if (selectedTimeZone && !timeZoneOptions.some(function (timeZone) { return timeZone.value === selectedTimeZone; })) {
+          const customOption = document.createElement('option');
+          customOption.value = selectedTimeZone;
+          customOption.textContent = selectedTimeZone;
+          profileTimeZoneSelect.appendChild(customOption);
+        }
+
+        profileTimeZoneSelect.value = selectedTimeZone || 'Europe/Moscow';
       }
 
       function formatAddress(city, addressLine) {
@@ -498,6 +549,7 @@
 
         document.getElementById('organizationName').value = data.organizationName || '';
         renderCityOptions(organizationCitySelect, organizationAddress.city);
+        renderTimeZoneOptions(data.timeZone || getDefaultTimeZone());
         organizationAddressLineInput.value = organizationAddress.addressLine;
         document.getElementById('inn').value = data.inn || '';
         document.getElementById('kpp').value = data.kpp || '';
@@ -609,6 +661,7 @@
           organizationCity: organizationCity,
           organizationAddressLine: organizationAddressLine,
           organizationAddress: formatAddress(organizationCity, organizationAddressLine),
+          timeZone: profileTimeZoneSelect.value,
           inn: document.getElementById('inn').value.trim(),
           kpp: document.getElementById('kpp').value.trim(),
           ogrn: document.getElementById('ogrn').value.trim(),
@@ -628,6 +681,7 @@
 
       initModal('#workScheduleModal', '[data-open-modal="#workScheduleModal"]', '[data-close-modal="#workScheduleModal"]');
       renderCityOptions(organizationCitySelect, '');
+      renderTimeZoneOptions(getDefaultTimeZone());
       loadProfile();
     })();
   </script>
