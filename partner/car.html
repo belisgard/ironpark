@@ -35,7 +35,8 @@
         <!-- Will be populated by JS -->
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn--normal" id="blockCarBtn" onclick="openBlockModal()">Блокировка авто</button>
         <button class="btn btn--action" id="editCarBtn">Редактировать</button>
         <button class="btn btn--normal" id="releaseBookingBtn">Снять бронь</button>
         <button class="btn btn--normal" id="repairToggleBtn">Отправить на ремонт</button>
@@ -813,6 +814,106 @@
     </div>
   </div>
 
+  <!-- Block Car Modal -->
+  <div class="modal" id="blockCarModal">
+    <div class="modal__content" style="max-width: 480px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Блокировка авто</h3>
+        <button class="modal__close" onclick="closeBlockModal()">×</button>
+      </div>
+      <div class="modal__body">
+        <!-- Loading state -->
+        <div id="blockState-loading" style="text-align: center; padding: 32px 0;">
+          <div style="font-size: 32px; margin-bottom: 16px;">⏳</div>
+          <div style="color: var(--g-color-text-secondary);">Проверяем текущий статус блокировки…</div>
+        </div>
+        <!-- Unblocked state -->
+        <div id="blockState-unblocked" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--g-color-base-info-light, #e8f4fd); border-radius: 8px; margin-bottom: 24px;">
+            <span style="font-size: 24px;">✅</span>
+            <div>
+              <div style="font-weight: 600;">Блок отсутствует</div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Автомобиль не заблокирован</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn--danger" style="flex: 1;" onclick="sendBlockCommand('block')">Поставить блок</button>
+            <button class="btn btn--normal" style="flex: 1;" onclick="closeBlockModal()">Отмена</button>
+          </div>
+        </div>
+        <!-- Blocked state -->
+        <div id="blockState-blocked" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #fde8e8; border-radius: 8px; margin-bottom: 24px;">
+            <span style="font-size: 24px;">🔒</span>
+            <div>
+              <div style="font-weight: 600; color: var(--g-color-text-danger, #d9360b);">Блок установлен</div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Автомобиль заблокирован</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn--primary" style="flex: 1;" onclick="sendBlockCommand('unblock')">Снять блок</button>
+            <button class="btn btn--normal" style="flex: 1;" onclick="closeBlockModal()">Отмена</button>
+          </div>
+        </div>
+        <!-- Error state -->
+        <div id="blockState-error" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #fff8e1; border-radius: 8px; margin-bottom: 16px;">
+            <span style="font-size: 24px;">⚠️</span>
+            <div>
+              <div style="font-weight: 600;">Не удалось получить статус</div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Обратитесь в поддержку парка</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn--action" style="flex: 1;" onclick="checkBlockStatus()">Повторить</button>
+            <button class="btn btn--normal" style="flex: 1;" onclick="closeBlockModal()">Закрыть</button>
+          </div>
+        </div>
+        <!-- Not in park state -->
+        <div id="blockState-not-in-park" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #f5f5f5; border-radius: 8px; margin-bottom: 24px;">
+            <span style="font-size: 24px;">🚫</span>
+            <div>
+              <div style="font-weight: 600;">Автомобиль не состоит в парке</div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Управление блокировкой недоступно. Обратитесь в поддержку парка.</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <button class="btn btn--normal" onclick="closeBlockModal()">Закрыть</button>
+          </div>
+        </div>
+        <!-- Command loading state -->
+        <div id="blockState-command-loading" style="display: none; text-align: center; padding: 32px 0;">
+          <div style="font-size: 32px; margin-bottom: 16px;">⏳</div>
+          <div id="blockCommandLoadingText" style="color: var(--g-color-text-secondary);">Выполняем команду…</div>
+        </div>
+        <!-- Command success state -->
+        <div id="blockState-command-success" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #e8f5e9; border-radius: 8px; margin-bottom: 24px;">
+            <span style="font-size: 24px;">✅</span>
+            <div style="font-weight: 600;" id="blockCommandSuccessText"></div>
+          </div>
+          <div style="text-align: right;">
+            <button class="btn btn--normal" onclick="closeBlockModal()">Закрыть</button>
+          </div>
+        </div>
+        <!-- Command error state -->
+        <div id="blockState-command-error" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #fde8e8; border-radius: 8px; margin-bottom: 16px;">
+            <span style="font-size: 24px;">❌</span>
+            <div>
+              <div style="font-weight: 600; color: var(--g-color-text-danger, #d9360b);">Ошибка выполнения</div>
+              <div style="font-size: var(--g-font-size-sm); color: var(--g-color-text-secondary);">Обратитесь в поддержку парка</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <button class="btn btn--normal" onclick="closeBlockModal()">Закрыть</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Add Document Modal -->
   <div class="modal" id="documentModal">
     <div class="modal__content" style="max-width: 600px;">
@@ -911,10 +1012,14 @@
 
       function renderCarHeader() {
         const carTitle = car.brand ? `${car.brand} ${car.model}` : car.model;
+        const blockBadgeHtml = _blockCurrentStatus === 'blocked'
+          ? '<span class="badge badge--danger" id="blockStatusBadge">Заблокирован</span>'
+          : '<span class="badge badge--danger" id="blockStatusBadge" style="display:none;"></span>';
         document.getElementById('carHeader').innerHTML = `
           <h1>${car.plate} - ${carTitle}</h1>
-          <div style="margin-top: 12px;">
+          <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span class="badge ${getStatusBadgeClass(car.status)}" id="carStatusBadge">${car.status}</span>
+            ${blockBadgeHtml}
           </div>
         `;
       }
@@ -2293,6 +2398,80 @@
           closeCompletenessModal();
         }
       });
+
+      // Block modal backdrop click
+      document.getElementById('blockCarModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('blockCarModal')) {
+          closeBlockModal();
+        }
+      });
+    }
+
+    // Block modal state — stored outside car scope so modal functions work globally
+    var _blockCurrentStatus = null; // 'blocked' | 'unblocked' | null
+
+    function showBlockState(name) {
+      var states = ['loading', 'unblocked', 'blocked', 'error', 'not-in-park', 'command-loading', 'command-success', 'command-error'];
+      states.forEach(function(s) {
+        var el = document.getElementById('blockState-' + s);
+        if (el) el.style.display = (s === name) ? '' : 'none';
+      });
+    }
+
+    function openBlockModal() {
+      document.getElementById('blockCarModal').classList.add('active');
+      checkBlockStatus();
+    }
+
+    function closeBlockModal() {
+      document.getElementById('blockCarModal').classList.remove('active');
+      _blockCurrentStatus = null;
+    }
+
+    function checkBlockStatus() {
+      showBlockState('loading');
+      // Simulate async status check (1–2s)
+      setTimeout(function() {
+        // Mock: random outcome for demo
+        var r = Math.random();
+        if (r < 0.35) {
+          _blockCurrentStatus = 'unblocked';
+          showBlockState('unblocked');
+        } else if (r < 0.7) {
+          updateBlockStatusBadge('blocked');
+          showBlockState('blocked');
+        } else if (r < 0.85) {
+          _blockCurrentStatus = null;
+          showBlockState('not-in-park');
+        } else {
+          _blockCurrentStatus = null;
+          showBlockState('error');
+        }
+      }, 1500);
+    }
+
+    function sendBlockCommand(action) {
+      var isBlocking = action === 'block';
+      document.getElementById('blockCommandLoadingText').textContent = isBlocking ? 'Устанавливаем блок…' : 'Снимаем блок…';
+      showBlockState('command-loading');
+      // Simulate async command (1–2s)
+      setTimeout(function() {
+        var success = Math.random() < 0.85;
+        if (success) {
+          var msg = isBlocking ? 'Блок успешно установлен' : 'Блок успешно снят';
+          document.getElementById('blockCommandSuccessText').textContent = msg;
+          showBlockState('command-success');
+          _blockCurrentStatus = isBlocking ? 'blocked' : 'unblocked';
+          updateBlockStatusBadge(_blockCurrentStatus);
+        } else {
+          showBlockState('command-error');
+        }
+      }, 1500);
+    }
+
+    function updateBlockStatusBadge(status) {
+      _blockCurrentStatus = status === 'blocked' ? 'blocked' : null;
+      if (typeof renderCarHeader === 'function') renderCarHeader();
     }
   </script>
 </body>
